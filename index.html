@@ -280,23 +280,44 @@
             el.rollButton.textContent = '⏳ Ожидание...';
             tick(); timerId = setInterval(tick, 500); save();
         }
-        window.rollPhone = function() {
-            if (buttonLocked) return;
-            let roll = Math.random() * 100, rarity = 'common', cumulative = 0;
-            for (const [key, cfg] of Object.entries(RARITY)) {
-                cumulative += cfg.chance;
-                if (roll <= cumulative) { rarity = key; break; }
-            }
-            const pool = PHONES.filter(p => p.rarity === rarity);
-            const phone = pool[Math.floor(Math.random() * pool.length)];
-            const cfg = RARITY[phone.rarity];
-            el.phoneEmoji.textContent = phone.emoji;
-            el.phoneName.textContent = phone.name; el.phoneName.style.color = cfg.color;
-            el.phoneModel.textContent = `${cfg.label} • ${phone.year}`; el.phoneModel.style.color = cfg.color;
-            el.phoneDisplay.style.borderColor = cfg.color; el.phoneDisplay.style.boxShadow = cfg.glow;
-            collection.push(phone); totalOpened++;
-            updateStats(); checkAchievements(phone); save(); startTimer(COOLDOWN);
-        };
+window.rollPhone = function() {
+    if (buttonLocked) return;
+    
+    // Генерируем случайное число от 0 до 100
+    let roll = Math.random() * 100;
+    let rarity = 'common';
+    let cumulative = 0;
+    
+    // Правильный перебор редкостей по порядку
+    const rarityOrder = ['common', 'rare', 'epic', 'legendary', 'mythic'];
+    
+    for (const key of rarityOrder) {
+        cumulative += RARITY[key].chance;
+        if (roll < cumulative) {
+            rarity = key;
+            break;
+        }
+    }
+    
+    const pool = PHONES.filter(p => p.rarity === rarity);
+    const phone = pool[Math.floor(Math.random() * pool.length)];
+    const cfg = RARITY[phone.rarity];
+    
+    el.phoneEmoji.textContent = phone.emoji;
+    el.phoneName.textContent = phone.name; 
+    el.phoneName.style.color = cfg.color;
+    el.phoneModel.textContent = `${cfg.label} • ${phone.year}`; 
+    el.phoneModel.style.color = cfg.color;
+    el.phoneDisplay.style.borderColor = cfg.color; 
+    el.phoneDisplay.style.boxShadow = cfg.glow;
+    
+    collection.push(phone); 
+    totalOpened++;
+    updateStats(); 
+    checkAchievements(phone); 
+    save(); 
+    startTimer(COOLDOWN);
+};
         window.resetGame = resetGame;
         renderAchievements(); load(); updateStats();
     })();
