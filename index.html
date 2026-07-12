@@ -159,103 +159,140 @@
         </div>
     </div>
 
-    <script>
-        // База телефонов
-        const phones = [
-            { name: "iPhone 3GS", emoji: "📱", modelYear: "2009" },
-            { name: "iPhone 4", emoji: "📱", modelYear: "2010" },
-            { name: "iPhone 5s", emoji: "📱", modelYear: "2013" },
-            { name: "iPhone 6", emoji: "📱", modelYear: "2014" },
-            { name: "iPhone X", emoji: "📱", modelYear: "2017" },
-            { name: "iPhone 12", emoji: "📱", modelYear: "2020" },
-            { name: "Nokia 3310", emoji: "📞", modelYear: "2000" },
-            { name: "Samsung Galaxy S2", emoji: "📱", modelYear: "2011" },
-            { name: "Xiaomi Mi 1", emoji: "📱", modelYear: "2011" },
-            { name: "Google Pixel", emoji: "📱", modelYear: "2016" }
-        ];
+<script>
+    // База телефонов с редкостью
+    const phones = [
+        // Обычные (Common) - 45%
+        { name: "iPhone 3GS", emoji: "📱", modelYear: "2009", rarity: "common" },
+        { name: "iPhone 4", emoji: "📱", modelYear: "2010", rarity: "common" },
+        { name: "Samsung Galaxy S2", emoji: "📱", modelYear: "2011", rarity: "common" },
+        { name: "Xiaomi Mi 1", emoji: "📱", modelYear: "2011", rarity: "common" },
+        // Редкие (Rare) - 30%
+        { name: "iPhone 5s", emoji: "📱", modelYear: "2013", rarity: "rare" },
+        { name: "iPhone 6", emoji: "📱", modelYear: "2014", rarity: "rare" },
+        { name: "Google Pixel", emoji: "📱", modelYear: "2016", rarity: "rare" },
+        // Эпические (Epic) - 15%
+        { name: "iPhone X", emoji: "📱", modelYear: "2017", rarity: "epic" },
+        { name: "iPhone 12", emoji: "📱", modelYear: "2020", rarity: "epic" },
+        // Легендарные (Legendary) - 8%
+        { name: "Nokia 3310", emoji: "📞", modelYear: "2000", rarity: "legendary" },
+        { name: "Motorola Razr V3", emoji: "📟", modelYear: "2004", rarity: "legendary" },
+        // Мифические (Mythic) - 2%
+        { name: "iPhone 2G (первый)", emoji: "📱", modelYear: "2007", rarity: "mythic" },
+        { name: "Nokia 8110 \"банан\"", emoji: "🍌", modelYear: "1996", rarity: "mythic" }
+    ];
 
-        let collectedPhones = [];
-        let timerActive = false;
-        let timerSeconds = 0;
-        let timerInterval = null;
-        // Для теста: 20 секунд. Для игры: 20 * 60 = 1200
-        const targetSeconds = 20;
+    // Настройки редкости
+    const rarityConfig = {
+        common:    { label: "Обычный",  color: "#4ade80", chance: 45, glow: "0 0 10px #4ade80" },
+        rare:      { label: "Редкий",   color: "#60a5fa", chance: 30, glow: "0 0 10px #60a5fa" },
+        epic:      { label: "Эпический", color: "#c084fc", chance: 15, glow: "0 0 15px #c084fc" },
+        legendary: { label: "Легендарный", color: "#fbbf24", chance: 8, glow: "0 0 20px #fbbf24" },
+        mythic:    { label: "Мифический", color: "#f87171", chance: 2, glow: "0 0 25px #f87171" }
+    };
 
-        // Элементы DOM
-        const phoneEmojiEl = document.getElementById('phoneEmoji');
-        const phoneNameEl = document.getElementById('phoneName');
-        const phoneModelEl = document.getElementById('phoneModel');
-        const timerDisplayEl = document.getElementById('timerDisplay');
-        const rollButton = document.getElementById('rollButton');
-        const collectionListEl = document.getElementById('collectionList');
+    let collectedPhones = [];
+    let timerActive = false;
+    let timerSeconds = 0;
+    let timerInterval = null;
+    const targetSeconds = 20; // Для теста
 
-        function formatTime(seconds) {
-            const mins = Math.floor(seconds / 60);
-            const secs = seconds % 60;
-            return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    // Элементы DOM
+    const phoneEmojiEl = document.getElementById('phoneEmoji');
+    const phoneNameEl = document.getElementById('phoneName');
+    const phoneModelEl = document.getElementById('phoneModel');
+    const timerDisplayEl = document.getElementById('timerDisplay');
+    const rollButton = document.getElementById('rollButton');
+    const collectionListEl = document.getElementById('collectionList');
+    const phoneDisplay = document.getElementById('phoneDisplay');
+
+    function formatTime(seconds) {
+        const mins = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    }
+
+    function updateTimerDisplay() {
+        timerDisplayEl.textContent = formatTime(timerSeconds);
+        if (timerSeconds <= 0) {
+            clearInterval(timerInterval);
+            timerActive = false;
+            rollButton.disabled = false;
+            rollButton.textContent = '🎲 Открыть телефон';
+            timerDisplayEl.textContent = '00:00';
         }
+    }
 
-        function updateTimerDisplay() {
-            timerDisplayEl.textContent = formatTime(timerSeconds);
-            
-            if (timerSeconds <= 0) {
-                clearInterval(timerInterval);
-                timerActive = false;
-                rollButton.disabled = false;
-                rollButton.textContent = '🎲 Открыть телефон';
-                timerDisplayEl.textContent = '00:00';
-            }
-        }
-
-        function startTimer(durationSeconds) {
-            if (timerInterval) clearInterval(timerInterval);
-            
-            timerSeconds = durationSeconds;
-            timerActive = true;
-            rollButton.disabled = true;
-            rollButton.textContent = '⏳ Ожидание...';
+    function startTimer(durationSeconds) {
+        if (timerInterval) clearInterval(timerInterval);
+        timerSeconds = durationSeconds;
+        timerActive = true;
+        rollButton.disabled = true;
+        rollButton.textContent = '⏳ Ожидание...';
+        updateTimerDisplay();
+        timerInterval = setInterval(() => {
+            timerSeconds--;
             updateTimerDisplay();
+        }, 1000);
+    }
 
-            timerInterval = setInterval(() => {
-                timerSeconds--;
-                updateTimerDisplay();
-            }, 1000);
-        }
+    // Выбор телефона с учётом редкости
+    function rollPhone() {
+        if (timerActive) return;
 
-        function rollPhone() {
-            if (timerActive) return;
+        // Генерируем случайное число от 1 до 100
+        const roll = Math.random() * 100;
+        let selectedRarity = 'common';
+        let cumulative = 0;
 
-            const randomIndex = Math.floor(Math.random() * phones.length);
-            const rolledPhone = phones[randomIndex];
-
-            phoneEmojiEl.textContent = rolledPhone.emoji;
-            phoneNameEl.textContent = rolledPhone.name;
-            phoneModelEl.textContent = `Год: ${rolledPhone.modelYear}`;
-
-            collectedPhones.push(rolledPhone);
-            updateCollection();
-
-            startTimer(targetSeconds);
-        }
-
-        function updateCollection() {
-            if (collectedPhones.length === 0) {
-                collectionListEl.innerHTML = '<span class="collection-empty">Пока пусто...</span>';
-                return;
+        for (const [rarity, config] of Object.entries(rarityConfig)) {
+            cumulative += config.chance;
+            if (roll <= cumulative) {
+                selectedRarity = rarity;
+                break;
             }
-
-            let html = '';
-            collectedPhones.forEach((phone, index) => {
-                html += `
-                    <div class="collection-item">
-                        <span>${phone.emoji}</span>
-                        <span>${phone.name} (${phone.modelYear})</span>
-                    </div>
-                `;
-            });
-            collectionListEl.innerHTML = html;
-            collectionListEl.scrollTop = collectionListEl.scrollHeight;
         }
-    </script>
+
+        // Фильтруем телефоны нужной редкости
+        const phonesOfRarity = phones.filter(p => p.rarity === selectedRarity);
+        const randomIndex = Math.floor(Math.random() * phonesOfRarity.length);
+        const rolledPhone = phonesOfRarity[randomIndex];
+        const rarityInfo = rarityConfig[rolledPhone.rarity];
+
+        // Отображаем телефон с эффектом редкости
+        phoneEmojiEl.textContent = rolledPhone.emoji;
+        phoneNameEl.textContent = rolledPhone.name;
+        phoneNameEl.style.color = rarityInfo.color;
+        phoneModelEl.textContent = `${rarityInfo.label} • ${rolledPhone.modelYear}`;
+        phoneModelEl.style.color = rarityInfo.color;
+        phoneDisplay.style.borderColor = rarityInfo.color;
+        phoneDisplay.style.boxShadow = rarityInfo.glow;
+
+        collectedPhones.push(rolledPhone);
+        updateCollection();
+        startTimer(targetSeconds);
+    }
+
+    function updateCollection() {
+        if (collectedPhones.length === 0) {
+            collectionListEl.innerHTML = '<span class="collection-empty">Пока пусто...</span>';
+            return;
+        }
+
+        let html = '';
+        collectedPhones.forEach((phone, index) => {
+            const rarityInfo = rarityConfig[phone.rarity];
+            html += `
+                <div class="collection-item">
+                    <span>${phone.emoji}</span>
+                    <span>${phone.name} (${phone.modelYear})</span>
+                    <span style="color: ${rarityInfo.color}; margin-left: auto; font-size: 12px;">${rarityInfo.label}</span>
+                </div>
+            `;
+        });
+        collectionListEl.innerHTML = html;
+        collectionListEl.scrollTop = collectionListEl.scrollHeight;
+    }
+</script>
 </body>
 </html>
