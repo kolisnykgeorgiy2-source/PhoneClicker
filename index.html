@@ -3,102 +3,249 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PhoneClicker Test-1A</title>
+    <title>PhoneClicker Test-2A</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='80' font-size='80'>📱</text></svg>">
     <style>
-        *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}
-        body{
-            font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#1a1a2e;
-            display:flex;justify-content:center;align-items:center;min-height:100vh;min-height:100dvh;
-            padding:16px;color:#eee;-webkit-user-select:none;user-select:none
+        :root {
+            --neon-pink: #ff2d75;
+            --neon-blue: #00d4ff;
+            --neon-purple: #b347ea;
+            --neon-green: #39ff14;
+            --neon-yellow: #ffe600;
+            --bg-dark: #0a0a0f;
+            --glass: rgba(16, 18, 27, 0.8);
         }
-        .game-container{
-            background:#16213e;padding:20px;border-radius:24px;box-shadow:0 20px 40px rgba(0,0,0,0.5);
-            width:100%;max-width:400px;position:relative;overflow:hidden
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg-dark);
+            display: flex; justify-content: center; align-items: center;
+            min-height: 100vh; min-height: 100dvh;
+            padding: 12px; color: #fff;
+            -webkit-user-select: none; user-select: none;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(ellipse at 20% 50%, rgba(255,45,117,0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, rgba(0,212,255,0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 80%, rgba(179,71,234,0.15) 0%, transparent 50%);
         }
-        h1{font-size:24px;margin-bottom:2px}
-        .status{font-size:12px;color:#888;margin-bottom:8px}
-        .menu-bar{display:flex;gap:6px;margin-bottom:12px}
-        .menu-btn{
-            flex:1;background:#0f3460;border:2px solid transparent;color:#aaa;font-size:14px;
-            font-weight:bold;padding:10px 6px;border-radius:12px;cursor:pointer;transition:0.2s;text-align:center
+        /* Анимированные частицы фона */
+        .particles {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 0;
         }
-        .menu-btn.active{background:#1a4a8a;border-color:#e94560;color:#fff}
-        .screen{display:none;animation:fadeIn 0.2s ease}
-        .screen.active{display:block}
-        @keyframes fadeIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
-        .phone-display{
-            font-size:70px;margin-bottom:12px;background:#0f3460;border-radius:20px;padding:20px 16px;
-            min-height:140px;display:flex;flex-direction:column;align-items:center;justify-content:center;
-            border:2px solid #e94560;transition:border-color 0.3s,box-shadow 0.3s
+        .particle {
+            position: absolute; background: var(--neon-blue);
+            border-radius: 50%; opacity: 0.6;
+            animation: floatUp linear infinite;
         }
-        .phone-name{font-size:26px;font-weight:bold;margin-top:8px;color:#e94560;word-break:break-word}
-        .phone-model{font-size:15px;color:#aaa}
-        .timer{
-            font-size:38px;font-weight:bold;color:#f5c542;margin:12px 0;background:#0f3460;
-            padding:16px;border-radius:16px;letter-spacing:3px;font-variant-numeric:tabular-nums
+        @keyframes floatUp {
+            0% { transform: translateY(100vh) scale(0); opacity: 0; }
+            10% { opacity: 0.8; }
+            100% { transform: translateY(-10vh) scale(1); opacity: 0; }
         }
-        button.main-btn{
-            background:#e94560;border:none;color:white;font-size:20px;font-weight:bold;padding:18px 24px;
-            border-radius:50px;cursor:pointer;box-shadow:0 6px 0 #a82d44;width:100%;margin:8px 0;
-            text-transform:uppercase;letter-spacing:1px;touch-action:manipulation;transition:transform 0.1s,box-shadow 0.1s
+        .game-container {
+            position: relative; z-index: 1;
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            padding: 20px 16px; border-radius: 30px;
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,45,117,0.3);
+            width: 100%; max-width: 420px;
+            transition: all 0.3s ease;
         }
-        button.main-btn:active{transform:translateY(4px);box-shadow:0 2px 0 #a82d44}
-        button.main-btn:disabled{background:#555;box-shadow:0 6px 0 #333;cursor:not-allowed;transform:none;color:#999}
-        .btn-reset{background:#333;box-shadow:0 4px 0 #111;font-size:13px;padding:8px 14px;margin-bottom:10px;width:100%}
-        .stats-row{display:flex;gap:8px;margin-top:10px}
-        .stat-box{flex:1;background:#0a0e1a;border-radius:12px;padding:10px 6px;text-align:center}
-        .stat-value{font-size:22px;font-weight:bold;color:#e94560}
-        .stat-label{font-size:11px;color:#888}
-        .inventory-list,.achieve-list{background:#0a0e1a;border-radius:16px;padding:12px;max-height:350px;overflow-y:auto}
-        .inv-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #222}
-        .inv-item:last-child{border-bottom:none}
-        .inv-count{margin-left:auto;background:#1a1a2e;padding:4px 10px;border-radius:20px;font-size:13px;color:#aaa}
-        .empty-msg{color:#666;text-align:center;padding:30px 0;font-size:14px}
-        .achieve-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #222}
-        .achieve-item:last-child{border-bottom:none}
-        .achieve-icon{font-size:30px;opacity:0.3;transition:0.3s}
-        .achieve-item.unlocked .achieve-icon{opacity:1}
-        .achieve-info{flex:1}
-        .achieve-name{font-size:14px;font-weight:bold}
-        .achieve-desc{font-size:12px;color:#888}
-        .achieve-item:not(.unlocked) .achieve-name{color:#555}
+        h1 {
+            font-size: 28px; font-weight: 900; letter-spacing: 1px;
+            background: linear-gradient(135deg, var(--neon-pink), var(--neon-blue));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text; margin-bottom: 2px; text-align: center;
+        }
+        .status {
+            text-align: center; font-size: 11px; color: rgba(255,255,255,0.5);
+            letter-spacing: 2px; margin-bottom: 15px; text-transform: uppercase;
+        }
+        /* Меню-бар */
+        .menu-bar {
+            display: flex; gap: 8px; margin-bottom: 15px;
+            background: rgba(0,0,0,0.4); border-radius: 20px; padding: 4px;
+        }
+        .menu-btn {
+            flex: 1; background: transparent; border: none;
+            color: rgba(255,255,255,0.6); font-size: 13px; font-weight: bold;
+            padding: 10px 6px; border-radius: 18px; cursor: pointer;
+            transition: all 0.3s; position: relative; overflow: hidden;
+        }
+        .menu-btn.active {
+            background: rgba(255,45,117,0.25); color: #fff;
+            box-shadow: 0 0 15px rgba(255,45,117,0.4);
+        }
+        .menu-btn::after {
+            content: ''; position: absolute; inset: 0; border-radius: 18px;
+            opacity: 0; transition: opacity 0.3s;
+            background: linear-gradient(135deg, var(--neon-pink), var(--neon-blue));
+            z-index: -1; filter: blur(10px);
+        }
+        .menu-btn.active::after { opacity: 0.5; }
+        .screen { display: none; animation: screenIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .screen.active { display: block; }
+        @keyframes screenIn {
+            0% { opacity: 0; transform: translateY(10px) scale(0.95); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        /* Дисплей телефона */
+        .phone-display {
+            background: rgba(0,0,0,0.5); border-radius: 24px; padding: 25px 16px;
+            margin-bottom: 15px; text-align: center;
+            border: 2px solid transparent;
+            transition: all 0.4s ease;
+            position: relative; overflow: hidden;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .phone-display::before {
+            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: conic-gradient(from 0deg, transparent, rgba(255,255,255,0.1), transparent, rgba(255,255,255,0.1), transparent);
+            animation: rotateGlow 10s linear infinite;
+            opacity: 0.3;
+        }
+        @keyframes rotateGlow { 100% { transform: rotate(360deg); } }
+        #phoneEmoji {
+            font-size: 80px; display: block; position: relative; z-index: 1;
+            filter: drop-shadow(0 0 15px currentColor);
+            animation: bounceIn 0.5s;
+        }
+        @keyframes bounceIn {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+        .phone-name {
+            font-size: 28px; font-weight: 800; margin-top: 8px; position: relative; z-index: 1;
+        }
+        .phone-model { font-size: 16px; color: rgba(255,255,255,0.7); position: relative; z-index: 1; }
+        /* Таймер */
+        .timer {
+            font-size: 42px; font-weight: 900; letter-spacing: 4px;
+            text-align: center; margin: 12px 0; padding: 15px;
+            background: rgba(0,0,0,0.6); border-radius: 20px;
+            color: var(--neon-yellow); text-shadow: 0 0 20px var(--neon-yellow);
+            font-variant-numeric: tabular-nums;
+            border: 1px solid rgba(255,230,0,0.3);
+        }
+        /* Кнопки */
+        .btn {
+            border: none; width: 100%; padding: 18px; border-radius: 30px;
+            font-weight: bold; font-size: 18px; letter-spacing: 1px;
+            cursor: pointer; transition: all 0.2s; position: relative;
+            overflow: hidden; text-transform: uppercase;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--neon-pink), #c0392b);
+            color: #fff; box-shadow: 0 8px 25px rgba(255,45,117,0.5);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .btn-primary:active { transform: scale(0.96); box-shadow: 0 4px 15px rgba(255,45,117,0.7); }
+        .btn-primary:disabled {
+            background: #3a3a4a; box-shadow: none; color: #888; border-color: transparent;
+            cursor: not-allowed;
+        }
+        .btn-reset {
+            background: transparent; color: rgba(255,255,255,0.6); font-size: 13px;
+            border: 1px solid rgba(255,255,255,0.15); margin-bottom: 12px; padding: 10px;
+            box-shadow: none;
+        }
+        /* Статистика */
+        .stats-row { display: flex; gap: 8px; margin-top: 12px; }
+        .stat-box {
+            flex: 1; background: rgba(0,0,0,0.5); border-radius: 16px;
+            padding: 12px 4px; text-align: center; backdrop-filter: blur(5px);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .stat-value { font-size: 24px; font-weight: 900; color: var(--neon-pink); }
+        .stat-label { font-size: 10px; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 1px; }
+        /* Инвентарь и ачивки */
+        .list-container {
+            background: rgba(0,0,0,0.5); border-radius: 24px; padding: 12px;
+            max-height: 400px; overflow-y: auto; backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .inv-item, .achieve-item {
+            display: flex; align-items: center; gap: 12px; padding: 12px 8px;
+            border-bottom: 1px solid rgba(255,255,255,0.08); transition: background 0.3s;
+            border-radius: 12px;
+        }
+        .inv-item:active, .achieve-item:active { background: rgba(255,45,117,0.15); }
+        .inv-item:last-child, .achieve-item:last-child { border-bottom: none; }
+        .inv-icon { font-size: 32px; filter: drop-shadow(0 0 5px currentColor); }
+        .inv-info { flex: 1; }
+        .inv-name { font-weight: bold; font-size: 16px; }
+        .inv-count {
+            background: rgba(255,45,117,0.2); color: var(--neon-pink);
+            padding: 5px 12px; border-radius: 20px; font-size: 14px; font-weight: bold;
+        }
+        .achieve-icon { font-size: 36px; opacity: 0.2; transition: all 0.5s; }
+        .achieve-item.unlocked .achieve-icon { opacity: 1; filter: drop-shadow(0 0 10px currentColor); }
+        .achieve-info { flex: 1; }
+        .achieve-name { font-weight: bold; font-size: 16px; }
+        .achieve-desc { font-size: 12px; color: rgba(255,255,255,0.5); }
+        .achieve-item:not(.unlocked) .achieve-name { color: #555; }
+        .empty-msg { text-align: center; padding: 30px; color: rgba(255,255,255,0.4); font-style: italic; }
+        /* Скроллбар */
+        .list-container::-webkit-scrollbar { width: 4px; }
+        .list-container::-webkit-scrollbar-track { background: transparent; }
+        .list-container::-webkit-scrollbar-thumb { background: var(--neon-pink); border-radius: 4px; }
     </style>
 </head>
 <body>
+    <div class="particles" id="particlesContainer"></div>
     <div class="game-container">
         <h1>📱 PhoneClicker</h1>
-        <p class="status">Test-1A</p>
+        <p class="status">Test-2A</p>
         <div class="menu-bar">
-            <button class="menu-btn active" data-screen="main" id="menuMain">🎮 Игра</button>
-            <button class="menu-btn" data-screen="inventory" id="menuInv">📦 Инвентарь</button>
-            <button class="menu-btn" data-screen="achieve" id="menuAch">🏆 Ачивки</button>
+            <button class="menu-btn active" data-screen="main">🎮 Игра</button>
+            <button class="menu-btn" data-screen="inventory">📦 Инвентарь</button>
+            <button class="menu-btn" data-screen="achieve">🏆 Ачивки</button>
         </div>
         <div class="screen active" id="screenMain">
-            <button class="main-btn btn-reset" id="resetBtn">🗑 Сбросить прогресс</button>
+            <button class="btn btn-reset" id="resetBtn">🗑 Сбросить</button>
             <div class="phone-display" id="phoneDisplay">
                 <span id="phoneEmoji">📦</span>
                 <span class="phone-name" id="phoneName">???</span>
                 <span class="phone-model" id="phoneModel">Нажми кнопку</span>
             </div>
             <div class="timer" id="timerDisplay">00:00</div>
-            <button class="main-btn" id="rollBtn">🎲 Открыть телефон</button>
+            <button class="btn btn-primary" id="rollBtn">🎲 Открыть телефон</button>
             <div class="stats-row">
                 <div class="stat-box"><div class="stat-value" id="totalOpened">0</div><div class="stat-label">Открыто</div></div>
                 <div class="stat-box"><div class="stat-value" id="uniquePhones">0</div><div class="stat-label">Уникальных</div></div>
-                <div class="stat-box"><div class="stat-value" id="bestRarity">-</div><div class="stat-label">Лучшая редкость</div></div>
+                <div class="stat-box"><div class="stat-value" id="bestRarity">-</div><div class="stat-label">Лучшая</div></div>
             </div>
         </div>
         <div class="screen" id="screenInventory">
-            <div class="inventory-list" id="inventoryList"><div class="empty-msg">📦 Пока пусто...</div></div>
+            <div class="list-container" id="inventoryList"><div class="empty-msg">📦 Пока пусто...</div></div>
         </div>
         <div class="screen" id="screenAchieve">
-            <div class="achieve-list" id="achieveList"></div>
+            <div class="list-container" id="achieveList"></div>
         </div>
     </div>
     <script>
     (function() {
         'use strict';
+        // Частицы фона
+        const particlesContainer = document.getElementById('particlesContainer');
+        for (let i = 0; i < 40; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            const size = Math.random() * 4 + 2;
+            particle.style.width = size + 'px';
+            particle.style.height = size + 'px';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.animationDuration = Math.random() * 10 + 8 + 's';
+            particle.style.animationDelay = Math.random() * 5 + 's';
+            particle.style.background = ['#ff2d75','#00d4ff','#b347ea','#39ff14'][Math.floor(Math.random()*4)];
+            particlesContainer.appendChild(particle);
+        }
+
         const PHONES = [
             { name: "iPhone 3GS", emoji: "📱", year: "2009", rarity: "common" },
             { name: "iPhone 4", emoji: "📱", year: "2010", rarity: "common" },
@@ -115,11 +262,11 @@
             { name: "Nokia 8110 \"банан\"", emoji: "🍌", year: "1996", rarity: "mythic" }
         ];
         const RARITY = {
-            common:    { label: "Обычный",    color: "#4ade80", chance: 45, glow: "0 0 10px #4ade80", tier: 1 },
-            rare:      { label: "Редкий",     color: "#60a5fa", chance: 30, glow: "0 0 10px #60a5fa", tier: 2 },
-            epic:      { label: "Эпический",  color: "#c084fc", chance: 15, glow: "0 0 15px #c084fc", tier: 3 },
-            legendary: { label: "Легендарный", color: "#fbbf24", chance: 8,  glow: "0 0 20px #fbbf24", tier: 4 },
-            mythic:    { label: "Мифический", color: "#f87171", chance: 2,  glow: "0 0 25px #f87171", tier: 5 }
+            common:    { label: "Обычный",    color: "#39ff14", chance: 45, glow: "0 0 20px #39ff14", tier: 1 },
+            rare:      { label: "Редкий",     color: "#00d4ff", chance: 30, glow: "0 0 20px #00d4ff", tier: 2 },
+            epic:      { label: "Эпический",  color: "#b347ea", chance: 15, glow: "0 0 25px #b347ea", tier: 3 },
+            legendary: { label: "Легендарный", color: "#ffe600", chance: 8,  glow: "0 0 30px #ffe600", tier: 4 },
+            mythic:    { label: "Мифический", color: "#ff2d75", chance: 2,  glow: "0 0 35px #ff2d75", tier: 5 }
         };
         const ACHIEVEMENTS = [
             { id: "first_roll",   name: "Первый телефон",   desc: "Открыть телефон впервые",        icon: "📱", check: s => s.totalOpened >= 1 },
@@ -149,7 +296,6 @@
             achieveList: $('achieveList'),
             screenMain: $('screenMain'), screenInventory: $('screenInventory'),
             screenAchieve: $('screenAchieve'),
-            menuMain: $('menuMain'), menuInv: $('menuInv'), menuAch: $('menuAch'),
             resetBtn: $('resetBtn')
         };
 
@@ -174,10 +320,10 @@
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
             const screens = { main: el.screenMain, inventory: el.screenInventory, achieve: el.screenAchieve };
-            const btns = { main: el.menuMain, inventory: el.menuInv, achieve: el.menuAch };
+            const btns = document.querySelectorAll('.menu-btn');
             if (screens[screen]) {
                 screens[screen].classList.add('active');
-                btns[screen].classList.add('active');
+                document.querySelector(`.menu-btn[data-screen="${screen}"]`).classList.add('active');
             }
             if (screen === 'inventory') renderInventory();
             if (screen === 'achieve') renderAchievements();
@@ -195,9 +341,14 @@
             let html = '';
             for (const [name, data] of Object.entries(grouped)) {
                 const cfg = RARITY[data.phone.rarity];
-                html += `<div class="inv-item"><span style="font-size:28px;">${data.phone.emoji}</span>
-                <span>${name} <span style="color:${cfg.color};font-size:12px;">${cfg.label}</span></span>
-                <span class="inv-count">×${data.count}</span></div>`;
+                html += `<div class="inv-item">
+                    <span class="inv-icon" style="color:${cfg.color}">${data.phone.emoji}</span>
+                    <div class="inv-info">
+                        <div class="inv-name">${name}</div>
+                        <div style="color:${cfg.color};font-size:12px;">${cfg.label}</div>
+                    </div>
+                    <span class="inv-count">×${data.count}</span>
+                </div>`;
             }
             el.inventoryList.innerHTML = html;
         }
@@ -221,9 +372,12 @@
             for (const ach of ACHIEVEMENTS) {
                 const unlocked = unlockedAchievements.includes(ach.id);
                 html += `<div class="achieve-item ${unlocked ? 'unlocked' : ''}">
-                <div class="achieve-icon">${ach.icon}</div>
-                <div class="achieve-info"><div class="achieve-name">${unlocked ? ach.name : '???'}</div>
-                <div class="achieve-desc">${unlocked ? ach.desc : 'Продолжай открывать телефоны...'}</div></div></div>`;
+                    <div class="achieve-icon">${ach.icon}</div>
+                    <div class="achieve-info">
+                        <div class="achieve-name">${unlocked ? ach.name : '???'}</div>
+                        <div class="achieve-desc">${unlocked ? ach.desc : 'Продолжай открывать телефоны...'}</div>
+                    </div>
+                </div>`;
             }
             el.achieveList.innerHTML = html;
         }
@@ -253,25 +407,21 @@
                     }
                 }
             } catch (e) {
-                collection = [];
-                totalOpened = 0;
-                unlockedAchievements = [];
+                collection = []; totalOpened = 0; unlockedAchievements = [];
             }
         }
 
         function resetGame() {
             if (!confirm('Точно сбросить весь прогресс?')) return;
             localStorage.removeItem(SAVE_KEY);
-            collection = [];
-            totalOpened = 0;
-            unlockedAchievements = [];
+            collection = []; totalOpened = 0; unlockedAchievements = [];
             clearTimer();
             el.phoneEmoji.textContent = '📦';
             el.phoneName.textContent = '???';
-            el.phoneName.style.color = '#e94560';
+            el.phoneName.style.color = '#fff';
             el.phoneModel.textContent = 'Нажми кнопку';
-            el.phoneModel.style.color = '#aaa';
-            el.phoneDisplay.style.borderColor = '#e94560';
+            el.phoneModel.style.color = 'rgba(255,255,255,0.7)';
+            el.phoneDisplay.style.borderColor = 'transparent';
             el.phoneDisplay.style.boxShadow = 'none';
             updateStats();
             renderInventory();
@@ -280,9 +430,7 @@
 
         function clearTimer() {
             if (timerId) clearInterval(timerId);
-            timerId = null;
-            buttonLocked = false;
-            timerEnd = 0;
+            timerId = null; buttonLocked = false; timerEnd = 0;
             el.rollBtn.disabled = false;
             el.rollBtn.textContent = '🎲 Открыть телефон';
             el.timerDisplay.textContent = '00:00';
@@ -291,17 +439,13 @@
         function tick() {
             const left = Math.max(0, Math.ceil((timerEnd - Date.now()) / 1000));
             el.timerDisplay.textContent = fmtTime(left);
-            if (left <= 0) {
-                clearTimer();
-                save();
-            }
+            if (left <= 0) { clearTimer(); save(); }
         }
 
         function startTimer(seconds) {
             if (timerId) clearInterval(timerId);
             timerEnd = Date.now() + seconds * 1000;
-            buttonLocked = true;
-            el.rollBtn.disabled = true;
+            buttonLocked = true; el.rollBtn.disabled = true;
             el.rollBtn.textContent = '⏳ Ожидание...';
             tick();
             timerId = setInterval(tick, 500);
@@ -320,23 +464,26 @@
             const phone = pool[Math.floor(Math.random() * pool.length)];
             const cfg = RARITY[phone.rarity];
 
+            // Применяем стили редкости
             el.phoneEmoji.textContent = phone.emoji;
+            el.phoneEmoji.style.color = cfg.color;
             el.phoneName.textContent = phone.name;
             el.phoneName.style.color = cfg.color;
             el.phoneModel.textContent = `${cfg.label} • ${phone.year}`;
             el.phoneModel.style.color = cfg.color;
             el.phoneDisplay.style.borderColor = cfg.color;
-            el.phoneDisplay.style.boxShadow = cfg.glow;
+            el.phoneDisplay.style.boxShadow = `0 0 40px ${cfg.color}`;
 
-            collection.push(phone);
-            totalOpened++;
-            updateStats();
-            checkAchievements(phone);
-            save();
-            startTimer(COOLDOWN);
+            // Анимация эмодзи
+            el.phoneEmoji.style.animation = 'none';
+            void el.phoneEmoji.offsetWidth; // рефлоу
+            el.phoneEmoji.style.animation = 'bounceIn 0.5s';
+
+            collection.push(phone); totalOpened++;
+            updateStats(); checkAchievements(phone); save(); startTimer(COOLDOWN);
         }
 
-        // Навешиваем обработчики
+        // Обработчики
         el.rollBtn.addEventListener('click', rollPhone);
         el.resetBtn.addEventListener('click', resetGame);
         document.querySelectorAll('.menu-btn').forEach(btn => {
