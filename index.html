@@ -3,11 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PhoneClicker Test</title>
+    <title>PhoneClicker Test-0E</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='80' font-size='80'>📱</text></svg>">
     <style>
         * {
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
+            margin: 0;
+            padding: 0;
         }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -17,7 +20,6 @@
             align-items: center;
             min-height: 100vh;
             min-height: 100dvh;
-            margin: 0;
             padding: 16px;
             color: #eee;
             text-align: center;
@@ -34,16 +36,16 @@
         }
         h1 {
             font-size: 26px;
-            margin: 0 0 4px;
+            margin-bottom: 4px;
         }
         .status {
             font-size: 13px;
             color: #888;
-            margin: 0 0 16px;
+            margin-bottom: 16px;
         }
         .phone-display {
             font-size: 70px;
-            margin: 0 0 16px;
+            margin-bottom: 16px;
             background: #0f3460;
             border-radius: 20px;
             padding: 20px 16px;
@@ -53,7 +55,7 @@
             align-items: center;
             justify-content: center;
             border: 2px solid #e94560;
-            transition: 0.3s;
+            transition: border-color 0.3s, box-shadow 0.3s;
         }
         .phone-name {
             font-size: 26px;
@@ -75,6 +77,7 @@
             padding: 16px;
             border-radius: 16px;
             letter-spacing: 3px;
+            font-variant-numeric: tabular-nums;
         }
         button {
             background: #e94560;
@@ -85,13 +88,13 @@
             padding: 18px 24px;
             border-radius: 50px;
             cursor: pointer;
-            transition: 0.15s;
             box-shadow: 0 6px 0 #a82d44;
             width: 100%;
             margin: 8px 0;
             text-transform: uppercase;
             letter-spacing: 1px;
             touch-action: manipulation;
+            transition: transform 0.1s, box-shadow 0.1s;
         }
         button:active {
             transform: translateY(4px);
@@ -104,6 +107,13 @@
             transform: none;
             color: #999;
         }
+        .btn-reset {
+            background: #333;
+            box-shadow: 0 4px 0 #111;
+            font-size: 14px;
+            padding: 8px 16px;
+            margin-bottom: 12px;
+        }
         .collection {
             margin-top: 20px;
             text-align: left;
@@ -114,7 +124,7 @@
             overflow-y: auto;
         }
         .collection h3 {
-            margin: 0 0 12px;
+            margin-bottom: 12px;
             color: #e94560;
             font-size: 16px;
         }
@@ -134,6 +144,7 @@
             color: #666;
             font-size: 14px;
             text-align: center;
+            display: block;
             padding: 10px 0;
         }
     </style>
@@ -141,8 +152,9 @@
 <body>
     <div class="game-container">
         <h1>📱 PhoneClicker</h1>
-        <p class="status">test-0A</p>
-        
+        <p class="status">Test-0E</p>
+        <button class="btn-reset" onclick="resetGame()">🗑 Сбросить прогресс</button>
+
         <div class="phone-display" id="phoneDisplay">
             <span id="phoneEmoji">📦</span>
             <span class="phone-name" id="phoneName">???</span>
@@ -159,208 +171,192 @@
         </div>
     </div>
 
-<script>
-    // База телефонов с редкостью
-    const phones = [
-        // Обычные (Common) - 45%
-        { name: "iPhone 3GS", emoji: "📱", modelYear: "2009", rarity: "common" },
-        { name: "iPhone 4", emoji: "📱", modelYear: "2010", rarity: "common" },
-        { name: "Samsung Galaxy S2", emoji: "📱", modelYear: "2011", rarity: "common" },
-        { name: "Xiaomi Mi 1", emoji: "📱", modelYear: "2011", rarity: "common" },
-        // Редкие (Rare) - 30%
-        { name: "iPhone 5s", emoji: "📱", modelYear: "2013", rarity: "rare" },
-        { name: "iPhone 6", emoji: "📱", modelYear: "2014", rarity: "rare" },
-        { name: "Google Pixel", emoji: "📱", modelYear: "2016", rarity: "rare" },
-        // Эпические (Epic) - 15%
-        { name: "iPhone X", emoji: "📱", modelYear: "2017", rarity: "epic" },
-        { name: "iPhone 12", emoji: "📱", modelYear: "2020", rarity: "epic" },
-        // Легендарные (Legendary) - 8%
-        { name: "Nokia 3310", emoji: "📞", modelYear: "2000", rarity: "legendary" },
-        { name: "Motorola Razr V3", emoji: "📟", modelYear: "2004", rarity: "legendary" },
-        // Мифические (Mythic) - 2%
-        { name: "iPhone 2G (первый)", emoji: "📱", modelYear: "2007", rarity: "mythic" },
-        { name: "Nokia 8110 \"банан\"", emoji: "🍌", modelYear: "1996", rarity: "mythic" }
-    ];
+    <script>
+    (function() {
+        'use strict';
 
-    // Настройки редкости
-    const rarityConfig = {
-        common:    { label: "Обычный",  color: "#4ade80", chance: 45, glow: "0 0 10px #4ade80" },
-        rare:      { label: "Редкий",   color: "#60a5fa", chance: 30, glow: "0 0 10px #60a5fa" },
-        epic:      { label: "Эпический", color: "#c084fc", chance: 15, glow: "0 0 15px #c084fc" },
-        legendary: { label: "Легендарный", color: "#fbbf24", chance: 8, glow: "0 0 20px #fbbf24" },
-        mythic:    { label: "Мифический", color: "#f87171", chance: 2, glow: "0 0 25px #f87171" }
-    };
+        // ─── ДАННЫЕ ────────────────────────────
+        const PHONES = [
+            { name: "iPhone 3GS", emoji: "📱", year: "2009", rarity: "common" },
+            { name: "iPhone 4", emoji: "📱", year: "2010", rarity: "common" },
+            { name: "Samsung Galaxy S2", emoji: "📱", year: "2011", rarity: "common" },
+            { name: "Xiaomi Mi 1", emoji: "📱", year: "2011", rarity: "common" },
+            { name: "iPhone 5s", emoji: "📱", year: "2013", rarity: "rare" },
+            { name: "iPhone 6", emoji: "📱", year: "2014", rarity: "rare" },
+            { name: "Google Pixel", emoji: "📱", year: "2016", rarity: "rare" },
+            { name: "iPhone X", emoji: "📱", year: "2017", rarity: "epic" },
+            { name: "iPhone 12", emoji: "📱", year: "2020", rarity: "epic" },
+            { name: "Nokia 3310", emoji: "📞", year: "2000", rarity: "legendary" },
+            { name: "Motorola Razr V3", emoji: "📟", year: "2004", rarity: "legendary" },
+            { name: "iPhone 2G (первый)", emoji: "📱", year: "2007", rarity: "mythic" },
+            { name: "Nokia 8110 \"банан\"", emoji: "🍌", year: "1996", rarity: "mythic" }
+        ];
 
-    // Загрузка сохранённых данных
-    let collectedPhones = [];
-    let timerActive = false;
-    let timerSeconds = 0;
-    let timerInterval = null;
-    let timerEndTime = 0; // Время окончания таймера (timestamp)
-    const targetSeconds = 20; // Для теста
-
-    // Ключ для localStorage
-    const SAVE_KEY = 'phoneclicker_save';
-
-    // Элементы DOM
-    const phoneEmojiEl = document.getElementById('phoneEmoji');
-    const phoneNameEl = document.getElementById('phoneName');
-    const phoneModelEl = document.getElementById('phoneModel');
-    const timerDisplayEl = document.getElementById('timerDisplay');
-    const rollButton = document.getElementById('rollButton');
-    const collectionListEl = document.getElementById('collectionList');
-    const phoneDisplay = document.getElementById('phoneDisplay');
-
-    // Сохранение в localStorage
-    function saveGame() {
-        const saveData = {
-            collectedPhones: collectedPhones,
-            timerEndTime: timerActive ? timerEndTime : 0,
-            savedAt: Date.now()
+        const RARITY = {
+            common:    { label: "Обычный",    color: "#4ade80", chance: 45, glow: "0 0 10px #4ade80" },
+            rare:      { label: "Редкий",     color: "#60a5fa", chance: 30, glow: "0 0 10px #60a5fa" },
+            epic:      { label: "Эпический",  color: "#c084fc", chance: 15, glow: "0 0 15px #c084fc" },
+            legendary: { label: "Легендарный", color: "#fbbf24", chance: 8,  glow: "0 0 20px #fbbf24" },
+            mythic:    { label: "Мифический", color: "#f87171", chance: 2,  glow: "0 0 25px #f87171" }
         };
-        localStorage.setItem(SAVE_KEY, JSON.stringify(saveData));
-    }
 
-    // Загрузка из localStorage
-    function loadGame() {
-        const saved = localStorage.getItem(SAVE_KEY);
-        if (saved) {
+        const COOLDOWN = 20; // секунд для теста
+        const SAVE_KEY = 'phoneclicker_save';
+
+        // ─── СОСТОЯНИЕ ─────────────────────────
+        let collection = [];
+        let timerEnd = 0;
+        let timerId = null;
+        let buttonLocked = false;
+
+        // ─── DOM-ЭЛЕМЕНТЫ ────────────────────
+        const $ = (id) => document.getElementById(id);
+        const el = {
+            phoneDisplay: $('phoneDisplay'),
+            phoneEmoji:   $('phoneEmoji'),
+            phoneName:    $('phoneName'),
+            phoneModel:   $('phoneModel'),
+            timerDisplay: $('timerDisplay'),
+            rollButton:   $('rollButton'),
+            collectionList: $('collectionList')
+        };
+
+        // ─── УТИЛИТЫ ──────────────────────────
+        const fmtTime = (s) => {
+            const m = Math.floor(s / 60);
+            const sec = s % 60;
+            return `${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
+        };
+
+        // ─── СОХРАНЕНИЕ ────────────────────────
+        function save() {
+            const data = {
+                collection: collection,
+                timerEnd: buttonLocked ? timerEnd : 0
+            };
+            localStorage.setItem(SAVE_KEY, JSON.stringify(data));
+        }
+
+        function load() {
             try {
-                const saveData = JSON.parse(saved);
-                collectedPhones = saveData.collectedPhones || [];
-                
-                // Восстановление таймера
-                if (saveData.timerEndTime && saveData.timerEndTime > Date.now()) {
-                    const remainingSeconds = Math.ceil((saveData.timerEndTime - Date.now()) / 1000);
-                    startTimer(remainingSeconds);
+                const raw = localStorage.getItem(SAVE_KEY);
+                if (!raw) return;
+                const data = JSON.parse(raw);
+                collection = data.collection || [];
+                renderCollection();
+                if (data.timerEnd && data.timerEnd > Date.now()) {
+                    startTimer(Math.ceil((data.timerEnd - Date.now()) / 1000));
                 }
-                
-                updateCollection();
             } catch (e) {
-                console.log('Ошибка загрузки сохранения');
-                collectedPhones = [];
+                collection = [];
             }
         }
-    }
 
-    // Сброс сохранения
-    function resetGame() {
-        if (confirm('Точно сбросить весь прогресс? Это нельзя отменить.')) {
+        function resetGame() {
+            if (!confirm('Точно сбросить весь прогресс?')) return;
             localStorage.removeItem(SAVE_KEY);
-            collectedPhones = [];
-            if (timerInterval) clearInterval(timerInterval);
-            timerActive = false;
-            timerSeconds = 0;
-            timerEndTime = 0;
-            rollButton.disabled = false;
-            rollButton.textContent = '🎲 Открыть телефон';
-            timerDisplayEl.textContent = '00:00';
-            phoneEmojiEl.textContent = '📦';
-            phoneNameEl.textContent = '???';
-            phoneNameEl.style.color = '#e94560';
-            phoneModelEl.textContent = 'Нажми кнопку';
-            phoneModelEl.style.color = '#aaa';
-            phoneDisplay.style.borderColor = '#e94560';
-            phoneDisplay.style.boxShadow = 'none';
-            updateCollection();
+            collection = [];
+            clearTimer();
+            el.phoneEmoji.textContent = '📦';
+            el.phoneName.textContent = '???';
+            el.phoneName.style.color = '#e94560';
+            el.phoneModel.textContent = 'Нажми кнопку';
+            el.phoneModel.style.color = '#aaa';
+            el.phoneDisplay.style.borderColor = '#e94560';
+            el.phoneDisplay.style.boxShadow = 'none';
+            renderCollection();
         }
-    }
 
-    function formatTime(seconds) {
-        const mins = Math.floor(seconds / 60);
-        const secs = seconds % 60;
-        return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-    }
-
-    function updateTimerDisplay() {
-        timerDisplayEl.textContent = formatTime(timerSeconds);
-        if (timerSeconds <= 0) {
-            clearInterval(timerInterval);
-            timerActive = false;
-            timerEndTime = 0;
-            rollButton.disabled = false;
-            rollButton.textContent = '🎲 Открыть телефон';
-            timerDisplayEl.textContent = '00:00';
-            saveGame();
+        // ─── ТАЙМЕР ────────────────────────────
+        function clearTimer() {
+            if (timerId) clearInterval(timerId);
+            timerId = null;
+            buttonLocked = false;
+            timerEnd = 0;
+            el.rollButton.disabled = false;
+            el.rollButton.textContent = '🎲 Открыть телефон';
+            el.timerDisplay.textContent = '00:00';
         }
-    }
 
-    function startTimer(durationSeconds) {
-        if (timerInterval) clearInterval(timerInterval);
-        
-        timerSeconds = durationSeconds;
-        timerEndTime = Date.now() + (durationSeconds * 1000);
-        timerActive = true;
-        rollButton.disabled = true;
-        rollButton.textContent = '⏳ Ожидание...';
-        updateTimerDisplay();
-        saveGame();
-
-        timerInterval = setInterval(() => {
-            timerSeconds--;
-            updateTimerDisplay();
-        }, 1000);
-    }
-
-    // Выбор телефона с учётом редкости
-    function rollPhone() {
-        if (timerActive) return;
-
-        const roll = Math.random() * 100;
-        let selectedRarity = 'common';
-        let cumulative = 0;
-
-        for (const [rarity, config] of Object.entries(rarityConfig)) {
-            cumulative += config.chance;
-            if (roll <= cumulative) {
-                selectedRarity = rarity;
-                break;
+        function tick() {
+            const left = Math.max(0, Math.ceil((timerEnd - Date.now()) / 1000));
+            el.timerDisplay.textContent = fmtTime(left);
+            if (left <= 0) {
+                clearTimer();
+                save();
             }
         }
 
-        const phonesOfRarity = phones.filter(p => p.rarity === selectedRarity);
-        const randomIndex = Math.floor(Math.random() * phonesOfRarity.length);
-        const rolledPhone = phonesOfRarity[randomIndex];
-        const rarityInfo = rarityConfig[rolledPhone.rarity];
-
-        phoneEmojiEl.textContent = rolledPhone.emoji;
-        phoneNameEl.textContent = rolledPhone.name;
-        phoneNameEl.style.color = rarityInfo.color;
-        phoneModelEl.textContent = `${rarityInfo.label} • ${rolledPhone.modelYear}`;
-        phoneModelEl.style.color = rarityInfo.color;
-        phoneDisplay.style.borderColor = rarityInfo.color;
-        phoneDisplay.style.boxShadow = rarityInfo.glow;
-
-        collectedPhones.push(rolledPhone);
-        updateCollection();
-        saveGame();
-        startTimer(targetSeconds);
-    }
-
-    function updateCollection() {
-        if (collectedPhones.length === 0) {
-            collectionListEl.innerHTML = '<span class="collection-empty">Пока пусто...</span>';
-            return;
+        function startTimer(seconds) {
+            if (timerId) clearInterval(timerId);
+            timerEnd = Date.now() + seconds * 1000;
+            buttonLocked = true;
+            el.rollButton.disabled = true;
+            el.rollButton.textContent = '⏳ Ожидание...';
+            tick();
+            timerId = setInterval(tick, 500); // обновляем 2 раза в секунду (экономия батареи)
+            save();
         }
 
-        let html = '';
-        collectedPhones.forEach((phone, index) => {
-            const rarityInfo = rarityConfig[phone.rarity];
-            html += `
-                <div class="collection-item">
-                    <span>${phone.emoji}</span>
-                    <span>${phone.name} (${phone.modelYear})</span>
-                    <span style="color: ${rarityInfo.color}; margin-left: auto; font-size: 12px;">${rarityInfo.label}</span>
-                </div>
-            `;
-        });
-        collectionListEl.innerHTML = html;
-        collectionListEl.scrollTop = collectionListEl.scrollHeight;
-        saveGame();
-    }
+        // ─── РОЛЛ ТЕЛЕФОНА ────────────────────
+        window.rollPhone = function() {
+            if (buttonLocked) return;
 
-    // Загрузка сохранения при старте
-    loadGame();
-</script>
+            // Определяем редкость
+            let roll = Math.random() * 100;
+            let rarity = 'common';
+            let cumulative = 0;
+            for (const [key, cfg] of Object.entries(RARITY)) {
+                cumulative += cfg.chance;
+                if (roll <= cumulative) { rarity = key; break; }
+            }
+
+            // Выбираем телефон
+            const pool = PHONES.filter(p => p.rarity === rarity);
+            const phone = pool[Math.floor(Math.random() * pool.length)];
+            const cfg = RARITY[phone.rarity];
+
+            // Отображаем
+            el.phoneEmoji.textContent = phone.emoji;
+            el.phoneName.textContent = phone.name;
+            el.phoneName.style.color = cfg.color;
+            el.phoneModel.textContent = `${cfg.label} • ${phone.year}`;
+            el.phoneModel.style.color = cfg.color;
+            el.phoneDisplay.style.borderColor = cfg.color;
+            el.phoneDisplay.style.boxShadow = cfg.glow;
+
+            // Сохраняем
+            collection.push(phone);
+            renderCollection();
+            save();
+            startTimer(COOLDOWN);
+        };
+
+        // ─── КОЛЛЕКЦИЯ ─────────────────────────
+        function renderCollection() {
+            if (collection.length === 0) {
+                el.collectionList.innerHTML = '<span class="collection-empty">Пока пусто...</span>';
+                return;
+            }
+            let html = '';
+            for (const phone of collection) {
+                const cfg = RARITY[phone.rarity];
+                html += `<div class="collection-item">
+                    <span>${phone.emoji}</span>
+                    <span>${phone.name} (${phone.year})</span>
+                    <span style="color:${cfg.color};margin-left:auto;font-size:12px;">${cfg.label}</span>
+                </div>`;
+            }
+            el.collectionList.innerHTML = html;
+            el.collectionList.scrollTop = el.collectionList.scrollHeight;
+        }
+
+        // ─── СБРОС (ГЛОБАЛЬНО) ──────────────────
+        window.resetGame = resetGame;
+
+        // ─── ЗАПУСК ────────────────────────────
+        load();
+    })();
+    </script>
 </body>
 </html>
