@@ -2,8 +2,8 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-    <title>PhoneClicker Test-3C</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PhoneClicker Test-3D</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='80' font-size='80'>📱</text></svg>">
     <style>
         :root {
@@ -228,7 +228,7 @@
     <div class="particles" id="particlesContainer"></div>
     <div class="game-container">
         <h1>📱 PhoneClicker</h1>
-        <p class="status">Test-3C</p>
+        <p class="status">Test-3D</p>
         <div class="menu-bar">
             <button class="menu-btn active" data-screen="main">🎮 Игра</button>
             <button class="menu-btn" data-screen="inventory">📦 Инвентарь</button>
@@ -268,7 +268,7 @@
     <script>
     (function() {
         'use strict';
-        // Экранирование HTML (только для текста, не для эмодзи)
+        // Экранирование HTML (только для текстовых данных)
         function escapeHtml(str) {
             const div = document.createElement('div');
             div.textContent = str;
@@ -330,8 +330,8 @@
             forbidden: 4
         };
 
-        const COOLDOWN_BASIC = 20;   // секунд
-        const COOLDOWN_CASE = 120;   // 2 минуты
+        const COOLDOWN_BASIC = 20;
+        const COOLDOWN_CASE = 120;
 
         const ACHIEVEMENTS = [
             { id: "first_roll",   name: "Первый телефон",   desc: "Открыть телефон впервые",        icon: "📱", check: s => s.totalOpened >= 1 },
@@ -350,9 +350,10 @@
         const SAVE_KEY = 'phoneclicker_save_v3';
 
         // Состояние
-        let collection = {};         // { phoneName: count }
+        let collection = {};
         let totalOpened = 0;
         let unlockedAchievements = [];
+        let uniqueByRarity = { common: 0, rare: 0, epic: 0, legendary: 0, mythic: 0, forbidden: 0 };
         let timerRemainingBasic = 0, timerStartBasic = 0, timerActiveBasic = false;
         let timerRemainingCase = 0, timerStartCase = 0, timerActiveCase = false;
         let timerIdBasic = null, timerIdCase = null;
@@ -510,17 +511,13 @@
                 updateStats();
                 renderAchievements();
 
-                // Таймеры с защитой от читов
-                const now = Date.now();
-                const maxBasicSec = COOLDOWN_BASIC + 10;
-                const maxCaseSec = COOLDOWN_CASE + 10;
-
                 let remainingBasic = data.timerRemainingBasic || 0;
                 let remainingCase = data.timerRemainingCase || 0;
 
-                // Проверяем, не слишком ли большое оставшееся время (подозрительно)
-                if (remainingBasic > maxBasicSec) remainingBasic = COOLDOWN_BASIC; // штраф
-                if (remainingCase > maxCaseSec) remainingCase = COOLDOWN_CASE;     // штраф
+                const maxBasicSec = COOLDOWN_BASIC + 10;
+                const maxCaseSec = COOLDOWN_CASE + 10;
+                if (remainingBasic > maxBasicSec) remainingBasic = COOLDOWN_BASIC;
+                if (remainingCase > maxCaseSec) remainingCase = COOLDOWN_CASE;
 
                 if (remainingBasic > 0) {
                     startTimer('basic', Math.ceil(remainingBasic));
