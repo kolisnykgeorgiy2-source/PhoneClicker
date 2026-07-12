@@ -2,8 +2,8 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PhoneClicker Test-3B</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <title>PhoneClicker Test-3C</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='80' font-size='80'>📱</text></svg>">
     <style>
         :root {
@@ -228,7 +228,7 @@
     <div class="particles" id="particlesContainer"></div>
     <div class="game-container">
         <h1>📱 PhoneClicker</h1>
-        <p class="status">Test-3B</p>
+        <p class="status">Test-3C</p>
         <div class="menu-bar">
             <button class="menu-btn active" data-screen="main">🎮 Игра</button>
             <button class="menu-btn" data-screen="inventory">📦 Инвентарь</button>
@@ -268,7 +268,7 @@
     <script>
     (function() {
         'use strict';
-        // Экранирование HTML
+        // Экранирование HTML (только для текста, не для эмодзи)
         function escapeHtml(str) {
             const div = document.createElement('div');
             div.textContent = str;
@@ -330,8 +330,8 @@
             forbidden: 4
         };
 
-        const COOLDOWN_BASIC = 20;
-        const COOLDOWN_CASE = 120;
+        const COOLDOWN_BASIC = 20;   // секунд
+        const COOLDOWN_CASE = 120;   // 2 минуты
 
         const ACHIEVEMENTS = [
             { id: "first_roll",   name: "Первый телефон",   desc: "Открыть телефон впервые",        icon: "📱", check: s => s.totalOpened >= 1 },
@@ -353,9 +353,9 @@
         let collection = {};         // { phoneName: count }
         let totalOpened = 0;
         let unlockedAchievements = [];
-        let timerEndBasic = 0, timerIdBasic = null, buttonLockedBasic = false;
-        let timerEndCase = 0, timerIdCase = null, buttonLockedCase = false;
-        let uniqueByRarity = { common: 0, rare: 0, epic: 0, legendary: 0, mythic: 0, forbidden: 0 };
+        let timerRemainingBasic = 0, timerStartBasic = 0, timerActiveBasic = false;
+        let timerRemainingCase = 0, timerStartCase = 0, timerActiveCase = false;
+        let timerIdBasic = null, timerIdCase = null;
         let lowSpecMode = false;
 
         const $ = id => document.getElementById(id);
@@ -392,9 +392,7 @@
             const uniqueNames = Object.keys(collection);
             for (const name of uniqueNames) {
                 const phone = PHONE_MAP[name];
-                if (phone) {
-                    uniqueByRarity[phone.rarity]++;
-                }
+                if (phone) uniqueByRarity[phone.rarity]++;
             }
             const uniqueCount = uniqueNames.length;
             const bestTier = uniqueNames.reduce((max, name) => {
@@ -433,7 +431,7 @@
                 const cfg = RARITY[phone.rarity];
                 const extraClass = phone.rarity === 'forbidden' ? ' rarity-forbidden' : '';
                 html += `<div class="inv-item${extraClass}">
-                    <span class="inv-icon" style="color:${cfg.color}">${escapeHtml(phone.emoji)}</span>
+                    <span class="inv-icon" style="color:${cfg.color}">${phone.emoji}</span>
                     <div class="inv-info">
                         <div class="inv-name">${escapeHtml(name)}</div>
                         <div style="color:${cfg.color};font-size:12px;">${escapeHtml(cfg.label)}</div>
@@ -468,7 +466,7 @@
             for (const ach of ACHIEVEMENTS) {
                 const unlocked = unlockedAchievements.includes(ach.id);
                 html += `<div class="achieve-item ${unlocked ? 'unlocked' : ''}">
-                    <div class="achieve-icon">${escapeHtml(ach.icon)}</div>
+                    <div class="achieve-icon">${ach.icon}</div>
                     <div class="achieve-info">
                         <div class="achieve-name">${unlocked ? escapeHtml(ach.name) : '???'}</div>
                         <div class="achieve-desc">${unlocked ? escapeHtml(ach.desc) : 'Продолжай открывать телефоны...'}</div>
@@ -483,8 +481,8 @@
                 collection,
                 totalOpened,
                 unlockedAchievements,
-                timerEndBasic: buttonLockedBasic ? timerEndBasic : 0,
-                timerEndCase: buttonLockedCase ? timerEndCase : 0,
+                timerRemainingBasic: timerActiveBasic ? Math.max(0, timerRemainingBasic - (performance.now() - timerStartBasic) / 1000) : 0,
+                timerRemainingCase: timerActiveCase ? Math.max(0, timerRemainingCase - (performance.now() - timerStartCase) / 1000) : 0,
                 lowSpecMode
             };
             localStorage.setItem(SAVE_KEY, JSON.stringify(data));
@@ -495,11 +493,9 @@
                 const raw = localStorage.getItem(SAVE_KEY);
                 if (!raw) return;
                 const data = JSON.parse(raw);
-                // Восстанавливаем коллекцию как объект счетчиков
                 if (data.collection && typeof data.collection === 'object' && !Array.isArray(data.collection)) {
                     collection = data.collection;
                 } else {
-                    // Миграция со старого формата (массив) в новый, если есть
                     collection = {};
                     if (Array.isArray(data.collection)) {
                         data.collection.forEach(phone => {
@@ -516,17 +512,23 @@
 
                 // Таймеры с защитой от читов
                 const now = Date.now();
-                const maxBasicEnd = now + (COOLDOWN_BASIC * 1000) + 10000; // +10 сек допуск
-                const maxCaseEnd = now + (COOLDOWN_CASE * 1000) + 10000;
+                const maxBasicSec = COOLDOWN_BASIC + 10;
+                const maxCaseSec = COOLDOWN_CASE + 10;
 
-                if (data.timerEndBasic && data.timerEndBasic <= maxBasicEnd && data.timerEndBasic > now) {
-                    startTimer('basic', Math.ceil((data.timerEndBasic - now) / 1000));
+                let remainingBasic = data.timerRemainingBasic || 0;
+                let remainingCase = data.timerRemainingCase || 0;
+
+                // Проверяем, не слишком ли большое оставшееся время (подозрительно)
+                if (remainingBasic > maxBasicSec) remainingBasic = COOLDOWN_BASIC; // штраф
+                if (remainingCase > maxCaseSec) remainingCase = COOLDOWN_CASE;     // штраф
+
+                if (remainingBasic > 0) {
+                    startTimer('basic', Math.ceil(remainingBasic));
                 } else {
                     clearTimer('basic');
                 }
-
-                if (data.timerEndCase && data.timerEndCase <= maxCaseEnd && data.timerEndCase > now) {
-                    startTimer('case', Math.ceil((data.timerEndCase - now) / 1000));
+                if (remainingCase > 0) {
+                    startTimer('case', Math.ceil(remainingCase));
                 } else {
                     clearTimer('case');
                 }
@@ -555,13 +557,17 @@
         function clearTimer(type) {
             if (type === 'basic') {
                 if (timerIdBasic) clearInterval(timerIdBasic);
-                timerIdBasic = null; buttonLockedBasic = false; timerEndBasic = 0;
+                timerIdBasic = null;
+                timerActiveBasic = false;
+                timerRemainingBasic = 0;
                 el.rollBasicBtn.disabled = false;
                 el.rollBasicBtn.textContent = '📱 Открыть телефон';
                 el.timerBasic.textContent = '00:00';
             } else {
                 if (timerIdCase) clearInterval(timerIdCase);
-                timerIdCase = null; buttonLockedCase = false; timerEndCase = 0;
+                timerIdCase = null;
+                timerActiveCase = false;
+                timerRemainingCase = 0;
                 el.rollCaseBtn.disabled = false;
                 el.rollCaseBtn.textContent = '📦 Открыть кейс';
                 el.timerCase.textContent = '00:00';
@@ -570,28 +576,40 @@
 
         function tick(type) {
             if (type === 'basic') {
-                const left = Math.max(0, Math.ceil((timerEndBasic - Date.now()) / 1000));
+                const elapsed = (performance.now() - timerStartBasic) / 1000;
+                const left = Math.max(0, Math.ceil(timerRemainingBasic - elapsed));
                 el.timerBasic.textContent = fmtTime(left);
-                if (left <= 0) { clearTimer('basic'); save(); }
+                if (left <= 0) {
+                    clearTimer('basic');
+                    save();
+                }
             } else {
-                const left = Math.max(0, Math.ceil((timerEndCase - Date.now()) / 1000));
+                const elapsed = (performance.now() - timerStartCase) / 1000;
+                const left = Math.max(0, Math.ceil(timerRemainingCase - elapsed));
                 el.timerCase.textContent = fmtTime(left);
-                if (left <= 0) { clearTimer('case'); save(); }
+                if (left <= 0) {
+                    clearTimer('case');
+                    save();
+                }
             }
         }
 
         function startTimer(type, seconds) {
             if (type === 'basic') {
                 if (timerIdBasic) clearInterval(timerIdBasic);
-                timerEndBasic = Date.now() + seconds * 1000;
-                buttonLockedBasic = true; el.rollBasicBtn.disabled = true;
+                timerRemainingBasic = seconds;
+                timerStartBasic = performance.now();
+                timerActiveBasic = true;
+                el.rollBasicBtn.disabled = true;
                 el.rollBasicBtn.textContent = '⏳ Ожидание...';
                 tick('basic');
                 timerIdBasic = setInterval(() => tick('basic'), 500);
             } else {
                 if (timerIdCase) clearInterval(timerIdCase);
-                timerEndCase = Date.now() + seconds * 1000;
-                buttonLockedCase = true; el.rollCaseBtn.disabled = true;
+                timerRemainingCase = seconds;
+                timerStartCase = performance.now();
+                timerActiveCase = true;
+                el.rollCaseBtn.disabled = true;
                 el.rollCaseBtn.textContent = '⏳ Ожидание...';
                 tick('case');
                 timerIdCase = setInterval(() => tick('case'), 500);
@@ -624,7 +642,7 @@
         }
 
         function rollBasicPhone() {
-            if (buttonLockedBasic) return;
+            if (timerActiveBasic) return;
             const randomIndex = Math.floor(Math.random() * BASIC_PHONES.length);
             const phone = BASIC_PHONES[randomIndex];
             applyPhoneDisplay(phone);
@@ -637,7 +655,7 @@
         }
 
         function rollCasePhone() {
-            if (buttonLockedCase) return;
+            if (timerActiveCase) return;
             const roll = Math.random() * 100;
             let rarity = 'rare';
             let cumulative = 0;
