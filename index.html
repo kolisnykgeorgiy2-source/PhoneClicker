@@ -6,78 +6,63 @@
     <title>PhoneClicker Test-1A</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='80' font-size='80'>📱</text></svg>">
     <style>
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #1a1a2e; display: flex; justify-content: center; align-items: center;
-            min-height: 100vh; min-height: 100dvh; padding: 16px; color: #eee;
-            -webkit-user-select: none; user-select: none;
+        *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}
+        body{
+            font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#1a1a2e;
+            display:flex;justify-content:center;align-items:center;min-height:100vh;min-height:100dvh;
+            padding:16px;color:#eee;-webkit-user-select:none;user-select:none
         }
-        .game-container {
-            background: #16213e; padding: 20px; border-radius: 24px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5); width: 100%; max-width: 400px;
-            position: relative; overflow: hidden;
+        .game-container{
+            background:#16213e;padding:20px;border-radius:24px;box-shadow:0 20px 40px rgba(0,0,0,0.5);
+            width:100%;max-width:400px;position:relative;overflow:hidden
         }
-        h1 { font-size: 24px; margin-bottom: 2px; }
-        .status { font-size: 12px; color: #888; margin-bottom: 8px; }
-        .menu-bar { display: flex; gap: 6px; margin-bottom: 12px; }
-        .menu-btn {
-            flex: 1; background: #0f3460; border: 2px solid transparent;
-            color: #aaa; font-size: 14px; font-weight: bold; padding: 10px 6px;
-            border-radius: 12px; cursor: pointer; transition: 0.2s; text-align: center;
+        h1{font-size:24px;margin-bottom:2px}
+        .status{font-size:12px;color:#888;margin-bottom:8px}
+        .menu-bar{display:flex;gap:6px;margin-bottom:12px}
+        .menu-btn{
+            flex:1;background:#0f3460;border:2px solid transparent;color:#aaa;font-size:14px;
+            font-weight:bold;padding:10px 6px;border-radius:12px;cursor:pointer;transition:0.2s;text-align:center
         }
-        .menu-btn.active { background: #1a4a8a; border-color: #e94560; color: #fff; }
-        .screen { display: none; animation: fadeIn 0.2s ease; }
-        .screen.active { display: block; }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(5px); }
-            to { opacity: 1; transform: translateY(0); }
+        .menu-btn.active{background:#1a4a8a;border-color:#e94560;color:#fff}
+        .screen{display:none;animation:fadeIn 0.2s ease}
+        .screen.active{display:block}
+        @keyframes fadeIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+        .phone-display{
+            font-size:70px;margin-bottom:12px;background:#0f3460;border-radius:20px;padding:20px 16px;
+            min-height:140px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+            border:2px solid #e94560;transition:border-color 0.3s,box-shadow 0.3s
         }
-        .phone-display {
-            font-size: 70px; margin-bottom: 12px; background: #0f3460;
-            border-radius: 20px; padding: 20px 16px; min-height: 140px;
-            display: flex; flex-direction: column; align-items: center;
-            justify-content: center; border: 2px solid #e94560;
-            transition: border-color 0.3s, box-shadow 0.3s;
+        .phone-name{font-size:26px;font-weight:bold;margin-top:8px;color:#e94560;word-break:break-word}
+        .phone-model{font-size:15px;color:#aaa}
+        .timer{
+            font-size:38px;font-weight:bold;color:#f5c542;margin:12px 0;background:#0f3460;
+            padding:16px;border-radius:16px;letter-spacing:3px;font-variant-numeric:tabular-nums
         }
-        .phone-name { font-size: 26px; font-weight: bold; margin-top: 8px; color: #e94560; word-break: break-word; }
-        .phone-model { font-size: 15px; color: #aaa; }
-        .timer {
-            font-size: 38px; font-weight: bold; color: #f5c542;
-            margin: 12px 0; background: #0f3460; padding: 16px;
-            border-radius: 16px; letter-spacing: 3px; font-variant-numeric: tabular-nums;
+        button.main-btn{
+            background:#e94560;border:none;color:white;font-size:20px;font-weight:bold;padding:18px 24px;
+            border-radius:50px;cursor:pointer;box-shadow:0 6px 0 #a82d44;width:100%;margin:8px 0;
+            text-transform:uppercase;letter-spacing:1px;touch-action:manipulation;transition:transform 0.1s,box-shadow 0.1s
         }
-        button.main-btn {
-            background: #e94560; border: none; color: white; font-size: 20px;
-            font-weight: bold; padding: 18px 24px; border-radius: 50px; cursor: pointer;
-            box-shadow: 0 6px 0 #a82d44; width: 100%; margin: 8px 0;
-            text-transform: uppercase; letter-spacing: 1px;
-            touch-action: manipulation; transition: transform 0.1s, box-shadow 0.1s;
-        }
-        button.main-btn:active { transform: translateY(4px); box-shadow: 0 2px 0 #a82d44; }
-        button.main-btn:disabled {
-            background: #555; box-shadow: 0 6px 0 #333;
-            cursor: not-allowed; transform: none; color: #999;
-        }
-        .btn-reset { background: #333; box-shadow: 0 4px 0 #111; font-size: 13px; padding: 8px 14px; margin-bottom: 10px; width: 100%; }
-        .stats-row { display: flex; gap: 8px; margin-top: 10px; }
-        .stat-box { flex: 1; background: #0a0e1a; border-radius: 12px; padding: 10px 6px; text-align: center; }
-        .stat-value { font-size: 22px; font-weight: bold; color: #e94560; }
-        .stat-label { font-size: 11px; color: #888; }
-        .inventory-list { background: #0a0e1a; border-radius: 16px; padding: 12px; max-height: 350px; overflow-y: auto; }
-        .inv-item { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid #222; }
-        .inv-item:last-child { border-bottom: none; }
-        .inv-count { margin-left: auto; background: #1a1a2e; padding: 4px 10px; border-radius: 20px; font-size: 13px; color: #aaa; }
-        .empty-msg { color: #666; text-align: center; padding: 30px 0; font-size: 14px; }
-        .achieve-list { background: #0a0e1a; border-radius: 16px; padding: 12px; max-height: 350px; overflow-y: auto; }
-        .achieve-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid #222; }
-        .achieve-item:last-child { border-bottom: none; }
-        .achieve-icon { font-size: 30px; opacity: 0.3; transition: 0.3s; }
-        .achieve-item.unlocked .achieve-icon { opacity: 1; }
-        .achieve-info { flex: 1; }
-        .achieve-name { font-size: 14px; font-weight: bold; }
-        .achieve-desc { font-size: 12px; color: #888; }
-        .achieve-item:not(.unlocked) .achieve-name { color: #555; }
+        button.main-btn:active{transform:translateY(4px);box-shadow:0 2px 0 #a82d44}
+        button.main-btn:disabled{background:#555;box-shadow:0 6px 0 #333;cursor:not-allowed;transform:none;color:#999}
+        .btn-reset{background:#333;box-shadow:0 4px 0 #111;font-size:13px;padding:8px 14px;margin-bottom:10px;width:100%}
+        .stats-row{display:flex;gap:8px;margin-top:10px}
+        .stat-box{flex:1;background:#0a0e1a;border-radius:12px;padding:10px 6px;text-align:center}
+        .stat-value{font-size:22px;font-weight:bold;color:#e94560}
+        .stat-label{font-size:11px;color:#888}
+        .inventory-list,.achieve-list{background:#0a0e1a;border-radius:16px;padding:12px;max-height:350px;overflow-y:auto}
+        .inv-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #222}
+        .inv-item:last-child{border-bottom:none}
+        .inv-count{margin-left:auto;background:#1a1a2e;padding:4px 10px;border-radius:20px;font-size:13px;color:#aaa}
+        .empty-msg{color:#666;text-align:center;padding:30px 0;font-size:14px}
+        .achieve-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #222}
+        .achieve-item:last-child{border-bottom:none}
+        .achieve-icon{font-size:30px;opacity:0.3;transition:0.3s}
+        .achieve-item.unlocked .achieve-icon{opacity:1}
+        .achieve-info{flex:1}
+        .achieve-name{font-size:14px;font-weight:bold}
+        .achieve-desc{font-size:12px;color:#888}
+        .achieve-item:not(.unlocked) .achieve-name{color:#555}
     </style>
 </head>
 <body>
@@ -85,19 +70,19 @@
         <h1>📱 PhoneClicker</h1>
         <p class="status">Test-1A</p>
         <div class="menu-bar">
-            <button class="menu-btn active" onclick="switchScreen('main')" id="menuMain">🎮 Игра</button>
-            <button class="menu-btn" onclick="switchScreen('inventory')" id="menuInv">📦 Инвентарь</button>
-            <button class="menu-btn" onclick="switchScreen('achieve')" id="menuAch">🏆 Ачивки</button>
+            <button class="menu-btn active" data-screen="main" id="menuMain">🎮 Игра</button>
+            <button class="menu-btn" data-screen="inventory" id="menuInv">📦 Инвентарь</button>
+            <button class="menu-btn" data-screen="achieve" id="menuAch">🏆 Ачивки</button>
         </div>
         <div class="screen active" id="screenMain">
-            <button class="main-btn btn-reset" onclick="resetGame()">🗑 Сбросить прогресс</button>
+            <button class="main-btn btn-reset" id="resetBtn">🗑 Сбросить прогресс</button>
             <div class="phone-display" id="phoneDisplay">
                 <span id="phoneEmoji">📦</span>
                 <span class="phone-name" id="phoneName">???</span>
                 <span class="phone-model" id="phoneModel">Нажми кнопку</span>
             </div>
             <div class="timer" id="timerDisplay">00:00</div>
-            <button class="main-btn" id="rollButton" onclick="rollPhone()">🎲 Открыть телефон</button>
+            <button class="main-btn" id="rollBtn">🎲 Открыть телефон</button>
             <div class="stats-row">
                 <div class="stat-box"><div class="stat-value" id="totalOpened">0</div><div class="stat-label">Открыто</div></div>
                 <div class="stat-box"><div class="stat-value" id="uniquePhones">0</div><div class="stat-label">Уникальных</div></div>
@@ -137,56 +122,67 @@
             mythic:    { label: "Мифический", color: "#f87171", chance: 2,  glow: "0 0 25px #f87171", tier: 5 }
         };
         const ACHIEVEMENTS = [
-            { id: "first_roll",   name: "Первый телефон",   desc: "Открыть телефон впервые",        icon: "📱", check: (s) => s.totalOpened >= 1 },
-            { id: "roll_10",      name: "Коллекционер",     desc: "Открыть 10 телефонов",            icon: "📦", check: (s) => s.totalOpened >= 10 },
-            { id: "roll_50",      name: "Фанатик",          desc: "Открыть 50 телефонов",            icon: "🔥", check: (s) => s.totalOpened >= 50 },
-            { id: "first_rare",   name: "Везунчик",         desc: "Найти редкий телефон",            icon: "💎", check: (s) => s.bestTier >= 2 },
-            { id: "first_epic",   name: "Эпическая удача",  desc: "Найти эпический телефон",         icon: "✨", check: (s) => s.bestTier >= 3 },
-            { id: "first_legend", name: "Легенда",          desc: "Найти легендарный телефон",       icon: "👑", check: (s) => s.bestTier >= 4 },
-            { id: "first_mythic", name: "Миф стал реальностью", desc: "Найти мифический телефон",    icon: "🌟", check: (s) => s.bestTier >= 5 },
-            { id: "all_common",   name: "Базовый набор",    desc: "Собрать все обычные телефоны",    icon: "✅", check: (s) => s.uniqueByRarity.common >= 4 },
-            { id: "all_mythic",   name: "Хранитель мифов",  desc: "Собрать все мифические телефоны", icon: "🏆", check: (s) => s.uniqueByRarity.mythic >= 2 }
+            { id: "first_roll",   name: "Первый телефон",   desc: "Открыть телефон впервые",        icon: "📱", check: s => s.totalOpened >= 1 },
+            { id: "roll_10",      name: "Коллекционер",     desc: "Открыть 10 телефонов",            icon: "📦", check: s => s.totalOpened >= 10 },
+            { id: "roll_50",      name: "Фанатик",          desc: "Открыть 50 телефонов",            icon: "🔥", check: s => s.totalOpened >= 50 },
+            { id: "first_rare",   name: "Везунчик",         desc: "Найти редкий телефон",            icon: "💎", check: (s, phone) => phone && RARITY[phone.rarity].tier === 2 },
+            { id: "first_epic",   name: "Эпическая удача",  desc: "Найти эпический телефон",         icon: "✨", check: (s, phone) => phone && RARITY[phone.rarity].tier === 3 },
+            { id: "first_legend", name: "Легенда",          desc: "Найти легендарный телефон",       icon: "👑", check: (s, phone) => phone && RARITY[phone.rarity].tier === 4 },
+            { id: "first_mythic", name: "Миф стал реальностью", desc: "Найти мифический телефон",    icon: "🌟", check: (s, phone) => phone && RARITY[phone.rarity].tier === 5 },
+            { id: "all_common",   name: "Базовый набор",    desc: "Собрать все обычные телефоны",    icon: "✅", check: s => s.uniqueByRarity.common >= 4 },
+            { id: "all_mythic",   name: "Хранитель мифов",  desc: "Собрать все мифические телефоны", icon: "🏆", check: s => s.uniqueByRarity.mythic >= 2 }
         ];
         const COOLDOWN = 20;
         const SAVE_KEY = 'phoneclicker_save_v2';
-        let collection = [], totalOpened = 0, bestTier = 0, unlockedAchievements = [];
+
+        let collection = [], totalOpened = 0, unlockedAchievements = [];
         let timerEnd = 0, timerId = null, buttonLocked = false;
         let uniqueByRarity = { common: 0, rare: 0, epic: 0, legendary: 0, mythic: 0 };
-        const $ = (id) => document.getElementById(id);
+
+        const $ = id => document.getElementById(id);
         const el = {
             phoneDisplay: $('phoneDisplay'), phoneEmoji: $('phoneEmoji'),
             phoneName: $('phoneName'), phoneModel: $('phoneModel'),
-            timerDisplay: $('timerDisplay'), rollButton: $('rollButton'),
+            timerDisplay: $('timerDisplay'), rollBtn: $('rollBtn'),
             totalOpened: $('totalOpened'), uniquePhones: $('uniquePhones'),
             bestRarity: $('bestRarity'), inventoryList: $('inventoryList'),
-            achieveList: $('achieveList')
+            achieveList: $('achieveList'),
+            screenMain: $('screenMain'), screenInventory: $('screenInventory'),
+            screenAchieve: $('screenAchieve'),
+            menuMain: $('menuMain'), menuInv: $('menuInv'), menuAch: $('menuAch'),
+            resetBtn: $('resetBtn')
         };
-        const fmtTime = (s) => {
-            const m = Math.floor(s / 60), sec = s % 60;
-            return `${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
-        };
+
+        const fmtTime = s => `${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
+
         function updateStats() {
             uniqueByRarity = { common: 0, rare: 0, epic: 0, legendary: 0, mythic: 0 };
             const seen = {};
             for (const phone of collection) {
                 if (!seen[phone.name]) { seen[phone.name] = true; uniqueByRarity[phone.rarity]++; }
             }
-            bestTier = collection.reduce((max, p) => Math.max(max, RARITY[p.rarity].tier), 0);
+            const uniqueCount = Object.keys(seen).length;
+            const bestTier = collection.reduce((max, p) => Math.max(max, RARITY[p.rarity].tier), 0);
             el.totalOpened.textContent = totalOpened;
-            el.uniquePhones.textContent = Object.keys(seen).length;
+            el.uniquePhones.textContent = uniqueCount;
             const bestKey = Object.keys(RARITY).find(k => RARITY[k].tier === bestTier);
             el.bestRarity.textContent = bestKey ? RARITY[bestKey].label : '-';
             el.bestRarity.style.color = bestKey ? RARITY[bestKey].color : '#888';
         }
-        window.switchScreen = function(screen) {
+
+        function switchScreen(screen) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
-            const map = { main:'screenMain', inventory:'screenInventory', achieve:'screenAchieve' };
-            const btnMap = { main:'menuMain', inventory:'menuInv', achieve:'menuAch' };
-            if (map[screen]) { $(map[screen]).classList.add('active'); $(btnMap[screen]).classList.add('active'); }
+            const screens = { main: el.screenMain, inventory: el.screenInventory, achieve: el.screenAchieve };
+            const btns = { main: el.menuMain, inventory: el.menuInv, achieve: el.menuAch };
+            if (screens[screen]) {
+                screens[screen].classList.add('active');
+                btns[screen].classList.add('active');
+            }
             if (screen === 'inventory') renderInventory();
             if (screen === 'achieve') renderAchievements();
-        };
+        }
+
         function renderInventory() {
             if (collection.length === 0) {
                 el.inventoryList.innerHTML = '<div class="empty-msg">📦 Пока пусто...</div>'; return;
@@ -205,21 +201,21 @@
             }
             el.inventoryList.innerHTML = html;
         }
+
         function checkAchievements(phone) {
-            const stats = { totalOpened, bestTier, uniqueByRarity };
+            const stats = { totalOpened, bestTier: collection.reduce((max, p) => Math.max(max, RARITY[p.rarity].tier), 0), uniqueByRarity };
             let changed = false;
             for (const ach of ACHIEVEMENTS) {
                 if (unlockedAchievements.includes(ach.id)) continue;
-                let unlock = false;
-                if (ach.id === 'first_rare' && phone && RARITY[phone.rarity].tier === 2) unlock = true;
-                else if (ach.id === 'first_epic' && phone && RARITY[phone.rarity].tier === 3) unlock = true;
-                else if (ach.id === 'first_legend' && phone && RARITY[phone.rarity].tier === 4) unlock = true;
-                else if (ach.id === 'first_mythic' && phone && RARITY[phone.rarity].tier === 5) unlock = true;
-                else if (ach.check(stats)) unlock = true;
-                if (unlock) { unlockedAchievements.push(ach.id); changed = true; }
+                if (ach.check.length > 1 && phone) {
+                    if (ach.check(stats, phone)) { unlockedAchievements.push(ach.id); changed = true; }
+                } else if (ach.check(stats)) {
+                    unlockedAchievements.push(ach.id); changed = true;
+                }
             }
             if (changed) { renderAchievements(); save(); }
         }
+
         function renderAchievements() {
             let html = '';
             for (const ach of ACHIEVEMENTS) {
@@ -231,12 +227,14 @@
             }
             el.achieveList.innerHTML = html;
         }
+
         function save() {
             localStorage.setItem(SAVE_KEY, JSON.stringify({
                 collection, totalOpened, unlockedAchievements,
                 timerEnd: buttonLocked ? timerEnd : 0
             }));
         }
+
         function load() {
             try {
                 const raw = localStorage.getItem(SAVE_KEY);
@@ -245,81 +243,110 @@
                 collection = data.collection || [];
                 totalOpened = data.totalOpened || 0;
                 unlockedAchievements = data.unlockedAchievements || [];
-                updateStats(); renderAchievements();
-                if (data.timerEnd && data.timerEnd > Date.now()) {
-                    startTimer(Math.ceil((data.timerEnd - Date.now()) / 1000));
+                updateStats();
+                renderAchievements();
+                if (data.timerEnd) {
+                    if (data.timerEnd > Date.now()) {
+                        startTimer(Math.ceil((data.timerEnd - Date.now()) / 1000));
+                    } else {
+                        clearTimer();
+                    }
                 }
-            } catch (e) { collection = []; totalOpened = 0; unlockedAchievements = []; }
+            } catch (e) {
+                collection = [];
+                totalOpened = 0;
+                unlockedAchievements = [];
+            }
         }
+
         function resetGame() {
             if (!confirm('Точно сбросить весь прогресс?')) return;
             localStorage.removeItem(SAVE_KEY);
-            collection = []; totalOpened = 0; unlockedAchievements = [];
+            collection = [];
+            totalOpened = 0;
+            unlockedAchievements = [];
             clearTimer();
-            el.phoneEmoji.textContent = '📦'; el.phoneName.textContent = '???';
-            el.phoneName.style.color = '#e94560'; el.phoneModel.textContent = 'Нажми кнопку';
-            el.phoneModel.style.color = '#aaa'; el.phoneDisplay.style.borderColor = '#e94560';
+            el.phoneEmoji.textContent = '📦';
+            el.phoneName.textContent = '???';
+            el.phoneName.style.color = '#e94560';
+            el.phoneModel.textContent = 'Нажми кнопку';
+            el.phoneModel.style.color = '#aaa';
+            el.phoneDisplay.style.borderColor = '#e94560';
             el.phoneDisplay.style.boxShadow = 'none';
-            updateStats(); renderInventory(); renderAchievements();
+            updateStats();
+            renderInventory();
+            renderAchievements();
         }
+
         function clearTimer() {
             if (timerId) clearInterval(timerId);
-            timerId = null; buttonLocked = false; timerEnd = 0;
-            el.rollButton.disabled = false; el.rollButton.textContent = '🎲 Открыть телефон';
+            timerId = null;
+            buttonLocked = false;
+            timerEnd = 0;
+            el.rollBtn.disabled = false;
+            el.rollBtn.textContent = '🎲 Открыть телефон';
             el.timerDisplay.textContent = '00:00';
         }
+
         function tick() {
             const left = Math.max(0, Math.ceil((timerEnd - Date.now()) / 1000));
             el.timerDisplay.textContent = fmtTime(left);
-            if (left <= 0) { clearTimer(); save(); }
+            if (left <= 0) {
+                clearTimer();
+                save();
+            }
         }
+
         function startTimer(seconds) {
             if (timerId) clearInterval(timerId);
             timerEnd = Date.now() + seconds * 1000;
-            buttonLocked = true; el.rollButton.disabled = true;
-            el.rollButton.textContent = '⏳ Ожидание...';
-            tick(); timerId = setInterval(tick, 500); save();
+            buttonLocked = true;
+            el.rollBtn.disabled = true;
+            el.rollBtn.textContent = '⏳ Ожидание...';
+            tick();
+            timerId = setInterval(tick, 500);
+            save();
         }
-window.rollPhone = function() {
-    if (buttonLocked) return;
-    
-    // Генерируем случайное число от 0 до 100
-    let roll = Math.random() * 100;
-    let rarity = 'common';
-    let cumulative = 0;
-    
-    // Правильный перебор редкостей по порядку
-    const rarityOrder = ['common', 'rare', 'epic', 'legendary', 'mythic'];
-    
-    for (const key of rarityOrder) {
-        cumulative += RARITY[key].chance;
-        if (roll < cumulative) {
-            rarity = key;
-            break;
+
+        function rollPhone() {
+            if (buttonLocked) return;
+            const roll = Math.random() * 100;
+            let rarity = 'common', cumulative = 0;
+            for (const key of ['common', 'rare', 'epic', 'legendary', 'mythic']) {
+                cumulative += RARITY[key].chance;
+                if (roll < cumulative) { rarity = key; break; }
+            }
+            const pool = PHONES.filter(p => p.rarity === rarity);
+            const phone = pool[Math.floor(Math.random() * pool.length)];
+            const cfg = RARITY[phone.rarity];
+
+            el.phoneEmoji.textContent = phone.emoji;
+            el.phoneName.textContent = phone.name;
+            el.phoneName.style.color = cfg.color;
+            el.phoneModel.textContent = `${cfg.label} • ${phone.year}`;
+            el.phoneModel.style.color = cfg.color;
+            el.phoneDisplay.style.borderColor = cfg.color;
+            el.phoneDisplay.style.boxShadow = cfg.glow;
+
+            collection.push(phone);
+            totalOpened++;
+            updateStats();
+            checkAchievements(phone);
+            save();
+            startTimer(COOLDOWN);
         }
-    }
-    
-    const pool = PHONES.filter(p => p.rarity === rarity);
-    const phone = pool[Math.floor(Math.random() * pool.length)];
-    const cfg = RARITY[phone.rarity];
-    
-    el.phoneEmoji.textContent = phone.emoji;
-    el.phoneName.textContent = phone.name; 
-    el.phoneName.style.color = cfg.color;
-    el.phoneModel.textContent = `${cfg.label} • ${phone.year}`; 
-    el.phoneModel.style.color = cfg.color;
-    el.phoneDisplay.style.borderColor = cfg.color; 
-    el.phoneDisplay.style.boxShadow = cfg.glow;
-    
-    collection.push(phone); 
-    totalOpened++;
-    updateStats(); 
-    checkAchievements(phone); 
-    save(); 
-    startTimer(COOLDOWN);
-};
-        window.resetGame = resetGame;
-        renderAchievements(); load(); updateStats();
+
+        // Навешиваем обработчики
+        el.rollBtn.addEventListener('click', rollPhone);
+        el.resetBtn.addEventListener('click', resetGame);
+        document.querySelectorAll('.menu-btn').forEach(btn => {
+            btn.addEventListener('click', () => switchScreen(btn.dataset.screen));
+        });
+
+        // Старт
+        renderAchievements();
+        load();
+        updateStats();
     })();
     </script>
 </body>
