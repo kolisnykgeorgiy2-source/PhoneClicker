@@ -191,11 +191,16 @@
         mythic:    { label: "Мифический", color: "#f87171", chance: 2, glow: "0 0 25px #f87171" }
     };
 
+    // Загрузка сохранённых данных
     let collectedPhones = [];
     let timerActive = false;
     let timerSeconds = 0;
     let timerInterval = null;
+    let timerEndTime = 0; // Время окончания таймера (timestamp)
     const targetSeconds = 20; // Для теста
+
+    // Ключ для localStorage
+    const SAVE_KEY = 'phoneclicker_save';
 
     // Элементы DOM
     const phoneEmojiEl = document.getElementById('phoneEmoji');
@@ -205,6 +210,61 @@
     const rollButton = document.getElementById('rollButton');
     const collectionListEl = document.getElementById('collectionList');
     const phoneDisplay = document.getElementById('phoneDisplay');
+
+    // Сохранение в localStorage
+    function saveGame() {
+        const saveData = {
+            collectedPhones: collectedPhones,
+            timerEndTime: timerActive ? timerEndTime : 0,
+            savedAt: Date.now()
+        };
+        localStorage.setItem(SAVE_KEY, JSON.stringify(saveData));
+    }
+
+    // Загрузка из localStorage
+    function loadGame() {
+        const saved = localStorage.getItem(SAVE_KEY);
+        if (saved) {
+            try {
+                const saveData = JSON.parse(saved);
+                collectedPhones = saveData.collectedPhones || [];
+                
+                // Восстановление таймера
+                if (saveData.timerEndTime && saveData.timerEndTime > Date.now()) {
+                    const remainingSeconds = Math.ceil((saveData.timerEndTime - Date.now()) / 1000);
+                    startTimer(remainingSeconds);
+                }
+                
+                updateCollection();
+            } catch (e) {
+                console.log('Ошибка загрузки сохранения');
+                collectedPhones = [];
+            }
+        }
+    }
+
+    // Сброс сохранения
+    function resetGame() {
+        if (confirm('Точно сбросить весь прогресс? Это нельзя отменить.')) {
+            localStorage.removeItem(SAVE_KEY);
+            collectedPhones = [];
+            if (timerInterval) clearInterval(timerInterval);
+            timerActive = false;
+            timerSeconds = 0;
+            timerEndTime = 0;
+            rollButton.disabled = false;
+            rollButton.textContent = '🎲 Открыть телефон';
+            timerDisplayEl.textContent = '00:00';
+            phoneEmojiEl.textContent = '📦';
+            phoneNameEl.textContent = '???';
+            phoneNameEl.style.color = '#e94560';
+            phoneModelEl.textContent = 'Нажми кнопку';
+            phoneModelEl.style.color = '#aaa';
+            phoneDisplay.style.borderColor = '#e94560';
+            phoneDisplay.style.boxShadow = 'none';
+            updateCollection();
+        }
+    }
 
     function formatTime(seconds) {
         const mins = Math.floor(seconds / 60);
@@ -217,19 +277,25 @@
         if (timerSeconds <= 0) {
             clearInterval(timerInterval);
             timerActive = false;
+            timerEndTime = 0;
             rollButton.disabled = false;
             rollButton.textContent = '🎲 Открыть телефон';
             timerDisplayEl.textContent = '00:00';
+            saveGame();
         }
     }
 
     function startTimer(durationSeconds) {
         if (timerInterval) clearInterval(timerInterval);
+        
         timerSeconds = durationSeconds;
+        timerEndTime = Date.now() + (durationSeconds * 1000);
         timerActive = true;
         rollButton.disabled = true;
         rollButton.textContent = '⏳ Ожидание...';
         updateTimerDisplay();
+        saveGame();
+
         timerInterval = setInterval(() => {
             timerSeconds--;
             updateTimerDisplay();
@@ -240,7 +306,6 @@
     function rollPhone() {
         if (timerActive) return;
 
-        // Генерируем случайное число от 1 до 100
         const roll = Math.random() * 100;
         let selectedRarity = 'common';
         let cumulative = 0;
@@ -253,13 +318,11 @@
             }
         }
 
-        // Фильтруем телефоны нужной редкости
         const phonesOfRarity = phones.filter(p => p.rarity === selectedRarity);
         const randomIndex = Math.floor(Math.random() * phonesOfRarity.length);
         const rolledPhone = phonesOfRarity[randomIndex];
         const rarityInfo = rarityConfig[rolledPhone.rarity];
 
-        // Отображаем телефон с эффектом редкости
         phoneEmojiEl.textContent = rolledPhone.emoji;
         phoneNameEl.textContent = rolledPhone.name;
         phoneNameEl.style.color = rarityInfo.color;
@@ -270,6 +333,7 @@
 
         collectedPhones.push(rolledPhone);
         updateCollection();
+        saveGame();
         startTimer(targetSeconds);
     }
 
@@ -292,7 +356,11 @@
         });
         collectionListEl.innerHTML = html;
         collectionListEl.scrollTop = collectionListEl.scrollHeight;
+        saveGame();
     }
+
+    // Загрузка сохранения при старте
+    loadGame();
 </script>
 </body>
 </html>
