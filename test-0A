@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PhoneClicker Pre-Alpha</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1a1a2e;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            min-height: 100dvh;
+            margin: 0;
+            padding: 16px;
+            color: #eee;
+            text-align: center;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+        .game-container {
+            background: #16213e;
+            padding: 24px 20px;
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            width: 100%;
+            max-width: 400px;
+        }
+        h1 {
+            font-size: 26px;
+            margin: 0 0 4px;
+        }
+        .status {
+            font-size: 13px;
+            color: #888;
+            margin: 0 0 16px;
+        }
+        .phone-display {
+            font-size: 70px;
+            margin: 0 0 16px;
+            background: #0f3460;
+            border-radius: 20px;
+            padding: 20px 16px;
+            min-height: 140px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #e94560;
+            transition: 0.3s;
+        }
+        .phone-name {
+            font-size: 26px;
+            font-weight: bold;
+            margin-top: 8px;
+            color: #e94560;
+            word-break: break-word;
+        }
+        .phone-model {
+            font-size: 15px;
+            color: #aaa;
+        }
+        .timer {
+            font-size: 38px;
+            font-weight: bold;
+            color: #f5c542;
+            margin: 16px 0;
+            background: #0f3460;
+            padding: 16px;
+            border-radius: 16px;
+            letter-spacing: 3px;
+        }
+        button {
+            background: #e94560;
+            border: none;
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+            padding: 18px 24px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: 0.15s;
+            box-shadow: 0 6px 0 #a82d44;
+            width: 100%;
+            margin: 8px 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            touch-action: manipulation;
+        }
+        button:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 #a82d44;
+        }
+        button:disabled {
+            background: #555;
+            box-shadow: 0 6px 0 #333;
+            cursor: not-allowed;
+            transform: none;
+            color: #999;
+        }
+        .collection {
+            margin-top: 20px;
+            text-align: left;
+            background: #0a0e1a;
+            padding: 16px;
+            border-radius: 16px;
+            max-height: 220px;
+            overflow-y: auto;
+        }
+        .collection h3 {
+            margin: 0 0 12px;
+            color: #e94560;
+            font-size: 16px;
+        }
+        .collection-item {
+            padding: 10px 0;
+            border-bottom: 1px solid #333;
+            font-size: 15px;
+            color: #ccc;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .collection-item:last-child {
+            border-bottom: none;
+        }
+        .collection-empty {
+            color: #666;
+            font-size: 14px;
+            text-align: center;
+            padding: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>📱 PhoneClicker</h1>
+        <p class="status">Pre-Alpha v0.1</p>
+        
+        <div class="phone-display" id="phoneDisplay">
+            <span id="phoneEmoji">📦</span>
+            <span class="phone-name" id="phoneName">???</span>
+            <span class="phone-model" id="phoneModel">Нажми кнопку</span>
+        </div>
+
+        <div class="timer" id="timerDisplay">00:00</div>
+
+        <button id="rollButton" onclick="rollPhone()">🎲 Открыть телефон</button>
+
+        <div class="collection">
+            <h3>📋 Коллекция</h3>
+            <div id="collectionList"><span class="collection-empty">Пока пусто...</span></div>
+        </div>
+    </div>
+
+    <script>
+        // База телефонов
+        const phones = [
+            { name: "iPhone 3GS", emoji: "📱", modelYear: "2009" },
+            { name: "iPhone 4", emoji: "📱", modelYear: "2010" },
+            { name: "iPhone 5s", emoji: "📱", modelYear: "2013" },
+            { name: "iPhone 6", emoji: "📱", modelYear: "2014" },
+            { name: "iPhone X", emoji: "📱", modelYear: "2017" },
+            { name: "iPhone 12", emoji: "📱", modelYear: "2020" },
+            { name: "Nokia 3310", emoji: "📞", modelYear: "2000" },
+            { name: "Samsung Galaxy S2", emoji: "📱", modelYear: "2011" },
+            { name: "Xiaomi Mi 1", emoji: "📱", modelYear: "2011" },
+            { name: "Google Pixel", emoji: "📱", modelYear: "2016" }
+        ];
+
+        let collectedPhones = [];
+        let timerActive = false;
+        let timerSeconds = 0;
+        let timerInterval = null;
+        // Для теста: 20 секунд. Для игры: 20 * 60 = 1200
+        const targetSeconds = 20;
+
+        // Элементы DOM
+        const phoneEmojiEl = document.getElementById('phoneEmoji');
+        const phoneNameEl = document.getElementById('phoneName');
+        const phoneModelEl = document.getElementById('phoneModel');
+        const timerDisplayEl = document.getElementById('timerDisplay');
+        const rollButton = document.getElementById('rollButton');
+        const collectionListEl = document.getElementById('collectionList');
+
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        function updateTimerDisplay() {
+            timerDisplayEl.textContent = formatTime(timerSeconds);
+            
+            if (timerSeconds <= 0) {
+                clearInterval(timerInterval);
+                timerActive = false;
+                rollButton.disabled = false;
+                rollButton.textContent = '🎲 Открыть телефон';
+                timerDisplayEl.textContent = '00:00';
+            }
+        }
+
+        function startTimer(durationSeconds) {
+            if (timerInterval) clearInterval(timerInterval);
+            
+            timerSeconds = durationSeconds;
+            timerActive = true;
+            rollButton.disabled = true;
+            rollButton.textContent = '⏳ Ожидание...';
+            updateTimerDisplay();
+
+            timerInterval = setInterval(() => {
+                timerSeconds--;
+                updateTimerDisplay();
+            }, 1000);
+        }
+
+        function rollPhone() {
+            if (timerActive) return;
+
+            const randomIndex = Math.floor(Math.random() * phones.length);
+            const rolledPhone = phones[randomIndex];
+
+            phoneEmojiEl.textContent = rolledPhone.emoji;
+            phoneNameEl.textContent = rolledPhone.name;
+            phoneModelEl.textContent = `Год: ${rolledPhone.modelYear}`;
+
+            collectedPhones.push(rolledPhone);
+            updateCollection();
+
+            startTimer(targetSeconds);
+        }
+
+        function updateCollection() {
+            if (collectedPhones.length === 0) {
+                collectionListEl.innerHTML = '<span class="collection-empty">Пока пусто...</span>';
+                return;
+            }
+
+            let html = '';
+            collectedPhones.forEach((phone, index) => {
+                html += `
+                    <div class="collection-item">
+                        <span>${phone.emoji}</span>
+                        <span>${phone.name} (${phone.modelYear})</span>
+                    </div>
+                `;
+            });
+            collectionListEl.innerHTML = html;
+            collectionListEl.scrollTop = collectionListEl.scrollHeight;
+        }
+    </script>
+</body>
+</html>
