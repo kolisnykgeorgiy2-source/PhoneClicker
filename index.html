@@ -3,49 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PhoneClicker Test-0E</title>
+    <title>PhoneClicker Test-1A</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='80' font-size='80'>📱</text></svg>">
     <style>
-        * {
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-            margin: 0;
-            padding: 0;
-        }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: #1a1a2e;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
-            min-height: 100dvh;
-            padding: 16px;
-            color: #eee;
-            text-align: center;
-            -webkit-user-select: none;
-            user-select: none;
+            min-height: 100vh; min-height: 100dvh;
+            padding: 16px; color: #eee;
+            -webkit-user-select: none; user-select: none;
         }
         .game-container {
             background: #16213e;
-            padding: 24px 20px;
+            padding: 20px;
             border-radius: 24px;
             box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-            width: 100%;
-            max-width: 400px;
+            width: 100%; max-width: 400px;
+            position: relative;
+            overflow: hidden;
         }
-        h1 {
-            font-size: 26px;
-            margin-bottom: 4px;
+        h1 { font-size: 24px; margin-bottom: 2px; }
+        .status { font-size: 12px; color: #888; margin-bottom: 8px; }
+
+        /* ── МЕНЮ-БАР ──────────────────────── */
+        .menu-bar {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 12px;
         }
-        .status {
-            font-size: 13px;
-            color: #888;
-            margin-bottom: 16px;
+        .menu-btn {
+            flex: 1;
+            background: #0f3460;
+            border: 2px solid transparent;
+            color: #aaa;
+            font-size: 14px;
+            font-weight: bold;
+            padding: 10px 6px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: 0.2s;
+            text-align: center;
         }
+        .menu-btn.active {
+            background: #1a4a8a;
+            border-color: #e94560;
+            color: #fff;
+        }
+
+        /* ── ЭКРАНЫ ────────────────────────── */
+        .screen {
+            display: none;
+            animation: fadeIn 0.2s ease;
+        }
+        .screen.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── ГЛАВНЫЙ ЭКРАН ─────────────────── */
         .phone-display {
             font-size: 70px;
-            margin-bottom: 16px;
+            margin-bottom: 12px;
             background: #0f3460;
             border-radius: 20px;
             padding: 20px 16px;
@@ -58,116 +83,187 @@
             transition: border-color 0.3s, box-shadow 0.3s;
         }
         .phone-name {
-            font-size: 26px;
-            font-weight: bold;
-            margin-top: 8px;
-            color: #e94560;
+            font-size: 26px; font-weight: bold;
+            margin-top: 8px; color: #e94560;
             word-break: break-word;
         }
         .phone-model {
-            font-size: 15px;
-            color: #aaa;
+            font-size: 15px; color: #aaa;
         }
         .timer {
-            font-size: 38px;
-            font-weight: bold;
+            font-size: 38px; font-weight: bold;
             color: #f5c542;
-            margin: 16px 0;
+            margin: 12px 0;
             background: #0f3460;
-            padding: 16px;
-            border-radius: 16px;
+            padding: 16px; border-radius: 16px;
             letter-spacing: 3px;
             font-variant-numeric: tabular-nums;
         }
-        button {
-            background: #e94560;
-            border: none;
-            color: white;
-            font-size: 20px;
-            font-weight: bold;
-            padding: 18px 24px;
-            border-radius: 50px;
+        button.main-btn {
+            background: #e94560; border: none;
+            color: white; font-size: 20px; font-weight: bold;
+            padding: 18px 24px; border-radius: 50px;
             cursor: pointer;
             box-shadow: 0 6px 0 #a82d44;
-            width: 100%;
-            margin: 8px 0;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            width: 100%; margin: 8px 0;
+            text-transform: uppercase; letter-spacing: 1px;
             touch-action: manipulation;
             transition: transform 0.1s, box-shadow 0.1s;
         }
-        button:active {
+        button.main-btn:active {
             transform: translateY(4px);
             box-shadow: 0 2px 0 #a82d44;
         }
-        button:disabled {
-            background: #555;
-            box-shadow: 0 6px 0 #333;
-            cursor: not-allowed;
-            transform: none;
-            color: #999;
+        button.main-btn:disabled {
+            background: #555; box-shadow: 0 6px 0 #333;
+            cursor: not-allowed; transform: none; color: #999;
         }
         .btn-reset {
-            background: #333;
-            box-shadow: 0 4px 0 #111;
-            font-size: 14px;
-            padding: 8px 16px;
-            margin-bottom: 12px;
+            background: #333; box-shadow: 0 4px 0 #111;
+            font-size: 13px; padding: 8px 14px;
+            margin-bottom: 10px; width: 100%;
         }
-        .collection {
-            margin-top: 20px;
-            text-align: left;
+        .stats-row {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .stat-box {
+            flex: 1;
             background: #0a0e1a;
-            padding: 16px;
+            border-radius: 12px;
+            padding: 10px 6px;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 22px;
+            font-weight: bold;
+            color: #e94560;
+        }
+        .stat-label {
+            font-size: 11px;
+            color: #888;
+        }
+
+        /* ── ИНВЕНТАРЬ ─────────────────────── */
+        .inventory-list {
+            background: #0a0e1a;
             border-radius: 16px;
-            max-height: 220px;
+            padding: 12px;
+            max-height: 350px;
             overflow-y: auto;
         }
-        .collection h3 {
-            margin-bottom: 12px;
-            color: #e94560;
-            font-size: 16px;
-        }
-        .collection-item {
-            padding: 10px 0;
-            border-bottom: 1px solid #333;
-            font-size: 15px;
-            color: #ccc;
+        .inv-item {
             display: flex;
             align-items: center;
             gap: 10px;
-        }
-        .collection-item:last-child {
-            border-bottom: none;
-        }
-        .collection-empty {
-            color: #666;
-            font-size: 14px;
-            text-align: center;
-            display: block;
             padding: 10px 0;
+            border-bottom: 1px solid #222;
+        }
+        .inv-item:last-child { border-bottom: none; }
+        .inv-count {
+            margin-left: auto;
+            background: #1a1a2e;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 13px;
+            color: #aaa;
+        }
+        .empty-msg {
+            color: #666;
+            text-align: center;
+            padding: 30px 0;
+            font-size: 14px;
+        }
+
+        /* ── ДОСТИЖЕНИЯ ────────────────────── */
+        .achieve-list {
+            background: #0a0e1a;
+            border-radius: 16px;
+            padding: 12px;
+            max-height: 350px;
+            overflow-y: auto;
+        }
+        .achieve-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid #222;
+        }
+        .achieve-item:last-child { border-bottom: none; }
+        .achieve-icon {
+            font-size: 30px;
+            opacity: 0.3;
+            transition: 0.3s;
+        }
+        .achieve-item.unlocked .achieve-icon {
+            opacity: 1;
+        }
+        .achieve-info {
+            flex: 1;
+        }
+        .achieve-name {
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .achieve-desc {
+            font-size: 12px;
+            color: #888;
+        }
+        .achieve-item:not(.unlocked) .achieve-name {
+            color: #555;
         }
     </style>
 </head>
 <body>
     <div class="game-container">
         <h1>📱 PhoneClicker</h1>
-        <p class="status">Test-0E</p>
-        <button class="btn-reset" onclick="resetGame()">🗑 Сбросить прогресс</button>
+        <p class="status">Test-1A</p>
 
-        <div class="phone-display" id="phoneDisplay">
-            <span id="phoneEmoji">📦</span>
-            <span class="phone-name" id="phoneName">???</span>
-            <span class="phone-model" id="phoneModel">Нажми кнопку</span>
+        <!-- Меню-бар -->
+        <div class="menu-bar">
+            <button class="menu-btn active" onclick="switchScreen('main')" id="menuMain">🎮 Игра</button>
+            <button class="menu-btn" onclick="switchScreen('inventory')" id="menuInv">📦 Инвентарь</button>
+            <button class="menu-btn" onclick="switchScreen('achieve')" id="menuAch">🏆 Ачивки</button>
         </div>
 
-        <div class="timer" id="timerDisplay">00:00</div>
+        <!-- Главный экран -->
+        <div class="screen active" id="screenMain">
+            <button class="main-btn btn-reset" onclick="resetGame()">🗑 Сбросить прогресс</button>
+            <div class="phone-display" id="phoneDisplay">
+                <span id="phoneEmoji">📦</span>
+                <span class="phone-name" id="phoneName">???</span>
+                <span class="phone-model" id="phoneModel">Нажми кнопку</span>
+            </div>
+            <div class="timer" id="timerDisplay">00:00</div>
+            <button class="main-btn" id="rollButton" onclick="rollPhone()">🎲 Открыть телефон</button>
+            <div class="stats-row">
+                <div class="stat-box">
+                    <div class="stat-value" id="totalOpened">0</div>
+                    <div class="stat-label">Открыто</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="uniquePhones">0</div>
+                    <div class="stat-label">Уникальных</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="bestRarity">-</div>
+                    <div class="stat-label">Лучшая редкость</div>
+                </div>
+            </div>
+        </div>
 
-        <button id="rollButton" onclick="rollPhone()">🎲 Открыть телефон</button>
+        <!-- Инвентарь -->
+        <div class="screen" id="screenInventory">
+            <div class="inventory-list" id="inventoryList">
+                <div class="empty-msg">Пока пусто...</div>
+            </div>
+        </div>
 
-        <div class="collection">
-            <h3>📋 Коллекция</h3>
-            <div id="collectionList"><span class="collection-empty">Пока пусто...</span></div>
+        <!-- Достижения -->
+        <div class="screen" id="screenAchieve">
+            <div class="achieve-list" id="achieveList"></div>
         </div>
     </div>
 
@@ -193,21 +289,37 @@
         ];
 
         const RARITY = {
-            common:    { label: "Обычный",    color: "#4ade80", chance: 45, glow: "0 0 10px #4ade80" },
-            rare:      { label: "Редкий",     color: "#60a5fa", chance: 30, glow: "0 0 10px #60a5fa" },
-            epic:      { label: "Эпический",  color: "#c084fc", chance: 15, glow: "0 0 15px #c084fc" },
-            legendary: { label: "Легендарный", color: "#fbbf24", chance: 8,  glow: "0 0 20px #fbbf24" },
-            mythic:    { label: "Мифический", color: "#f87171", chance: 2,  glow: "0 0 25px #f87171" }
+            common:    { label: "Обычный",    color: "#4ade80", chance: 45, glow: "0 0 10px #4ade80", tier: 1 },
+            rare:      { label: "Редкий",     color: "#60a5fa", chance: 30, glow: "0 0 10px #60a5fa", tier: 2 },
+            epic:      { label: "Эпический",  color: "#c084fc", chance: 15, glow: "0 0 15px #c084fc", tier: 3 },
+            legendary: { label: "Легендарный", color: "#fbbf24", chance: 8,  glow: "0 0 20px #fbbf24", tier: 4 },
+            mythic:    { label: "Мифический", color: "#f87171", chance: 2,  glow: "0 0 25px #f87171", tier: 5 }
         };
 
-        const COOLDOWN = 20; // секунд для теста
-        const SAVE_KEY = 'phoneclicker_save';
+        const ACHIEVEMENTS = [
+            { id: "first_roll",   name: "Первый телефон",   desc: "Открыть телефон впервые",        icon: "📱", check: (s) => s.totalOpened >= 1 },
+            { id: "roll_10",      name: "Коллекционер",     desc: "Открыть 10 телефонов",            icon: "📦", check: (s) => s.totalOpened >= 10 },
+            { id: "roll_50",      name: "Фанатик",          desc: "Открыть 50 телефонов",            icon: "🔥", check: (s) => s.totalOpened >= 50 },
+            { id: "first_rare",   name: "Везунчик",         desc: "Найти редкий телефон",            icon: "💎", check: (s) => s.bestTier >= 2 },
+            { id: "first_epic",   name: "Эпическая удача",  desc: "Найти эпический телефон",         icon: "✨", check: (s) => s.bestTier >= 3 },
+            { id: "first_legend", name: "Легенда",          desc: "Найти легендарный телефон",       icon: "👑", check: (s) => s.bestTier >= 4 },
+            { id: "first_mythic", name: "Миф стал реальностью", desc: "Найти мифический телефон",    icon: "🌟", check: (s) => s.bestTier >= 5 },
+            { id: "all_common",   name: "Базовый набор",    desc: "Собрать все обычные телефоны",    icon: "✅", check: (s) => s.uniqueByRarity.common >= 4 },
+            { id: "all_mythic",   name: "Хранитель мифов",  desc: "Собрать все мифические телефоны", icon: "🏆", check: (s) => s.uniqueByRarity.mythic >= 2 }
+        ];
+
+        const COOLDOWN = 20;
+        const SAVE_KEY = 'phoneclicker_save_v2';
 
         // ─── СОСТОЯНИЕ ─────────────────────────
         let collection = [];
+        let totalOpened = 0;
+        let bestTier = 0;
+        let unlockedAchievements = [];
         let timerEnd = 0;
         let timerId = null;
         let buttonLocked = false;
+        let uniqueByRarity = { common: 0, rare: 0, epic: 0, legendary: 0, mythic: 0 };
 
         // ─── DOM-ЭЛЕМЕНТЫ ────────────────────
         const $ = (id) => document.getElementById(id);
@@ -218,7 +330,11 @@
             phoneModel:   $('phoneModel'),
             timerDisplay: $('timerDisplay'),
             rollButton:   $('rollButton'),
-            collectionList: $('collectionList')
+            totalOpened:  $('totalOpened'),
+            uniquePhones: $('uniquePhones'),
+            bestRarity:   $('bestRarity'),
+            inventoryList: $('inventoryList'),
+            achieveList:  $('achieveList')
         };
 
         // ─── УТИЛИТЫ ──────────────────────────
@@ -228,10 +344,106 @@
             return `${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
         };
 
+        function updateStats() {
+            // Уникальные по редкости
+            uniqueByRarity = { common: 0, rare: 0, epic: 0, legendary: 0, mythic: 0 };
+            const seen = {};
+            for (const phone of collection) {
+                if (!seen[phone.name]) {
+                    seen[phone.name] = true;
+                    uniqueByRarity[phone.rarity]++;
+                }
+            }
+            const uniqueCount = Object.keys(seen).length;
+            bestTier = collection.reduce((max, p) => Math.max(max, RARITY[p.rarity].tier), 0);
+
+            el.totalOpened.textContent = totalOpened;
+            el.uniquePhones.textContent = uniqueCount;
+            const bestRarityKey = Object.keys(RARITY).find(k => RARITY[k].tier === bestTier);
+            el.bestRarity.textContent = bestRarityKey ? RARITY[bestRarityKey].label : '-';
+            el.bestRarity.style.color = bestRarityKey ? RARITY[bestRarityKey].color : '#888';
+        }
+
+        // ─── ЭКРАНЫ ────────────────────────────
+        window.switchScreen = function(screen) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
+
+            const screenMap = {
+                'main':      { screen: 'screenMain',      btn: 'menuMain' },
+                'inventory': { screen: 'screenInventory', btn: 'menuInv' },
+                'achieve':   { screen: 'screenAchieve',   btn: 'menuAch' }
+            };
+
+            const target = screenMap[screen];
+            if (!target) return;
+            document.getElementById(target.screen).classList.add('active');
+            document.getElementById(target.btn).classList.add('active');
+
+            if (screen === 'inventory') renderInventory();
+            if (screen === 'achieve') renderAchievements();
+        };
+
+        // ─── ИНВЕНТАРЬ ─────────────────────────
+        function renderInventory() {
+            if (collection.length === 0) {
+                el.inventoryList.innerHTML = '<div class="empty-msg">📦 Пока пусто... Открой свой первый телефон!</div>';
+                return;
+            }
+            // Группируем по названию
+            const grouped = {};
+            for (const phone of collection) {
+                const key = phone.name;
+                if (!grouped[key]) grouped[key] = { phone, count: 0 };
+                grouped[key].count++;
+            }
+            let html = '';
+            for (const [name, data] of Object.entries(grouped)) {
+                const cfg = RARITY[data.phone.rarity];
+                html += `<div class="inv-item">
+                    <span style="font-size:28px;">${data.phone.emoji}</span>
+                    <span>${name} <span style="color:${cfg.color};font-size:12px;">${cfg.label}</span></span>
+                    <span class="inv-count">×${data.count}</span>
+                </div>`;
+            }
+            el.inventoryList.innerHTML = html;
+        }
+
+        // ─── ДОСТИЖЕНИЯ ────────────────────────
+        function checkAchievements() {
+            const stats = { totalOpened, bestTier, uniqueByRarity };
+            let newUnlocks = false;
+            for (const ach of ACHIEVEMENTS) {
+                if (!unlockedAchievements.includes(ach.id) && ach.check(stats)) {
+                    unlockedAchievements.push(ach.id);
+                    newUnlocks = true;
+                }
+            }
+            if (newUnlocks) {
+                renderAchievements();
+                save();
+            }
+        }
+
+        function renderAchievements() {
+            let html = '';
+            for (const ach of ACHIEVEMENTS) {
+                const unlocked = unlockedAchievements.includes(ach.id);
+                html += `<div class="achieve-item ${unlocked ? 'unlocked' : ''}">
+                    <div class="achieve-icon">${ach.icon}</div>
+                    <div class="achieve-info">
+                        <div class="achieve-name">${unlocked ? ach.name : '???'}</div>
+                        <div class="achieve-desc">${unlocked ? ach.desc : 'Продолжай открывать телефоны...'}</div>
+                    </div>
+                </div>`;
+            }
+            el.achieveList.innerHTML = html;
+        }
+
         // ─── СОХРАНЕНИЕ ────────────────────────
         function save() {
             const data = {
-                collection: collection,
+                collection, totalOpened, unlockedAchievements,
                 timerEnd: buttonLocked ? timerEnd : 0
             };
             localStorage.setItem(SAVE_KEY, JSON.stringify(data));
@@ -243,19 +455,28 @@
                 if (!raw) return;
                 const data = JSON.parse(raw);
                 collection = data.collection || [];
-                renderCollection();
+                totalOpened = data.totalOpened || 0;
+                unlockedAchievements = data.unlockedAchievements || [];
+                updateStats();
+                checkAchievements();
+                renderInventory();
+                renderAchievements();
                 if (data.timerEnd && data.timerEnd > Date.now()) {
                     startTimer(Math.ceil((data.timerEnd - Date.now()) / 1000));
                 }
             } catch (e) {
                 collection = [];
+                totalOpened = 0;
+                unlockedAchievements = [];
             }
         }
 
         function resetGame() {
-            if (!confirm('Точно сбросить весь прогресс?')) return;
+            if (!confirm('Точно сбросить весь прогресс? Это нельзя отменить.')) return;
             localStorage.removeItem(SAVE_KEY);
             collection = [];
+            totalOpened = 0;
+            unlockedAchievements = [];
             clearTimer();
             el.phoneEmoji.textContent = '📦';
             el.phoneName.textContent = '???';
@@ -264,7 +485,9 @@
             el.phoneModel.style.color = '#aaa';
             el.phoneDisplay.style.borderColor = '#e94560';
             el.phoneDisplay.style.boxShadow = 'none';
-            renderCollection();
+            updateStats();
+            renderInventory();
+            renderAchievements();
         }
 
         // ─── ТАЙМЕР ────────────────────────────
@@ -294,7 +517,7 @@
             el.rollButton.disabled = true;
             el.rollButton.textContent = '⏳ Ожидание...';
             tick();
-            timerId = setInterval(tick, 500); // обновляем 2 раза в секунду (экономия батареи)
+            timerId = setInterval(tick, 500);
             save();
         }
 
@@ -302,7 +525,6 @@
         window.rollPhone = function() {
             if (buttonLocked) return;
 
-            // Определяем редкость
             let roll = Math.random() * 100;
             let rarity = 'common';
             let cumulative = 0;
@@ -311,12 +533,10 @@
                 if (roll <= cumulative) { rarity = key; break; }
             }
 
-            // Выбираем телефон
             const pool = PHONES.filter(p => p.rarity === rarity);
             const phone = pool[Math.floor(Math.random() * pool.length)];
             const cfg = RARITY[phone.rarity];
 
-            // Отображаем
             el.phoneEmoji.textContent = phone.emoji;
             el.phoneName.textContent = phone.name;
             el.phoneName.style.color = cfg.color;
@@ -325,37 +545,20 @@
             el.phoneDisplay.style.borderColor = cfg.color;
             el.phoneDisplay.style.boxShadow = cfg.glow;
 
-            // Сохраняем
             collection.push(phone);
-            renderCollection();
+            totalOpened++;
+            updateStats();
+            checkAchievements();
             save();
             startTimer(COOLDOWN);
         };
 
-        // ─── КОЛЛЕКЦИЯ ─────────────────────────
-        function renderCollection() {
-            if (collection.length === 0) {
-                el.collectionList.innerHTML = '<span class="collection-empty">Пока пусто...</span>';
-                return;
-            }
-            let html = '';
-            for (const phone of collection) {
-                const cfg = RARITY[phone.rarity];
-                html += `<div class="collection-item">
-                    <span>${phone.emoji}</span>
-                    <span>${phone.name} (${phone.year})</span>
-                    <span style="color:${cfg.color};margin-left:auto;font-size:12px;">${cfg.label}</span>
-                </div>`;
-            }
-            el.collectionList.innerHTML = html;
-            el.collectionList.scrollTop = el.collectionList.scrollHeight;
-        }
-
-        // ─── СБРОС (ГЛОБАЛЬНО) ──────────────────
         window.resetGame = resetGame;
 
         // ─── ЗАПУСК ────────────────────────────
+        renderAchievements();
         load();
+        updateStats();
     })();
     </script>
 </body>
