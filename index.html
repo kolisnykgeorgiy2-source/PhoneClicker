@@ -252,6 +252,7 @@
                 <button class="btn btn-low-spec" id="lowSpecBtn">⚡</button>
             </div>
             <div class="phone-display" id="phoneDisplay">
+                <!-- Здесь будет фото телефона -->
                 <img id="phoneImage" class="phone-image" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='80' font-size='80'%3E📦%3C/text%3E%3C/svg%3E" alt="Телефон">
                 <span class="phone-name" id="phoneName">???</span>
                 <span class="phone-model" id="phoneModel">Нажми кнопку</span>
@@ -301,26 +302,24 @@
             particlesContainer.appendChild(particle);
         }
 
-        // База телефонов с реальными изображениями
-        const IMG_BASE = 'https://raw.githubusercontent.com/kolisnykgeorgiy2-source/PhoneClicker/main/images/';
-        
+        // База телефонов с реальными изображениями (пока плейсхолдеры)
         const BASIC_PHONES = [
-            { name: "iPhone 3GS", year: "2009", rarity: "common", image: IMG_BASE + "iphone3gs.jpg" },
-            { name: "iPhone 4", year: "2010", rarity: "common", image: IMG_BASE + "iphone4.jpg" },
-            { name: "Samsung Galaxy S2", year: "2011", rarity: "common", image: IMG_BASE + "samsunggalaxys2.jpg" },
-            { name: "Xiaomi Mi 1", year: "2011", rarity: "common", image: IMG_BASE + "xiaomimi1.jpg" }
+            { name: "iPhone 3GS", year: "2009", rarity: "common", image: "https://th.bing.com/th/id/R.aa9efd4f14d7c0d7b7eaf3134fa24193?rik=HW79v29VQjFjfA&riu=http%3a%2f%2fm.phonegg.com%2f11%2f1130b-2.jpg&ehk=PZCmOfcvtD0FKaN6NY9MUCZLEQHz6NppZo%2bj66fwb1M%3d&risl=&pid=ImgRaw&r=0" },
+            { name: "iPhone 4", year: "2010", rarity: "common", image: "https://via.placeholder.com/300/39ff14/000000?text=iPhone+4" },
+            { name: "Samsung Galaxy S2", year: "2011", rarity: "common", image: "https://via.placeholder.com/300/39ff14/000000?text=Galaxy+S2" },
+            { name: "Xiaomi Mi 1", year: "2011", rarity: "common", image: "https://via.placeholder.com/300/39ff14/000000?text=Mi+1" }
         ];
         const CASE_PHONES = [
-            { name: "iPhone 5s", year: "2013", rarity: "rare", image: IMG_BASE + "iphone5s.jpg" },
-            { name: "iPhone 6", year: "2014", rarity: "rare", image: IMG_BASE + "iphone6.jpg" },
-            { name: "Google Pixel", year: "2016", rarity: "rare", image: IMG_BASE + "googlepixel.jpg" },
-            { name: "iPhone X", year: "2017", rarity: "epic", image: IMG_BASE + "iphonex.jpg" },
-            { name: "iPhone 12", year: "2020", rarity: "epic", image: IMG_BASE + "iphone12.jpg" },
-            { name: "Nokia 3310", year: "2000", rarity: "legendary", image: IMG_BASE + "nokia3310.jpg" },
-            { name: "Motorola Razr V3", year: "2004", rarity: "legendary", image: IMG_BASE + "motorolarazrv3.jpg" },
-            { name: "iPhone 2G (первый)", year: "2007", rarity: "mythic", image: IMG_BASE + "iphone2g.jpg" },
-            { name: "Nokia 8110 \"банан\"", year: "1996", rarity: "mythic", image: IMG_BASE + "nokia8110.jpg" },
-            { name: "Samsung Galaxy Note 7", year: "2016", rarity: "forbidden", image: IMG_BASE + "samsunggalaxynote7.jpg" }
+            { name: "iPhone 5s", year: "2013", rarity: "rare", image: "https://via.placeholder.com/300/00d4ff/000000?text=iPhone+5s" },
+            { name: "iPhone 6", year: "2014", rarity: "rare", image: "https://via.placeholder.com/300/00d4ff/000000?text=iPhone+6" },
+            { name: "Google Pixel", year: "2016", rarity: "rare", image: "https://via.placeholder.com/300/00d4ff/000000?text=Pixel" },
+            { name: "iPhone X", year: "2017", rarity: "epic", image: "https://via.placeholder.com/300/b347ea/000000?text=iPhone+X" },
+            { name: "iPhone 12", year: "2020", rarity: "epic", image: "https://via.placeholder.com/300/b347ea/000000?text=iPhone+12" },
+            { name: "Nokia 3310", year: "2000", rarity: "legendary", image: "https://via.placeholder.com/300/ffe600/000000?text=Nokia+3310" },
+            { name: "Motorola Razr V3", year: "2004", rarity: "legendary", image: "https://via.placeholder.com/300/ffe600/000000?text=Razr+V3" },
+            { name: "iPhone 2G (первый)", year: "2007", rarity: "mythic", image: "https://via.placeholder.com/300/ff2d75/ffffff?text=iPhone+2G" },
+            { name: "Nokia 8110 \"банан\"", year: "1996", rarity: "mythic", image: "https://via.placeholder.com/300/ff2d75/ffffff?text=Nokia+8110" },
+            { name: "Samsung Galaxy Note 7", year: "2016", rarity: "forbidden", image: "https://via.placeholder.com/300/dc143c/ffffff?text=Galaxy+Note+7" }
         ];
 
         const PHONE_MAP = {};
@@ -619,7 +618,7 @@
         function applyPhoneDisplay(phone) {
             const cfg = RARITY[phone.rarity];
             el.phoneImage.src = phone.image;
-            el.phoneImage.style.color = cfg.color;
+            el.phoneImage.style.color = cfg.color; // для drop-shadow
             el.phoneName.textContent = phone.name;
             el.phoneName.style.color = cfg.color;
             el.phoneModel.textContent = `${cfg.label} • ${phone.year}`;
@@ -635,6 +634,7 @@
                 el.phoneModel.classList.remove('rarity-forbidden');
             }
 
+            // Анимация
             el.phoneImage.style.animation = 'none';
             void el.phoneImage.offsetWidth;
             el.phoneImage.style.animation = 'bounceIn 0.5s';
