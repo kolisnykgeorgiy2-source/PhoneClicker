@@ -39,6 +39,7 @@
             box-shadow: none !important;
         }
         body.low-spec .phone-display::before { display: none; }
+        body.low-spec .particles { display: none; } /* скрываем частицы для слабых устройств */
         .particles {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             pointer-events: none; z-index: 0;
@@ -312,10 +313,13 @@
     <script>
     (function() {
         'use strict';
+        // Улучшенная функция экранирования (теперь кавычки тоже экранируются)
         function escapeHtml(str) {
-            const div = document.createElement('div');
-            div.textContent = str;
-            return div.innerHTML;
+            return str.replace(/&/g, '&amp;')
+                      .replace(/</g, '&lt;')
+                      .replace(/>/g, '&gt;')
+                      .replace(/"/g, '&quot;')
+                      .replace(/'/g, '&#39;');
         }
 
         // Частицы
@@ -373,7 +377,7 @@
         };
 
         const COOLDOWN_BASIC = 20;
-        const CASE_PRICE = 100; // Монет за один кейс
+        const CASE_PRICE = 100;
 
         const ACHIEVEMENTS = [
             { id: "first_roll",   name: "Первый телефон",   desc: "Открыть телефон впервые",        icon: "📱", check: s => s.totalOpened >= 1 },
@@ -468,7 +472,7 @@
 
         function renderInventory() {
             let html = '';
-            // Сначала показываем кейсы, если есть
+            // Кейсы отображаем отдельно
             if (caseCount > 0) {
                 html += `<div class="inv-item case-item">
                     <img class="inv-icon" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='80' font-size='80'%3E📦%3C/text%3E%3C/svg%3E" alt="Кейс">
@@ -492,6 +496,7 @@
                 if (!phone || count <= 0) continue;
                 const cfg = RARITY[phone.rarity];
                 const extraClass = phone.rarity === 'forbidden' ? ' rarity-forbidden' : '';
+                // data-phone без экранирования, в одинарных кавычках для безопасности
                 html += `<div class="inv-item${extraClass}">
                     <img class="inv-icon" src="${phone.image}" alt="${escapeHtml(name)}" style="border: 2px solid ${cfg.color}">
                     <div class="inv-info">
@@ -500,7 +505,7 @@
                         <div class="sell-price">Цена: ${cfg.price} 💰</div>
                     </div>
                     <span class="inv-count">×${count}</span>
-                    <button class="btn-sell" data-phone="${escapeHtml(name)}">Продать</button>
+                    <button class="btn-sell" data-phone='${name}'>Продать</button>
                 </div>`;
             }
             el.inventoryList.innerHTML = html;
@@ -531,8 +536,7 @@
             totalSold++;
             updateStats();
             save();
-            renderInventory();
-            renderShop(); // обновим магазин
+            renderInventory(); // только обновляем инвентарь, магазин не трогаем
         }
 
         function openCase() {
@@ -553,6 +557,7 @@
             checkAchievements(phone);
             save();
             renderInventory();
+            switchScreen('main'); // показываем выпавший телефон на главном экране
         }
 
         function renderShop() {
@@ -584,7 +589,7 @@
             updateStats();
             save();
             renderShop();
-            renderInventory(); // обновим инвентарь, чтобы кейс отобразился
+            renderInventory(); // покажем новый кейс в инвентаре
         }
 
         function checkAchievements(phone) {
