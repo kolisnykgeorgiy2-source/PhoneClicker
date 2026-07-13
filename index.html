@@ -119,12 +119,13 @@
         }
         @keyframes rotateGlow { 100% { transform: rotate(360deg); } }
         .phone-image {
-            width: 160px; height: 160px;
+            width: 240px; /* Увеличено с 160px */
+            height: 240px; /* Увеличено с 160px */
             object-fit: contain;
             display: block; margin: 0 auto;
             position: relative; z-index: 1;
             border-radius: 16px;
-            filter: drop-shadow(0 0 15px currentColor);
+            filter: drop-shadow(0 0 25px currentColor); /* Свечение усилено под новый размер */
             animation: bounceIn 0.5s;
         }
         @keyframes bounceIn {
@@ -412,7 +413,6 @@
             document.getElementById('menuAchieve').textContent = t('menuAchieve');
             document.getElementById('resetBtn').textContent = t('resetBtn');
             document.getElementById('basicPhoneLabel').textContent = t('basicPhoneLabel');
-            // Кнопка открытия зависит от таймера
             document.getElementById('rollBasicBtn').textContent = timerActiveBasic ? t('waiting') : t('rollBasicBtn');
             document.getElementById('statOpened').textContent = t('statOpened');
             document.getElementById('statUnique').textContent = t('statUnique');
@@ -420,11 +420,9 @@
             document.getElementById('statSold').textContent = t('statSold');
 
             const phoneModelEl = document.getElementById('phoneModel');
-            // Если сейчас показан дефолтный экран ("???"), ставим стандартный текст
             if (document.getElementById('phoneName').textContent === '???') {
                 phoneModelEl.textContent = t('phoneModelDefault');
             } else {
-                // Если на экране висит выпавший телефон, просто обновляем перевод его редкости
                 const currentPhone = PHONE_MAP[document.getElementById('phoneName').textContent];
                 if (currentPhone) {
                     phoneModelEl.textContent = `${getRarityLabel(currentPhone.rarity)} • ${currentPhone.year}`;
@@ -914,7 +912,7 @@
         });
 
         // Инициализация
-        loadLanguage(); // загружаем язык и обновляем тексты
+        loadLanguage();
         renderShop();
         renderAchievements();
         load();
