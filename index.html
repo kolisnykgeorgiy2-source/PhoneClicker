@@ -252,7 +252,6 @@
                 <button class="btn btn-low-spec" id="lowSpecBtn">⚡</button>
             </div>
             <div class="phone-display" id="phoneDisplay">
-                <!-- Здесь будет фото телефона -->
                 <img id="phoneImage" class="phone-image" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='80' font-size='80'%3E📦%3C/text%3E%3C/svg%3E" alt="Телефон">
                 <span class="phone-name" id="phoneName">???</span>
                 <span class="phone-model" id="phoneModel">Нажми кнопку</span>
@@ -302,24 +301,26 @@
             particlesContainer.appendChild(particle);
         }
 
-        // База телефонов с реальными изображениями (пока плейсхолдеры)
+        // База телефонов с реальными изображениями
+        const IMG_BASE = 'https://raw.githubusercontent.com/kolisnykgeorgiy2-source/PhoneClicker/main/images/';
+        
         const BASIC_PHONES = [
-            { name: "iPhone 3GS", year: "2009", rarity: "common", image: "https://github.com/kolisnykgeorgiy2-source/PhoneClicker/blob/main/images/iphone3gs.jpg" },
-            { name: "iPhone 4", year: "2010", rarity: "common", image: "https://via.placeholder.com/300/39ff14/000000?text=iPhone+4" },
-            { name: "Samsung Galaxy S2", year: "2011", rarity: "common", image: "https://via.placeholder.com/300/39ff14/000000?text=Galaxy+S2" },
-            { name: "Xiaomi Mi 1", year: "2011", rarity: "common", image: "https://via.placeholder.com/300/39ff14/000000?text=Mi+1" }
+            { name: "iPhone 3GS", year: "2009", rarity: "common", image: IMG_BASE + "iphone3gs.jpg" },
+            { name: "iPhone 4", year: "2010", rarity: "common", image: IMG_BASE + "iphone4.jpg" },
+            { name: "Samsung Galaxy S2", year: "2011", rarity: "common", image: IMG_BASE + "samsunggalaxys2.jpg" },
+            { name: "Xiaomi Mi 1", year: "2011", rarity: "common", image: IMG_BASE + "xiaomimi1.jpg" }
         ];
         const CASE_PHONES = [
-            { name: "iPhone 5s", year: "2013", rarity: "rare", image: "https://via.placeholder.com/300/00d4ff/000000?text=iPhone+5s" },
-            { name: "iPhone 6", year: "2014", rarity: "rare", image: "https://via.placeholder.com/300/00d4ff/000000?text=iPhone+6" },
-            { name: "Google Pixel", year: "2016", rarity: "rare", image: "https://via.placeholder.com/300/00d4ff/000000?text=Pixel" },
-            { name: "iPhone X", year: "2017", rarity: "epic", image: "https://via.placeholder.com/300/b347ea/000000?text=iPhone+X" },
-            { name: "iPhone 12", year: "2020", rarity: "epic", image: "https://via.placeholder.com/300/b347ea/000000?text=iPhone+12" },
-            { name: "Nokia 3310", year: "2000", rarity: "legendary", image: "https://via.placeholder.com/300/ffe600/000000?text=Nokia+3310" },
-            { name: "Motorola Razr V3", year: "2004", rarity: "legendary", image: "https://via.placeholder.com/300/ffe600/000000?text=Razr+V3" },
-            { name: "iPhone 2G (первый)", year: "2007", rarity: "mythic", image: "https://via.placeholder.com/300/ff2d75/ffffff?text=iPhone+2G" },
-            { name: "Nokia 8110 \"банан\"", year: "1996", rarity: "mythic", image: "https://via.placeholder.com/300/ff2d75/ffffff?text=Nokia+8110" },
-            { name: "Samsung Galaxy Note 7", year: "2016", rarity: "forbidden", image: "https://via.placeholder.com/300/dc143c/ffffff?text=Galaxy+Note+7" }
+            { name: "iPhone 5s", year: "2013", rarity: "rare", image: IMG_BASE + "iphone5s.jpg" },
+            { name: "iPhone 6", year: "2014", rarity: "rare", image: IMG_BASE + "iphone6.jpg" },
+            { name: "Google Pixel", year: "2016", rarity: "rare", image: IMG_BASE + "googlepixel.jpg" },
+            { name: "iPhone X", year: "2017", rarity: "epic", image: IMG_BASE + "iphonex.jpg" },
+            { name: "iPhone 12", year: "2020", rarity: "epic", image: IMG_BASE + "iphone12.jpg" },
+            { name: "Nokia 3310", year: "2000", rarity: "legendary", image: IMG_BASE + "nokia3310.jpg" },
+            { name: "Motorola Razr V3", year: "2004", rarity: "legendary", image: IMG_BASE + "motorolarazrv3.jpg" },
+            { name: "iPhone 2G (первый)", year: "2007", rarity: "mythic", image: IMG_BASE + "iphone2g.jpg" },
+            { name: "Nokia 8110 \"банан\"", year: "1996", rarity: "mythic", image: IMG_BASE + "nokia8110.jpg" },
+            { name: "Samsung Galaxy Note 7", year: "2016", rarity: "forbidden", image: IMG_BASE + "samsunggalaxynote7.jpg" }
         ];
 
         const PHONE_MAP = {};
@@ -554,142 +555,3 @@
             el.phoneName.textContent = '???';
             el.phoneName.style.color = '#fff';
             el.phoneModel.textContent = 'Нажми кнопку';
-            el.phoneModel.style.color = 'rgba(255,255,255,0.7)';
-            el.phoneDisplay.style.borderColor = 'transparent';
-            el.phoneDisplay.style.boxShadow = 'none';
-            updateStats();
-            renderInventory();
-            renderAchievements();
-        }
-
-        function clearTimer(type) {
-            if (type === 'basic') {
-                if (timerIdBasic) clearInterval(timerIdBasic);
-                timerIdBasic = null; timerActiveBasic = false; timerRemainingBasic = 0;
-                el.rollBasicBtn.disabled = false;
-                el.rollBasicBtn.textContent = '📱 Открыть телефон';
-                el.timerBasic.textContent = '00:00';
-            } else {
-                if (timerIdCase) clearInterval(timerIdCase);
-                timerIdCase = null; timerActiveCase = false; timerRemainingCase = 0;
-                el.rollCaseBtn.disabled = false;
-                el.rollCaseBtn.textContent = '📦 Открыть кейс';
-                el.timerCase.textContent = '00:00';
-            }
-        }
-
-        function tick(type) {
-            if (type === 'basic') {
-                const elapsed = (performance.now() - timerStartBasic) / 1000;
-                const left = Math.max(0, Math.ceil(timerRemainingBasic - elapsed));
-                el.timerBasic.textContent = fmtTime(left);
-                if (left <= 0) { clearTimer('basic'); save(); }
-            } else {
-                const elapsed = (performance.now() - timerStartCase) / 1000;
-                const left = Math.max(0, Math.ceil(timerRemainingCase - elapsed));
-                el.timerCase.textContent = fmtTime(left);
-                if (left <= 0) { clearTimer('case'); save(); }
-            }
-        }
-
-        function startTimer(type, seconds) {
-            if (type === 'basic') {
-                if (timerIdBasic) clearInterval(timerIdBasic);
-                timerRemainingBasic = seconds;
-                timerStartBasic = performance.now();
-                timerActiveBasic = true;
-                el.rollBasicBtn.disabled = true;
-                el.rollBasicBtn.textContent = '⏳ Ожидание...';
-                tick('basic');
-                timerIdBasic = setInterval(() => tick('basic'), 500);
-            } else {
-                if (timerIdCase) clearInterval(timerIdCase);
-                timerRemainingCase = seconds;
-                timerStartCase = performance.now();
-                timerActiveCase = true;
-                el.rollCaseBtn.disabled = true;
-                el.rollCaseBtn.textContent = '⏳ Ожидание...';
-                tick('case');
-                timerIdCase = setInterval(() => tick('case'), 500);
-            }
-            save();
-        }
-
-        function applyPhoneDisplay(phone) {
-            const cfg = RARITY[phone.rarity];
-            el.phoneImage.src = phone.image;
-            el.phoneImage.style.color = cfg.color; // для drop-shadow
-            el.phoneName.textContent = phone.name;
-            el.phoneName.style.color = cfg.color;
-            el.phoneModel.textContent = `${cfg.label} • ${phone.year}`;
-            el.phoneModel.style.color = cfg.color;
-            el.phoneDisplay.style.borderColor = cfg.color;
-            el.phoneDisplay.style.boxShadow = cfg.glow;
-
-            if (phone.rarity === 'forbidden') {
-                el.phoneName.classList.add('rarity-forbidden');
-                el.phoneModel.classList.add('rarity-forbidden');
-            } else {
-                el.phoneName.classList.remove('rarity-forbidden');
-                el.phoneModel.classList.remove('rarity-forbidden');
-            }
-
-            // Анимация
-            el.phoneImage.style.animation = 'none';
-            void el.phoneImage.offsetWidth;
-            el.phoneImage.style.animation = 'bounceIn 0.5s';
-        }
-
-        function rollBasicPhone() {
-            if (timerActiveBasic) return;
-            const phone = BASIC_PHONES[Math.floor(Math.random() * BASIC_PHONES.length)];
-            applyPhoneDisplay(phone);
-            collection[phone.name] = (collection[phone.name] || 0) + 1;
-            totalOpened++;
-            updateStats();
-            checkAchievements(phone);
-            save();
-            startTimer('basic', COOLDOWN_BASIC);
-        }
-
-        function rollCasePhone() {
-            if (timerActiveCase) return;
-            const roll = Math.random() * 100;
-            let rarity = 'rare', cumulative = 0;
-            for (const key of ['rare', 'epic', 'legendary', 'mythic', 'forbidden']) {
-                cumulative += CASE_CHANCES[key];
-                if (roll < cumulative) { rarity = key; break; }
-            }
-            const pool = CASE_PHONES.filter(p => p.rarity === rarity);
-            const phone = pool[Math.floor(Math.random() * pool.length)];
-            applyPhoneDisplay(phone);
-            collection[phone.name] = (collection[phone.name] || 0) + 1;
-            totalOpened++;
-            updateStats();
-            checkAchievements(phone);
-            save();
-            startTimer('case', COOLDOWN_CASE);
-        }
-
-        function toggleLowSpec() {
-            lowSpecMode = !lowSpecMode;
-            applyLowSpecMode();
-            save();
-        }
-
-        // Обработчики
-        el.rollBasicBtn.addEventListener('click', rollBasicPhone);
-        el.rollCaseBtn.addEventListener('click', rollCasePhone);
-        el.resetBtn.addEventListener('click', resetGame);
-        el.lowSpecBtn.addEventListener('click', toggleLowSpec);
-        document.querySelectorAll('.menu-btn').forEach(btn => {
-            btn.addEventListener('click', () => switchScreen(btn.dataset.screen));
-        });
-
-        renderAchievements();
-        load();
-        updateStats();
-    })();
-    </script>
-</body>
-</html>
