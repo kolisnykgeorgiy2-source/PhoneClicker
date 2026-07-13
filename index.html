@@ -555,3 +555,141 @@
             el.phoneName.textContent = '???';
             el.phoneName.style.color = '#fff';
             el.phoneModel.textContent = 'Нажми кнопку';
+            el.phoneModel.style.color = 'rgba(255,255,255,0.7)';
+            el.phoneDisplay.style.borderColor = 'transparent';
+            el.phoneDisplay.style.boxShadow = 'none';
+            updateStats();
+            renderInventory();
+            renderAchievements();
+        }
+
+        function clearTimer(type) {
+            if (type === 'basic') {
+                if (timerIdBasic) clearInterval(timerIdBasic);
+                timerIdBasic = null; timerActiveBasic = false; timerRemainingBasic = 0;
+                el.rollBasicBtn.disabled = false;
+                el.rollBasicBtn.textContent = '📱 Открыть телефон';
+                el.timerBasic.textContent = '00:00';
+            } else {
+                if (timerIdCase) clearInterval(timerIdCase);
+                timerIdCase = null; timerActiveCase = false; timerRemainingCase = 0;
+                el.rollCaseBtn.disabled = false;
+                el.rollCaseBtn.textContent = '📦 Открыть кейс';
+                el.timerCase.textContent = '00:00';
+            }
+        }
+
+        function tick(type) {
+            if (type === 'basic') {
+                const elapsed = (performance.now() - timerStartBasic) / 1000;
+                const left = Math.max(0, Math.ceil(timerRemainingBasic - elapsed));
+                el.timerBasic.textContent = fmtTime(left);
+                if (left <= 0) { clearTimer('basic'); save(); }
+            } else {
+                const elapsed = (performance.now() - timerStartCase) / 1000;
+                const left = Math.max(0, Math.ceil(timerRemainingCase - elapsed));
+                el.timerCase.textContent = fmtTime(left);
+                if (left <= 0) { clearTimer('case'); save(); }
+            }
+        }
+
+        function startTimer(type, seconds) {
+            if (type === 'basic') {
+                if (timerIdBasic) clearInterval(timerIdBasic);
+                timerRemainingBasic = seconds;
+                timerStartBasic = performance.now();
+                timerActiveBasic = true;
+                el.rollBasicBtn.disabled = true;
+                el.rollBasicBtn.textContent = '⏳ Ожидание...';
+                tick('basic');
+                timerIdBasic = setInterval(() => tick('basic'), 500);
+            } else {
+                if (timerIdCase) clearInterval(timerIdCase);
+                timerRemainingCase = seconds;
+                timerStartCase = performance.now();
+                timerActiveCase = true;
+                el.rollCaseBtn.disabled = true;
+                el.rollCaseBtn.textContent = '⏳ Ожидание...';
+                tick('case');
+                timerIdCase = setInterval(() => tick('case'), 500);
+            }
+            save();
+        }
+
+        function applyPhoneDisplay(phone) {
+            const cfg = RARITY[phone.rarity];
+            el.phoneImage.src = phone.image;
+            el.phoneImage.style.color = cfg.color;
+            el.phoneName.textContent = phone.name;
+            el.phoneName.style.color = cfg.color;
+            el.phoneModel.textContent = `${cfg.label} • ${phone.year}`;
+            el.phoneModel.style.color = cfg.color;
+            el.phoneDisplay.style.borderColor = cfg.color;
+            el.phoneDisplay.style.boxShadow = cfg.glow;
+
+            if (phone.rarity === 'forbidden') {
+                el.phoneName.classList.add('rarity-forbidden');
+                el.phoneModel.classList.add('rarity-forbidden');
+            } else {
+                el.phoneName.classList.remove('rarity-forbidden');
+                el.phoneModel.classList.remove('rarity-forbidden');
+            }
+
+            el.phoneImage.style.animation = 'none';
+            void el.phoneImage.offsetWidth;
+            el.phoneImage.style.animation = 'bounceIn 0.5s';
+        }
+
+        function rollBasicPhone() {
+            if (timerActiveBasic) return;
+            const phone = BASIC_PHONES[Math.floor(Math.random() * BASIC_PHONES.length)];
+            applyPhoneDisplay(phone);
+            collection[phone.name] = (collection[phone.name] || 0) + 1;
+            totalOpened++;
+            updateStats();
+            checkAchievements(phone);
+            save();
+            startTimer('basic', COOLDOWN_BASIC);
+        }
+
+        function rollCasePhone() {
+            if (timerActiveCase) return;
+            const roll = Math.random() * 100;
+            let rarity = 'rare', cumulative = 0;
+            for (const key of ['rare', 'epic', 'legendary', 'mythic', 'forbidden']) {
+                cumulative += CASE_CHANCES[key];
+                if (roll < cumulative) { rarity = key; break; }
+            }
+            const pool = CASE_PHONES.filter(p => p.rarity === rarity);
+            const phone = pool[Math.floor(Math.random() * pool.length)];
+            applyPhoneDisplay(phone);
+            collection[phone.name] = (collection[phone.name] || 0) + 1;
+            totalOpened++;
+            updateStats();
+            checkAchievements(phone);
+            save();
+            startTimer('case', COOLDOWN_CASE);
+        }
+
+        function toggleLowSpec() {
+            lowSpecMode = !lowSpecMode;
+            applyLowSpecMode();
+            save();
+        }
+
+        // Обработчики
+        el.rollBasicBtn.addEventListener('click', rollBasicPhone);
+        el.rollCaseBtn.addEventListener('click', rollCasePhone);
+        el.resetBtn.addEventListener('click', resetGame);
+        el.lowSpecBtn.addEventListener('click', toggleLowSpec);
+        document.querySelectorAll('.menu-btn').forEach(btn => {
+            btn.addEventListener('click', () => switchScreen(btn.dataset.screen));
+        });
+
+        renderAchievements();
+        load();
+        updateStats();
+    })();
+    </script>
+</body>
+</html>
