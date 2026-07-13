@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PhoneClicker Pre-Alpha 0A</title>
+    <title>PhoneClicker Pre-Alpha 0B</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='80' font-size='80'>📱</text></svg>">
     <style>
         :root {
@@ -38,9 +38,7 @@
             backdrop-filter: none;
             box-shadow: none !important;
         }
-        body.low-spec .phone-display::before {
-            display: none;
-        }
+        body.low-spec .phone-display::before { display: none; }
         .particles {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             pointer-events: none; z-index: 0;
@@ -75,6 +73,14 @@
             text-align: center; font-size: 11px; color: rgba(255,255,255,0.5);
             letter-spacing: 2px; margin-bottom: 10px; text-transform: uppercase;
         }
+        .balance-bar {
+            display: flex; justify-content: center; align-items: center;
+            gap: 8px; margin-bottom: 10px; padding: 8px 16px;
+            background: rgba(255,215,0,0.1); border-radius: 20px;
+            border: 1px solid rgba(255,215,0,0.3);
+        }
+        .balance-icon { font-size: 24px; }
+        .balance-value { font-size: 20px; font-weight: bold; color: #ffd700; }
         .menu-bar {
             display: flex; gap: 8px; margin-bottom: 15px;
             background: rgba(0,0,0,0.4); border-radius: 20px; padding: 4px;
@@ -96,7 +102,7 @@
             100% { opacity: 1; transform: translateY(0) scale(1); }
         }
         .phone-display {
-            background: rgba(0,0,0,0.5); border-radius: 24px; padding: 25px 16px;
+            background: rgba(0,0,0,0.5); border-radius: 24px; padding: 20px 16px;
             margin-bottom: 15px; text-align: center;
             border: 2px solid transparent;
             transition: all 0.4s ease;
@@ -112,13 +118,10 @@
         }
         @keyframes rotateGlow { 100% { transform: rotate(360deg); } }
         .phone-image {
-            width: 200px;
-            height: 200px;
+            width: 160px; height: 160px;
             object-fit: contain;
-            display: block;
-            margin: 0 auto;
-            position: relative;
-            z-index: 1;
+            display: block; margin: 0 auto;
+            position: relative; z-index: 1;
             border-radius: 16px;
             filter: drop-shadow(0 0 15px currentColor);
             animation: bounceIn 0.5s;
@@ -129,9 +132,9 @@
             100% { transform: scale(1); }
         }
         .phone-name {
-            font-size: 28px; font-weight: 800; margin-top: 8px; position: relative; z-index: 1;
+            font-size: 24px; font-weight: 800; margin-top: 8px; position: relative; z-index: 1;
         }
-        .phone-model { font-size: 16px; color: rgba(255,255,255,0.7); position: relative; z-index: 1; }
+        .phone-model { font-size: 14px; color: rgba(255,255,255,0.7); position: relative; z-index: 1; }
         .timer {
             font-size: 28px; font-weight: 900; letter-spacing: 2px;
             text-align: center; margin: 5px 0; padding: 8px;
@@ -140,10 +143,9 @@
             font-variant-numeric: tabular-nums;
             border: 1px solid rgba(255,230,0,0.3);
         }
-        .btn-row { display: flex; gap: 8px; margin-top: 8px; }
         .btn {
-            border: none; width: 100%; padding: 14px; border-radius: 30px;
-            font-weight: bold; font-size: 16px; letter-spacing: 1px;
+            border: none; width: 100%; padding: 12px; border-radius: 30px;
+            font-weight: bold; font-size: 14px; letter-spacing: 1px;
             cursor: pointer; transition: all 0.2s; position: relative;
             overflow: hidden; text-transform: uppercase;
         }
@@ -178,21 +180,28 @@
             border-radius: 20px;
         }
         .btn-low-spec.active { background: rgba(255,45,117,0.2); border-color: var(--neon-pink); }
+        .btn-sell {
+            background: rgba(255,215,0,0.2); color: #ffd700;
+            border: 1px solid rgba(255,215,0,0.5); font-size: 12px;
+            padding: 6px 12px; border-radius: 20px;
+            font-weight: bold;
+        }
+        .btn-sell:active { background: rgba(255,215,0,0.4); }
         .stats-row { display: flex; gap: 8px; margin-top: 12px; }
         .stat-box {
             flex: 1; background: rgba(0,0,0,0.5); border-radius: 16px;
             padding: 12px 4px; text-align: center; backdrop-filter: blur(5px);
             border: 1px solid rgba(255,255,255,0.1);
         }
-        .stat-value { font-size: 22px; font-weight: 900; color: var(--neon-pink); }
-        .stat-label { font-size: 10px; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 1px; }
+        .stat-value { font-size: 20px; font-weight: 900; color: var(--neon-pink); }
+        .stat-label { font-size: 9px; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 1px; }
         .list-container {
             background: rgba(0,0,0,0.5); border-radius: 24px; padding: 12px;
             max-height: 400px; overflow-y: auto; backdrop-filter: blur(10px);
             border: 1px solid rgba(255,255,255,0.1);
         }
         .inv-item, .achieve-item {
-            display: flex; align-items: center; gap: 12px; padding: 12px 8px;
+            display: flex; align-items: center; gap: 10px; padding: 10px 6px;
             border-bottom: 1px solid rgba(255,255,255,0.08); transition: background 0.3s;
             border-radius: 12px;
         }
@@ -205,11 +214,12 @@
             filter: drop-shadow(0 0 5px currentColor);
         }
         .inv-info { flex: 1; }
-        .inv-name { font-weight: bold; font-size: 16px; }
+        .inv-name { font-weight: bold; font-size: 15px; }
         .inv-count {
             background: rgba(255,45,117,0.2); color: var(--neon-pink);
-            padding: 5px 12px; border-radius: 20px; font-size: 14px; font-weight: bold;
+            padding: 4px 10px; border-radius: 20px; font-size: 13px; font-weight: bold;
         }
+        .sell-price { font-size: 12px; color: rgba(255,255,255,0.5); }
         .achieve-icon { font-size: 36px; opacity: 0.2; transition: all 0.5s; }
         .achieve-item.unlocked .achieve-icon { opacity: 1; filter: drop-shadow(0 0 10px currentColor); }
         .achieve-info { flex: 1; }
@@ -233,14 +243,18 @@
             100% { transform: translate(0); }
         }
         .label-timer { font-size: 12px; color: rgba(255,255,255,0.6); text-transform: uppercase; margin-bottom: 2px; }
-        .top-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .top-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
     </style>
 </head>
 <body class="">
     <div class="particles" id="particlesContainer"></div>
     <div class="game-container">
         <h1>📱 PhoneClicker</h1>
-        <p class="status">Pre-Alpha 0A</p>
+        <p class="status">Pre-Alpha 0B</p>
+        <div class="balance-bar">
+            <span class="balance-icon">💰</span>
+            <span class="balance-value" id="balanceDisplay">0</span>
+        </div>
         <div class="menu-bar">
             <button class="menu-btn active" data-screen="main">🎮 Игра</button>
             <button class="menu-btn" data-screen="inventory">📦 Инвентарь</button>
@@ -252,7 +266,6 @@
                 <button class="btn btn-low-spec" id="lowSpecBtn">⚡</button>
             </div>
             <div class="phone-display" id="phoneDisplay">
-                <!-- Здесь будет фото телефона -->
                 <img id="phoneImage" class="phone-image" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='80' font-size='80'%3E📦%3C/text%3E%3C/svg%3E" alt="Телефон">
                 <span class="phone-name" id="phoneName">???</span>
                 <span class="phone-model" id="phoneModel">Нажми кнопку</span>
@@ -267,8 +280,9 @@
 
             <div class="stats-row">
                 <div class="stat-box"><div class="stat-value" id="totalOpened">0</div><div class="stat-label">Открыто</div></div>
-                <div class="stat-box"><div class="stat-value" id="uniquePhones">0</div><div class="stat-label">Уникальных</div></div>
+                <div class="stat-box"><div class="stat-value" id="uniquePhones">0</div><div class="stat-label">Уник.</div></div>
                 <div class="stat-box"><div class="stat-value" id="bestRarity">-</div><div class="stat-label">Лучшая</div></div>
+                <div class="stat-box"><div class="stat-value" id="totalSold">0</div><div class="stat-label">Продано</div></div>
             </div>
         </div>
         <div class="screen" id="screenInventory">
@@ -293,8 +307,7 @@
             const particle = document.createElement('div');
             particle.className = 'particle';
             const size = Math.random() * 4 + 2;
-            particle.style.width = size + 'px';
-            particle.style.height = size + 'px';
+            particle.style.width = size + 'px'; particle.style.height = size + 'px';
             particle.style.left = Math.random() * 100 + '%';
             particle.style.animationDuration = Math.random() * 10 + 8 + 's';
             particle.style.animationDelay = Math.random() * 5 + 's';
@@ -302,9 +315,9 @@
             particlesContainer.appendChild(particle);
         }
 
-        // База телефонов с реальными изображениями (пока плейсхолдеры)
+        // Телефоны
         const BASIC_PHONES = [
-            { name: "iPhone 3GS", year: "2009", rarity: "common", image: "https://raw.githubusercontent.com/kolisnykgeorgiy2-source/PhoneClicker/main/images/iphone3gs.png" },
+            { name: "iPhone 3GS", year: "2009", rarity: "common", image: "https://th.bing.com/th/id/R.aa9efd4f14d7c0d7b7eaf3134fa24193?rik=HW79v29VQjFjA&riu=http%3a%2f%2fm.phonegg.com%2f11%2f1130b-2.jpg&ehk=PZCmOfcvtD0FKaN6NY9MUCZLEQHz6NppZo%2bj66fwb1M%3d&risl=&pid=ImgRaw&r=0" },
             { name: "iPhone 4", year: "2010", rarity: "common", image: "https://via.placeholder.com/300/39ff14/000000?text=iPhone+4" },
             { name: "Samsung Galaxy S2", year: "2011", rarity: "common", image: "https://via.placeholder.com/300/39ff14/000000?text=Galaxy+S2" },
             { name: "Xiaomi Mi 1", year: "2011", rarity: "common", image: "https://via.placeholder.com/300/39ff14/000000?text=Mi+1" }
@@ -326,12 +339,12 @@
         [...BASIC_PHONES, ...CASE_PHONES].forEach(p => { PHONE_MAP[p.name] = p; });
 
         const RARITY = {
-            common:    { label: "Обычный",    color: "#39ff14", tier: 1, glow: "0 0 20px #39ff14" },
-            rare:      { label: "Редкий",     color: "#00d4ff", tier: 2, glow: "0 0 20px #00d4ff" },
-            epic:      { label: "Эпический",  color: "#b347ea", tier: 3, glow: "0 0 25px #b347ea" },
-            legendary: { label: "Легендарный", color: "#ffe600", tier: 4, glow: "0 0 30px #ffe600" },
-            mythic:    { label: "Мифический", color: "#ff2d75", tier: 5, glow: "0 0 35px #ff2d75" },
-            forbidden: { label: "Запрещено",  color: "#dc143c", tier: 6, glow: "0 0 40px #ff0000, 0 0 80px #ff0000" }
+            common:    { label: "Обычный",    color: "#39ff14", tier: 1, glow: "0 0 20px #39ff14", price: 10 },
+            rare:      { label: "Редкий",     color: "#00d4ff", tier: 2, glow: "0 0 20px #00d4ff", price: 50 },
+            epic:      { label: "Эпический",  color: "#b347ea", tier: 3, glow: "0 0 25px #b347ea", price: 150 },
+            legendary: { label: "Легендарный", color: "#ffe600", tier: 4, glow: "0 0 30px #ffe600", price: 500 },
+            mythic:    { label: "Мифический", color: "#ff2d75", tier: 5, glow: "0 0 35px #ff2d75", price: 1500 },
+            forbidden: { label: "Запрещено",  color: "#dc143c", tier: 6, glow: "0 0 40px #ff0000, 0 0 80px #ff0000", price: 5000 }
         };
 
         const CASE_CHANCES = {
@@ -359,10 +372,12 @@
             { id: "all_forbidden", name: "Взрывоопасный",   desc: "Найти Galaxy Note 7",             icon: "⛔", check: s => s.uniqueByRarity.forbidden >= 1 }
         ];
 
-        const SAVE_KEY = 'phoneclicker_save_v3';
+        const SAVE_KEY = 'phoneclicker_save_v4';
 
         let collection = {};
         let totalOpened = 0;
+        let totalSold = 0;
+        let balance = 0;
         let unlockedAchievements = [];
         let uniqueByRarity = { common: 0, rare: 0, epic: 0, legendary: 0, mythic: 0, forbidden: 0 };
         let timerRemainingBasic = 0, timerStartBasic = 0, timerActiveBasic = false;
@@ -372,24 +387,17 @@
 
         const $ = id => document.getElementById(id);
         const el = {
-            phoneDisplay: $('phoneDisplay'),
-            phoneImage: $('phoneImage'),
-            phoneName: $('phoneName'),
-            phoneModel: $('phoneModel'),
-            timerBasic: $('timerBasic'),
-            timerCase: $('timerCase'),
-            rollBasicBtn: $('rollBasicBtn'),
-            rollCaseBtn: $('rollCaseBtn'),
-            totalOpened: $('totalOpened'),
-            uniquePhones: $('uniquePhones'),
-            bestRarity: $('bestRarity'),
-            inventoryList: $('inventoryList'),
-            achieveList: $('achieveList'),
-            screenMain: $('screenMain'),
-            screenInventory: $('screenInventory'),
+            phoneDisplay: $('phoneDisplay'), phoneImage: $('phoneImage'),
+            phoneName: $('phoneName'), phoneModel: $('phoneModel'),
+            timerBasic: $('timerBasic'), timerCase: $('timerCase'),
+            rollBasicBtn: $('rollBasicBtn'), rollCaseBtn: $('rollCaseBtn'),
+            totalOpened: $('totalOpened'), uniquePhones: $('uniquePhones'),
+            bestRarity: $('bestRarity'), totalSold: $('totalSold'),
+            balanceDisplay: $('balanceDisplay'),
+            inventoryList: $('inventoryList'), achieveList: $('achieveList'),
+            screenMain: $('screenMain'), screenInventory: $('screenInventory'),
             screenAchieve: $('screenAchieve'),
-            resetBtn: $('resetBtn'),
-            lowSpecBtn: $('lowSpecBtn')
+            resetBtn: $('resetBtn'), lowSpecBtn: $('lowSpecBtn')
         };
 
         const fmtTime = s => `${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
@@ -420,6 +428,8 @@
             }, 0);
             el.totalOpened.textContent = totalOpened;
             el.uniquePhones.textContent = uniqueCount;
+            el.totalSold.textContent = totalSold;
+            el.balanceDisplay.textContent = balance;
             const bestKey = Object.keys(RARITY).find(k => RARITY[k].tier === bestTier);
             el.bestRarity.textContent = bestKey ? RARITY[bestKey].label : '-';
             el.bestRarity.style.color = bestKey ? RARITY[bestKey].color : '#888';
@@ -446,7 +456,7 @@
             for (const name of keys) {
                 const count = collection[name];
                 const phone = PHONE_MAP[name];
-                if (!phone) continue;
+                if (!phone || count <= 0) continue;
                 const cfg = RARITY[phone.rarity];
                 const extraClass = phone.rarity === 'forbidden' ? ' rarity-forbidden' : '';
                 html += `<div class="inv-item${extraClass}">
@@ -454,11 +464,36 @@
                     <div class="inv-info">
                         <div class="inv-name">${escapeHtml(name)}</div>
                         <div style="color:${cfg.color};font-size:12px;">${escapeHtml(cfg.label)}</div>
+                        <div class="sell-price">Цена: ${cfg.price} 💰</div>
                     </div>
                     <span class="inv-count">×${count}</span>
+                    <button class="btn-sell" data-phone="${escapeHtml(name)}">Продать</button>
                 </div>`;
             }
             el.inventoryList.innerHTML = html;
+
+            // Навешиваем обработчики продажи
+            document.querySelectorAll('.btn-sell').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const phoneName = this.getAttribute('data-phone');
+                    sellPhone(phoneName);
+                });
+            });
+        }
+
+        function sellPhone(phoneName) {
+            if (!collection[phoneName] || collection[phoneName] <= 0) return;
+            const phone = PHONE_MAP[phoneName];
+            if (!phone) return;
+            const cfg = RARITY[phone.rarity];
+            // Продаём 1 штуку
+            collection[phoneName]--;
+            if (collection[phoneName] <= 0) delete collection[phoneName];
+            balance += cfg.price;
+            totalSold++;
+            updateStats();
+            save();
+            renderInventory(); // обновляем список
         }
 
         function checkAchievements(phone) {
@@ -499,6 +534,8 @@
             const data = {
                 collection,
                 totalOpened,
+                totalSold,
+                balance,
                 unlockedAchievements,
                 timerRemainingBasic: timerActiveBasic ? Math.max(0, timerRemainingBasic - (performance.now() - timerStartBasic) / 1000) : 0,
                 timerRemainingCase: timerActiveCase ? Math.max(0, timerRemainingCase - (performance.now() - timerStartCase) / 1000) : 0,
@@ -523,6 +560,8 @@
                     }
                 }
                 totalOpened = data.totalOpened || 0;
+                totalSold = data.totalSold || 0;
+                balance = data.balance || 0;
                 unlockedAchievements = data.unlockedAchievements || [];
                 lowSpecMode = data.lowSpecMode || false;
                 applyLowSpecMode();
@@ -541,39 +580,32 @@
                 if (remainingCase > 0) startTimer('case', Math.ceil(remainingCase));
                 else clearTimer('case');
             } catch (e) {
-                collection = {}; totalOpened = 0; unlockedAchievements = [];
+                collection = {}; totalOpened = 0; totalSold = 0; balance = 0; unlockedAchievements = [];
             }
         }
 
         function resetGame() {
             if (!confirm('Точно сбросить весь прогресс?')) return;
             localStorage.removeItem(SAVE_KEY);
-            collection = {}; totalOpened = 0; unlockedAchievements = [];
+            collection = {}; totalOpened = 0; totalSold = 0; balance = 0; unlockedAchievements = [];
             clearTimer('basic'); clearTimer('case');
             el.phoneImage.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='80' font-size='80'%3E📦%3C/text%3E%3C/svg%3E";
-            el.phoneName.textContent = '???';
-            el.phoneName.style.color = '#fff';
-            el.phoneModel.textContent = 'Нажми кнопку';
-            el.phoneModel.style.color = 'rgba(255,255,255,0.7)';
-            el.phoneDisplay.style.borderColor = 'transparent';
-            el.phoneDisplay.style.boxShadow = 'none';
-            updateStats();
-            renderInventory();
-            renderAchievements();
+            el.phoneName.textContent = '???'; el.phoneName.style.color = '#fff';
+            el.phoneModel.textContent = 'Нажми кнопку'; el.phoneModel.style.color = 'rgba(255,255,255,0.7)';
+            el.phoneDisplay.style.borderColor = 'transparent'; el.phoneDisplay.style.boxShadow = 'none';
+            updateStats(); renderInventory(); renderAchievements();
         }
 
         function clearTimer(type) {
             if (type === 'basic') {
                 if (timerIdBasic) clearInterval(timerIdBasic);
                 timerIdBasic = null; timerActiveBasic = false; timerRemainingBasic = 0;
-                el.rollBasicBtn.disabled = false;
-                el.rollBasicBtn.textContent = '📱 Открыть телефон';
+                el.rollBasicBtn.disabled = false; el.rollBasicBtn.textContent = '📱 Открыть телефон';
                 el.timerBasic.textContent = '00:00';
             } else {
                 if (timerIdCase) clearInterval(timerIdCase);
                 timerIdCase = null; timerActiveCase = false; timerRemainingCase = 0;
-                el.rollCaseBtn.disabled = false;
-                el.rollCaseBtn.textContent = '📦 Открыть кейс';
+                el.rollCaseBtn.disabled = false; el.rollCaseBtn.textContent = '📦 Открыть кейс';
                 el.timerCase.textContent = '00:00';
             }
         }
@@ -595,48 +627,30 @@
         function startTimer(type, seconds) {
             if (type === 'basic') {
                 if (timerIdBasic) clearInterval(timerIdBasic);
-                timerRemainingBasic = seconds;
-                timerStartBasic = performance.now();
-                timerActiveBasic = true;
-                el.rollBasicBtn.disabled = true;
-                el.rollBasicBtn.textContent = '⏳ Ожидание...';
-                tick('basic');
-                timerIdBasic = setInterval(() => tick('basic'), 500);
+                timerRemainingBasic = seconds; timerStartBasic = performance.now(); timerActiveBasic = true;
+                el.rollBasicBtn.disabled = true; el.rollBasicBtn.textContent = '⏳ Ожидание...';
+                tick('basic'); timerIdBasic = setInterval(() => tick('basic'), 500);
             } else {
                 if (timerIdCase) clearInterval(timerIdCase);
-                timerRemainingCase = seconds;
-                timerStartCase = performance.now();
-                timerActiveCase = true;
-                el.rollCaseBtn.disabled = true;
-                el.rollCaseBtn.textContent = '⏳ Ожидание...';
-                tick('case');
-                timerIdCase = setInterval(() => tick('case'), 500);
+                timerRemainingCase = seconds; timerStartCase = performance.now(); timerActiveCase = true;
+                el.rollCaseBtn.disabled = true; el.rollCaseBtn.textContent = '⏳ Ожидание...';
+                tick('case'); timerIdCase = setInterval(() => tick('case'), 500);
             }
             save();
         }
 
         function applyPhoneDisplay(phone) {
             const cfg = RARITY[phone.rarity];
-            el.phoneImage.src = phone.image;
-            el.phoneImage.style.color = cfg.color; // для drop-shadow
-            el.phoneName.textContent = phone.name;
-            el.phoneName.style.color = cfg.color;
-            el.phoneModel.textContent = `${cfg.label} • ${phone.year}`;
-            el.phoneModel.style.color = cfg.color;
-            el.phoneDisplay.style.borderColor = cfg.color;
-            el.phoneDisplay.style.boxShadow = cfg.glow;
-
+            el.phoneImage.src = phone.image; el.phoneImage.style.color = cfg.color;
+            el.phoneName.textContent = phone.name; el.phoneName.style.color = cfg.color;
+            el.phoneModel.textContent = `${cfg.label} • ${phone.year}`; el.phoneModel.style.color = cfg.color;
+            el.phoneDisplay.style.borderColor = cfg.color; el.phoneDisplay.style.boxShadow = cfg.glow;
             if (phone.rarity === 'forbidden') {
-                el.phoneName.classList.add('rarity-forbidden');
-                el.phoneModel.classList.add('rarity-forbidden');
+                el.phoneName.classList.add('rarity-forbidden'); el.phoneModel.classList.add('rarity-forbidden');
             } else {
-                el.phoneName.classList.remove('rarity-forbidden');
-                el.phoneModel.classList.remove('rarity-forbidden');
+                el.phoneName.classList.remove('rarity-forbidden'); el.phoneModel.classList.remove('rarity-forbidden');
             }
-
-            // Анимация
-            el.phoneImage.style.animation = 'none';
-            void el.phoneImage.offsetWidth;
+            el.phoneImage.style.animation = 'none'; void el.phoneImage.offsetWidth;
             el.phoneImage.style.animation = 'bounceIn 0.5s';
         }
 
@@ -645,10 +659,7 @@
             const phone = BASIC_PHONES[Math.floor(Math.random() * BASIC_PHONES.length)];
             applyPhoneDisplay(phone);
             collection[phone.name] = (collection[phone.name] || 0) + 1;
-            totalOpened++;
-            updateStats();
-            checkAchievements(phone);
-            save();
+            totalOpened++; updateStats(); checkAchievements(phone); save();
             startTimer('basic', COOLDOWN_BASIC);
         }
 
@@ -664,17 +675,12 @@
             const phone = pool[Math.floor(Math.random() * pool.length)];
             applyPhoneDisplay(phone);
             collection[phone.name] = (collection[phone.name] || 0) + 1;
-            totalOpened++;
-            updateStats();
-            checkAchievements(phone);
-            save();
+            totalOpened++; updateStats(); checkAchievements(phone); save();
             startTimer('case', COOLDOWN_CASE);
         }
 
         function toggleLowSpec() {
-            lowSpecMode = !lowSpecMode;
-            applyLowSpecMode();
-            save();
+            lowSpecMode = !lowSpecMode; applyLowSpecMode(); save();
         }
 
         // Обработчики
@@ -686,9 +692,7 @@
             btn.addEventListener('click', () => switchScreen(btn.dataset.screen));
         });
 
-        renderAchievements();
-        load();
-        updateStats();
+        renderAchievements(); load(); updateStats();
     })();
     </script>
 </body>
