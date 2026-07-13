@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PhoneClicker Pre-Alpha 0E</title>
+    <title>PhoneClicker Pre-Alpha 0F</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='80' font-size='80'>📱</text></svg>">
     <style>
         :root {
@@ -119,13 +119,12 @@
         }
         @keyframes rotateGlow { 100% { transform: rotate(360deg); } }
         .phone-image {
-            width: 240px; /* Увеличено с 160px */
-            height: 240px; /* Увеличено с 160px */
+            width: 240px; height: 240px;
             object-fit: contain;
             display: block; margin: 0 auto;
             position: relative; z-index: 1;
             border-radius: 16px;
-            filter: drop-shadow(0 0 25px currentColor); /* Свечение усилено под новый размер */
+            filter: drop-shadow(0 0 25px currentColor);
             animation: bounceIn 0.5s;
         }
         @keyframes bounceIn {
@@ -188,7 +187,91 @@
             border: 1px solid rgba(255,255,255,0.2); margin-bottom: 8px; padding: 8px 14px;
             border-radius: 20px; cursor: pointer;
         }
-        .btn-sell {
+        
+        /* === НОВЫЙ ИНВЕНТАРЬ === */
+        .inv-controls {
+            display: flex; gap: 6px; margin-bottom: 12px;
+        }
+        .sort-btn {
+            flex: 1; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.6); padding: 8px 4px; border-radius: 12px;
+            font-size: 11px; font-weight: bold; cursor: pointer; transition: all 0.2s;
+        }
+        .sort-btn.active {
+            background: rgba(255,45,117,0.2); border-color: var(--neon-pink); color: #fff;
+        }
+        .btn-sell-all {
+            background: rgba(255,215,0,0.1); color: #ffd700; border: 1px solid rgba(255,215,0,0.3);
+            padding: 8px; border-radius: 12px; font-size: 11px; font-weight: bold; cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-sell-all:active { background: rgba(255,215,0,0.3); }
+
+        .case-banner {
+            background: linear-gradient(135deg, rgba(138,43,226,0.2), rgba(75,0,224,0.4));
+            border: 1px solid #8e2de2; border-radius: 16px;
+            padding: 12px; margin-bottom: 12px; display: flex; align-items: center; gap: 12px;
+        }
+        .case-banner-icon {
+            width: 50px; height: 50px; object-fit: contain;
+            filter: drop-shadow(0 0 8px #8e2de2);
+        }
+        .case-banner-info { flex: 1; }
+        .case-banner-name { font-weight: bold; color: #c084fc; }
+        .case-banner-desc { font-size: 11px; color: rgba(255,255,255,0.6); }
+        .btn-open-case {
+            background: rgba(138,43,226,0.5); color: #fff; border: none;
+            padding: 8px 16px; border-radius: 20px; font-weight: bold; font-size: 12px; cursor: pointer;
+        }
+        .btn-open-case:active { background: rgba(138,43,226,0.8); }
+
+        .inv-grid {
+            display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;
+        }
+        .inv-card {
+            background: rgba(0,0,0,0.4); border-radius: 16px; padding: 10px;
+            border: 1px solid rgba(255,255,255,0.1); text-align: center;
+            display: flex; flex-direction: column; align-items: center; position: relative;
+            transition: all 0.2s; overflow: hidden;
+        }
+        .inv-card:active { transform: scale(0.95); }
+        /* Цвета рамок для карточек */
+        .inv-card.rarity-common { border-color: rgba(57, 255, 20, 0.3); box-shadow: inset 0 0 20px rgba(57, 255, 20, 0.1); }
+        .inv-card.rarity-rare { border-color: rgba(0, 212, 255, 0.3); box-shadow: inset 0 0 20px rgba(0, 212, 255, 0.1); }
+        .inv-card.rarity-epic { border-color: rgba(179, 71, 234, 0.3); box-shadow: inset 0 0 20px rgba(179, 71, 234, 0.1); }
+        .inv-card.rarity-legendary { border-color: rgba(255, 230, 0, 0.3); box-shadow: inset 0 0 20px rgba(255, 230, 0, 0.1); }
+        .inv-card.rarity-mythic { border-color: rgba(255, 45, 117, 0.3); box-shadow: inset 0 0 20px rgba(255, 45, 117, 0.1); }
+        .inv-card.rarity-forbidden { border-color: rgba(220, 20, 60, 0.5); box-shadow: inset 0 0 30px rgba(255, 0, 0, 0.2); animation: glitchBorder 0.5s infinite; }
+        
+        @keyframes glitchBorder {
+            0% { border-color: rgba(220, 20, 60, 0.5); }
+            50% { border-color: rgba(255, 0, 0, 0.8); }
+            100% { border-color: rgba(220, 20, 60, 0.5); }
+        }
+
+        .inv-card-count {
+            position: absolute; top: 6px; right: 6px;
+            background: rgba(0,0,0,0.8); padding: 2px 8px; border-radius: 10px;
+            font-size: 12px; font-weight: bold; color: var(--neon-pink);
+        }
+        .inv-card-img {
+            width: 80px; height: 80px; object-fit: contain; margin: 5px 0;
+            filter: drop-shadow(0 0 8px currentColor);
+        }
+        .inv-card-name {
+            font-size: 13px; font-weight: bold; width: 100%; 
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .inv-card-rarity { font-size: 10px; margin-bottom: 8px; opacity: 0.8; }
+        .btn-sell-card {
+            width: 100%; background: rgba(255,215,0,0.15); color: #ffd700;
+            border: 1px solid rgba(255,215,0,0.3); padding: 6px; border-radius: 12px;
+            font-size: 11px; font-weight: bold; cursor: pointer; position: relative;
+        }
+        .btn-sell-card:active { background: rgba(255,215,0,0.4); }
+        /* ======================= */
+
+        .btn-sell { /* Оставлено для старых мест, если остались */
             background: rgba(255,215,0,0.2); color: #ffd700;
             border: 1px solid rgba(255,215,0,0.5); font-size: 12px;
             padding: 6px 12px; border-radius: 20px;
@@ -206,13 +289,7 @@
             0% { opacity: 1; transform: translateX(-50%) translateY(0); }
             100% { opacity: 0; transform: translateX(-50%) translateY(-20px); }
         }
-        .btn-open-case {
-            background: rgba(138,43,226,0.3); color: #c084fc;
-            border: 1px solid #8e2de2; font-size: 12px;
-            padding: 6px 12px; border-radius: 20px;
-            font-weight: bold; cursor: pointer;
-        }
-        .btn-open-case:active { background: rgba(138,43,226,0.6); }
+        
         .stats-row { display: flex; gap: 8px; margin-top: 12px; }
         .stat-box {
             flex: 1; background: rgba(0,0,0,0.5); border-radius: 16px;
@@ -223,29 +300,24 @@
         .stat-label { font-size: 9px; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 1px; }
         .list-container {
             background: rgba(0,0,0,0.5); border-radius: 24px; padding: 12px;
-            max-height: 400px; overflow-y: auto; backdrop-filter: blur(10px);
+            max-height: 450px; overflow-y: auto; backdrop-filter: blur(10px);
             border: 1px solid rgba(255,255,255,0.1);
         }
-        .inv-item, .achieve-item, .shop-item {
+        .achieve-item, .shop-item {
             display: flex; align-items: center; gap: 10px; padding: 10px 6px;
             border-bottom: 1px solid rgba(255,255,255,0.08); transition: background 0.3s;
             border-radius: 12px;
         }
-        .inv-item:active, .achieve-item:active, .shop-item:active { background: rgba(255,45,117,0.15); }
-        .inv-item:last-child, .achieve-item:last-child, .shop-item:last-child { border-bottom: none; }
-        .inv-icon, .shop-icon {
+        .achieve-item:active, .shop-item:active { background: rgba(255,45,117,0.15); }
+        .achieve-item:last-child, .shop-item:last-child { border-bottom: none; }
+        .shop-icon {
             width: 48px; height: 48px;
             border-radius: 12px;
             object-fit: contain;
             filter: drop-shadow(0 0 5px currentColor);
         }
-        .inv-info, .shop-info { flex: 1; }
-        .inv-name, .shop-name { font-weight: bold; font-size: 15px; }
-        .inv-count {
-            background: rgba(255,45,117,0.2); color: var(--neon-pink);
-            padding: 4px 10px; border-radius: 20px; font-size: 13px; font-weight: bold;
-        }
-        .sell-price { font-size: 12px; color: rgba(255,255,255,0.5); }
+        .shop-info { flex: 1; }
+        .shop-name { font-weight: bold; font-size: 15px; }
         .achieve-icon { font-size: 36px; opacity: 0.2; transition: all 0.5s; }
         .achieve-item.unlocked .achieve-icon { opacity: 1; filter: drop-shadow(0 0 10px currentColor); }
         .achieve-info { flex: 1; }
@@ -270,14 +342,13 @@
         }
         .label-timer { font-size: 12px; color: rgba(255,255,255,0.6); text-transform: uppercase; margin-bottom: 2px; }
         .top-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; gap: 8px; }
-        .case-item { background: rgba(138,43,226,0.15); border: 1px solid #8e2de2; }
     </style>
 </head>
 <body class="">
     <div class="particles" id="particlesContainer"></div>
     <div class="game-container">
         <h1>📱 PhoneClicker</h1>
-        <p class="status">Pre-Alpha 0E</p>
+        <p class="status">Pre-Alpha 0F</p>
         <div class="balance-bar">
             <span class="balance-icon">💰</span>
             <span class="balance-value" id="balanceDisplay">0</span>
@@ -334,68 +405,41 @@
 
         // ========== ЛОКАЛИЗАЦИЯ ==========
         const LANG_KEY = 'phoneclicker_lang';
-        let currentLang = 'uk'; // по умолчанию украинский
+        let currentLang = 'uk';
+        let inventorySort = 'default'; // Состояние сортировки
 
         const translations = {
             ru: {
-                menuGame: '🎮 Игра',
-                menuInventory: '📦 Инвентарь',
-                menuShop: '🛒 Магазин',
-                menuAchieve: '🏆 Ачивки',
-                resetBtn: '🗑 Сбросить',
-                basicPhoneLabel: '📱 Бесплатный телефон',
-                rollBasicBtn: '📱 Открыть',
-                statOpened: 'Открыто',
-                statUnique: 'Уник.',
-                statBest: 'Лучшая',
-                statSold: 'Продано',
-                emptyInventory: '📦 Пока пусто...',
-                phoneModelDefault: 'Нажми кнопку',
-                caseItemName: 'Кейс с телефонами',
-                caseItemDesc: 'Содержит редкие и выше',
-                openCaseBtn: 'Открыть',
-                buyCaseBtn: 'Купить',
-                sellBtn: 'Продать',
-                notEnoughCoins: 'Недостаточно монет!',
-                confirmReset: 'Точно сбросить весь прогресс?',
-                waiting: '⏳ Ожидание...',
+                menuGame: '🎮 Игра', menuInventory: '📦 Инвентарь', menuShop: '🛒 Магазин', menuAchieve: '🏆 Ачивки',
+                resetBtn: '🗑 Сбросить', basicPhoneLabel: '📱 Бесплатный телефон', rollBasicBtn: '📱 Открыть',
+                statOpened: 'Открыто', statUnique: 'Уник.', statBest: 'Лучшая', statSold: 'Продано',
+                emptyInventory: '📦 Пока пусто...', phoneModelDefault: 'Нажми кнопку',
+                caseItemName: 'Кейс с телефонами', caseItemDesc: 'Содержит редкие и выше', openCaseBtn: 'Открыть',
+                buyCaseBtn: 'Купить', sellBtn: 'Продать', notEnoughCoins: 'Недостаточно монет!',
+                confirmReset: 'Точно сбросить весь прогресс?', waiting: '⏳ Ожидание...',
                 achievementLockedDesc: 'Продолжай открывать телефоны...',
-                shopCaseName: 'Кейс с телефонами',
-                shopCaseDesc: 'Содержит редкие и выше',
-                shopCasePrice: 'Цена:',
+                shopCaseName: 'Кейс с телефонами', shopCaseDesc: 'Содержит редкие и выше', shopCasePrice: 'Цена:',
+                // Новые тексты инвентаря
+                sortDefault: 'По умолчанию', sortRarity: 'По редкости', sortCount: 'По кол-ву',
+                sellAllCommon: 'Продать обычных', confirmSellAll: 'Продать все обычные телефоны?'
             },
             uk: {
-                menuGame: '🎮 Гра',
-                menuInventory: '📦 Інвентар',
-                menuShop: '🛒 Магазин',
-                menuAchieve: '🏆 Ачівки',
-                resetBtn: '🗑 Скинути',
-                basicPhoneLabel: '📱 Безкоштовний телефон',
-                rollBasicBtn: '📱 Відкрити',
-                statOpened: 'Відкрито',
-                statUnique: 'Унік.',
-                statBest: 'Краща',
-                statSold: 'Продано',
-                emptyInventory: '📦 Поки пусто...',
-                phoneModelDefault: 'Натисни кнопку',
-                caseItemName: 'Кейс із телефонами',
-                caseItemDesc: 'Містить рідкісні та вище',
-                openCaseBtn: 'Відкрити',
-                buyCaseBtn: 'Купити',
-                sellBtn: 'Продати',
-                notEnoughCoins: 'Недостатньо монет!',
-                confirmReset: 'Точно скинути весь прогрес?',
-                waiting: '⏳ Очікування...',
+                menuGame: '🎮 Гра', menuInventory: '📦 Інвентар', menuShop: '🛒 Магазин', menuAchieve: '🏆 Ачівки',
+                resetBtn: '🗑 Скинути', basicPhoneLabel: '📱 Безкоштовний телефон', rollBasicBtn: '📱 Відкрити',
+                statOpened: 'Відкрито', statUnique: 'Унік.', statBest: 'Краща', statSold: 'Продано',
+                emptyInventory: '📦 Поки пусто...', phoneModelDefault: 'Натисни кнопку',
+                caseItemName: 'Кейс із телефонами', caseItemDesc: 'Містить рідкісні та вище', openCaseBtn: 'Відкрити',
+                buyCaseBtn: 'Купити', sellBtn: 'Продати', notEnoughCoins: 'Недостатньо монет!',
+                confirmReset: 'Точно скинути весь прогрес?', waiting: '⏳ Очікування...',
                 achievementLockedDesc: 'Продовжуй відкривати телефони...',
-                shopCaseName: 'Кейс із телефонами',
-                shopCaseDesc: 'Містить рідкісні та вище',
-                shopCasePrice: 'Ціна:',
+                shopCaseName: 'Кейс із телефонами', shopCaseDesc: 'Містить рідкісні та вище', shopCasePrice: 'Ціна:',
+                // Новые тексты инвентаря
+                sortDefault: 'За замовч.', sortRarity: 'За рідкістю', sortCount: 'За кільк.',
+                sellAllCommon: 'Продати звичайних', confirmSellAll: 'Продати всі звичайні телефони?'
             }
         };
 
-        function t(key) {
-            return translations[currentLang]?.[key] || key;
-        }
+        function t(key) { return translations[currentLang]?.[key] || key; }
 
         function setLanguage(lang) {
             currentLang = lang;
@@ -433,22 +477,14 @@
 
         function loadLanguage() {
             const saved = localStorage.getItem(LANG_KEY);
-            if (saved && (saved === 'uk' || saved === 'ru')) {
-                currentLang = saved;
-            } else {
-                currentLang = 'uk';
-            }
+            currentLang = (saved && (saved === 'uk' || saved === 'ru')) ? saved : 'uk';
             updateUITexts();
-            document.getElementById('langBtn').textContent = currentLang === 'uk' ? 'UA' : 'RU';
         }
 
         // ========== ОСНОВНОЙ КОД ==========
         function escapeHtml(str) {
-            return str.replace(/&/g, '&amp;')
-                      .replace(/</g, '&lt;')
-                      .replace(/>/g, '&gt;')
-                      .replace(/"/g, '&quot;')
-                      .replace(/'/g, '&#39;');
+            return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
         }
 
         function placeholderSvg(text, bgColor) {
@@ -469,7 +505,7 @@
         }
 
         const BASIC_PHONES = [
-            { name: "iPhone 3GS", year: "2009", rarity: "common", image: "https://raw.githubusercontent.com/kolisnykgeorgiy2-source/PhoneClicker/main/images/iphone3gs.png" },
+            { name: "iPhone 3GS", year: "2009", rarity: "common", image: placeholderSvg('iPhone 3GS', '39ff14') },
             { name: "iPhone 4", year: "2010", rarity: "common", image: placeholderSvg('iPhone 4', '39ff14') },
             { name: "Samsung Galaxy S2", year: "2011", rarity: "common", image: placeholderSvg('Galaxy S2', '39ff14') },
             { name: "Xiaomi Mi 1", year: "2011", rarity: "common", image: placeholderSvg('Mi 1', '39ff14') }
@@ -499,97 +535,60 @@
             forbidden: { label: {ru: "Запрещено", uk: "Заборонено"}, color: "#dc143c", tier: 6, glow: "0 0 40px #ff0000, 0 0 80px #ff0000", price: 5000 }
         };
 
-        function getRarityLabel(rarity) {
-            return RARITY[rarity].label[currentLang] || rarity;
-        }
+        function getRarityLabel(rarity) { return RARITY[rarity].label[currentLang] || rarity; }
 
-        const CASE_CHANCES = {
-            rare:      46,
-            epic:      28,
-            legendary: 15,
-            mythic:    7,
-            forbidden: 4
-        };
-
+        const CASE_CHANCES = { rare: 46, epic: 28, legendary: 15, mythic: 7, forbidden: 4 };
         const COOLDOWN_BASIC = 20;
         const CASE_PRICE = 100;
 
         const ACHIEVEMENTS = [
-            { id: "first_roll",   name: {ru: "Первый телефон", uk: "Перший телефон"}, desc: {ru: "Открыть телефон впервые", uk: "Відкрити телефон вперше"}, icon: "📱", check: s => s.totalOpened >= 1 },
-            { id: "roll_10",      name: {ru: "Коллекционер", uk: "Колекціонер"}, desc: {ru: "Открыть 10 телефонов", uk: "Відкрити 10 телефонів"}, icon: "📦", check: s => s.totalOpened >= 10 },
-            { id: "roll_50",      name: {ru: "Фанатик", uk: "Фанатик"}, desc: {ru: "Открыть 50 телефонов", uk: "Відкрити 50 телефонів"}, icon: "🔥", check: s => s.totalOpened >= 50 },
-            { id: "first_rare",   name: {ru: "Везунчик", uk: "Щасливчик"}, desc: {ru: "Найти редкий телефон", uk: "Знайти рідкісний телефон"}, icon: "💎", check: (s, phone) => phone && RARITY[phone.rarity].tier === 2 },
-            { id: "first_epic",   name: {ru: "Эпическая удача", uk: "Епічна удача"}, desc: {ru: "Найти эпический телефон", uk: "Знайти епічний телефон"}, icon: "✨", check: (s, phone) => phone && RARITY[phone.rarity].tier === 3 },
+            { id: "first_roll", name: {ru: "Первый телефон", uk: "Перший телефон"}, desc: {ru: "Открыть телефон впервые", uk: "Відкрити телефон вперше"}, icon: "📱", check: s => s.totalOpened >= 1 },
+            { id: "roll_10", name: {ru: "Коллекционер", uk: "Колекціонер"}, desc: {ru: "Открыть 10 телефонов", uk: "Відкрити 10 телефонів"}, icon: "📦", check: s => s.totalOpened >= 10 },
+            { id: "roll_50", name: {ru: "Фанатик", uk: "Фанатик"}, desc: {ru: "Открыть 50 телефонов", uk: "Відкрити 50 телефонів"}, icon: "🔥", check: s => s.totalOpened >= 50 },
+            { id: "first_rare", name: {ru: "Везунчик", uk: "Щасливчик"}, desc: {ru: "Найти редкий телефон", uk: "Знайти рідкісний телефон"}, icon: "💎", check: (s, phone) => phone && RARITY[phone.rarity].tier === 2 },
+            { id: "first_epic", name: {ru: "Эпическая удача", uk: "Епічна удача"}, desc: {ru: "Найти эпический телефон", uk: "Знайти епічний телефон"}, icon: "✨", check: (s, phone) => phone && RARITY[phone.rarity].tier === 3 },
             { id: "first_legend", name: {ru: "Легенда", uk: "Легенда"}, desc: {ru: "Найти легендарный телефон", uk: "Знайти легендарний телефон"}, icon: "👑", check: (s, phone) => phone && RARITY[phone.rarity].tier === 4 },
             { id: "first_mythic", name: {ru: "Миф стал реальностью", uk: "Міф став реальністю"}, desc: {ru: "Найти мифический телефон", uk: "Знайти міфічний телефон"}, icon: "🌟", check: (s, phone) => phone && RARITY[phone.rarity].tier === 5 },
             { id: "first_forbidden", name: {ru: "Запретный плод", uk: "Заборонений плід"}, desc: {ru: "Найти запрещённый телефон", uk: "Знайти заборонений телефон"}, icon: "🚫", check: (s, phone) => phone && RARITY[phone.rarity].tier === 6 },
-            { id: "all_common",   name: {ru: "Базовый набор", uk: "Базовий набір"}, desc: {ru: "Собрать все обычные телефоны", uk: "Зібрати всі звичайні телефони"}, icon: "✅", check: s => s.uniqueByRarity.common >= 4 },
-            { id: "all_mythic",   name: {ru: "Хранитель мифов", uk: "Хранитель міфів"}, desc: {ru: "Собрать все мифические телефоны", uk: "Зібрати всі міфічні телефони"}, icon: "🏆", check: s => s.uniqueByRarity.mythic >= 2 }
+            { id: "all_common", name: {ru: "Базовый набор", uk: "Базовий набір"}, desc: {ru: "Собрать все обычные телефоны", uk: "Зібрати всі звичайні телефони"}, icon: "✅", check: s => s.uniqueByRarity.common >= 4 },
+            { id: "all_mythic", name: {ru: "Хранитель мифов", uk: "Хранитель міфів"}, desc: {ru: "Собрать все мифические телефоны", uk: "Зібрати всі міфічні телефони"}, icon: "🏆", check: s => s.uniqueByRarity.mythic >= 2 }
         ];
 
-        const SAVE_KEY = 'phoneclicker_save_v6';
+        const SAVE_KEY = 'phoneclicker_save_v7';
 
-        let collection = {};
-        let totalOpened = 0;
-        let totalSold = 0;
-        let balance = 0;
-        let caseCount = 0;
-        let unlockedAchievements = [];
-        let uniqueByRarity = { common: 0, rare: 0, epic: 0, legendary: 0, mythic: 0, forbidden: 0 };
-        let timerRemainingBasic = 0, timerStartBasic = 0, timerActiveBasic = false;
-        let timerIdBasic = null;
-        let lowSpecMode = false;
+        let collection = {}; let totalOpened = 0; let totalSold = 0; let balance = 0; let caseCount = 0;
+        let unlockedAchievements = []; let uniqueByRarity = { common: 0, rare: 0, epic: 0, legendary: 0, mythic: 0, forbidden: 0 };
+        let timerRemainingBasic = 0, timerStartBasic = 0, timerActiveBasic = false, timerIdBasic = null, lowSpecMode = false;
 
         const $ = id => document.getElementById(id);
         const el = {
-            phoneDisplay: $('phoneDisplay'), phoneImage: $('phoneImage'),
-            phoneName: $('phoneName'), phoneModel: $('phoneModel'),
-            timerBasic: $('timerBasic'),
-            rollBasicBtn: $('rollBasicBtn'),
-            totalOpened: $('totalOpened'), uniquePhones: $('uniquePhones'),
-            bestRarity: $('bestRarity'), totalSold: $('totalSold'),
-            balanceDisplay: $('balanceDisplay'),
-            inventoryList: $('inventoryList'), achieveList: $('achieveList'),
-            shopList: $('shopList'),
-            screenMain: $('screenMain'), screenInventory: $('screenInventory'),
-            screenShop: $('screenShop'), screenAchieve: $('screenAchieve'),
-            resetBtn: $('resetBtn'), lowSpecBtn: $('lowSpecBtn'),
-            langBtn: $('langBtn')
+            phoneDisplay: $('phoneDisplay'), phoneImage: $('phoneImage'), phoneName: $('phoneName'), phoneModel: $('phoneModel'),
+            timerBasic: $('timerBasic'), rollBasicBtn: $('rollBasicBtn'), totalOpened: $('totalOpened'), uniquePhones: $('uniquePhones'),
+            bestRarity: $('bestRarity'), totalSold: $('totalSold'), balanceDisplay: $('balanceDisplay'),
+            inventoryList: $('inventoryList'), achieveList: $('achieveList'), shopList: $('shopList'),
+            screenMain: $('screenMain'), screenInventory: $('screenInventory'), screenShop: $('screenShop'), screenAchieve: $('screenAchieve'),
+            resetBtn: $('resetBtn'), lowSpecBtn: $('lowSpecBtn'), langBtn: $('langBtn')
         };
 
         const fmtTime = s => `${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
 
         function applyLowSpecMode() {
-            if (lowSpecMode) {
-                document.body.classList.add('low-spec');
-                el.lowSpecBtn.classList.add('active');
-                el.lowSpecBtn.textContent = '⚡ ON';
-            } else {
-                document.body.classList.remove('low-spec');
-                el.lowSpecBtn.classList.remove('active');
-                el.lowSpecBtn.textContent = '⚡';
-            }
+            if (lowSpecMode) { document.body.classList.add('low-spec'); el.lowSpecBtn.classList.add('active'); el.lowSpecBtn.textContent = '⚡ ON'; }
+            else { document.body.classList.remove('low-spec'); el.lowSpecBtn.classList.remove('active'); el.lowSpecBtn.textContent = '⚡'; }
         }
 
         function getBestTier() {
             return Object.keys(collection).reduce((max, name) => {
-                const p = PHONE_MAP[name];
-                return p ? Math.max(max, RARITY[p.rarity].tier) : max;
+                const p = PHONE_MAP[name]; return p ? Math.max(max, RARITY[p.rarity].tier) : max;
             }, 0);
         }
 
         function updateStats() {
             uniqueByRarity = { common: 0, rare: 0, epic: 0, legendary: 0, mythic: 0, forbidden: 0 };
             const uniqueNames = Object.keys(collection);
-            for (const name of uniqueNames) {
-                const phone = PHONE_MAP[name];
-                if (phone) uniqueByRarity[phone.rarity]++;
-            }
-            const uniqueCount = uniqueNames.length;
-            el.totalOpened.textContent = totalOpened;
-            el.uniquePhones.textContent = uniqueCount;
-            el.totalSold.textContent = totalSold;
-            el.balanceDisplay.textContent = balance;
+            for (const name of uniqueNames) { const phone = PHONE_MAP[name]; if (phone) uniqueByRarity[phone.rarity]++; }
+            el.totalOpened.textContent = totalOpened; el.uniquePhones.textContent = uniqueNames.length;
+            el.totalSold.textContent = totalSold; el.balanceDisplay.textContent = balance;
             const bestTier = getBestTier();
             const bestKey = Object.keys(RARITY).find(k => RARITY[k].tier === bestTier);
             el.bestRarity.textContent = bestKey ? getRarityLabel(bestKey) : '-';
@@ -601,112 +600,128 @@
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
             const screens = { main: el.screenMain, inventory: el.screenInventory, shop: el.screenShop, achieve: el.screenAchieve };
-            if (screens[screen]) {
-                screens[screen].classList.add('active');
-                document.querySelector(`.menu-btn[data-screen="${screen}"]`).classList.add('active');
-            }
+            if (screens[screen]) { screens[screen].classList.add('active'); document.querySelector(`.menu-btn[data-screen="${screen}"]`).classList.add('active'); }
             if (screen === 'inventory') renderInventory();
             if (screen === 'shop') renderShop();
             if (screen === 'achieve') renderAchievements();
         }
 
+        function sellPhone(phoneName, btnElement) {
+            if (!collection[phoneName] || collection[phoneName] <= 0) return;
+            const phone = PHONE_MAP[phoneName]; if (!phone) return;
+            const price = RARITY[phone.rarity].price;
+            collection[phoneName]--; if (collection[phoneName] <= 0) delete collection[phoneName];
+            balance += price; totalSold++;
+            updateStats(); save();
+            if (btnElement) {
+                const flash = document.createElement('span'); flash.className = 'sell-flash'; flash.textContent = `+${price} 💰`;
+                btnElement.appendChild(flash); setTimeout(() => flash.remove(), 1000);
+            }
+            renderInventory();
+        }
+
+        function sellAllCommon() {
+            if (!confirm(t('confirmSellAll'))) return;
+            let earned = 0;
+            for (const name in collection) {
+                const phone = PHONE_MAP[name];
+                if (phone && phone.rarity === 'common') {
+                    earned += collection[name] * RARITY.common.price;
+                    totalSold += collection[name];
+                    delete collection[name];
+                }
+            }
+            if (earned > 0) {
+                balance += earned; updateStats(); save(); renderInventory();
+            }
+        }
+
         function renderInventory() {
             let html = '';
+            
+            // 1. Баннер кейсов
             if (caseCount > 0) {
-                html += `<div class="inv-item case-item">
-                    <img class="inv-icon" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='80' font-size='80'%3E📦%3C/text%3E%3C/svg%3E" alt="Кейс">
-                    <div class="inv-info">
-                        <div class="inv-name">${t('caseItemName')}</div>
-                        <div style="color:#c084fc;font-size:12px;">${t('caseItemDesc')}</div>
+                html += `<div class="case-banner">
+                    <img class="case-banner-icon" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='80' font-size='80'%3E📦%3C/text%3E%3C/svg%3E" alt="Кейс">
+                    <div class="case-banner-info">
+                        <div class="case-banner-name">${t('caseItemName')}</div>
+                        <div class="case-banner-desc">${t('caseItemDesc')}</div>
                     </div>
-                    <span class="inv-count">×${caseCount}</span>
-                    <button class="btn-open-case" id="openCaseBtn">${t('openCaseBtn')}</button>
+                    <button class="btn-open-case" id="openCaseBtn">${t('openCaseBtn')} (x${caseCount})</button>
                 </div>`;
             }
 
-            const keys = Object.keys(collection);
+            // 2. Панель управления (Сортировка и продажа)
+            let hasCommons = Object.keys(collection).some(name => PHONE_MAP[name]?.rarity === 'common');
+            html += `<div class="inv-controls">
+                <button class="sort-btn ${inventorySort === 'default' ? 'active' : ''}" data-sort="default">${t('sortDefault')}</button>
+                <button class="sort-btn ${inventorySort === 'rarity' ? 'active' : ''}" data-sort="rarity">${t('sortRarity')}</button>
+                <button class="sort-btn ${inventorySort === 'count' ? 'active' : ''}" data-sort="count">${t('sortCount')}</button>
+                ${hasCommons ? `<button class="btn-sell-all" id="sellAllBtn">${t('sellAllCommon')}</button>` : ''}
+            </div>`;
+
+            // 3. Сетка карточек
+            let keys = Object.keys(collection).filter(name => collection[name] > 0 && PHONE_MAP[name]);
+
+            // Сортировка
+            if (inventorySort === 'rarity') {
+                keys.sort((a, b) => RARITY[PHONE_MAP[a].rarity].tier - RARITY[PHONE_MAP[b].rarity].tier);
+            } else if (inventorySort === 'count') {
+                keys.sort((a, b) => collection[b] - collection[a]);
+            }
+
             if (keys.length === 0 && caseCount === 0) {
                 el.inventoryList.innerHTML = `<div class="empty-msg">${t('emptyInventory')}</div>`; return;
             }
 
+            html += `<div class="inv-grid">`;
             for (const name of keys) {
                 const count = collection[name];
                 const phone = PHONE_MAP[name];
-                if (!phone || count <= 0) continue;
                 const cfg = RARITY[phone.rarity];
-                const extraClass = phone.rarity === 'forbidden' ? ' rarity-forbidden' : '';
-                html += `<div class="inv-item${extraClass}">
-                    <img class="inv-icon" src="${escapeHtml(phone.image)}" alt="${escapeHtml(name)}" style="border: 2px solid ${cfg.color}">
-                    <div class="inv-info">
-                        <div class="inv-name">${escapeHtml(name)}</div>
-                        <div style="color:${cfg.color};font-size:12px;">${escapeHtml(getRarityLabel(phone.rarity))}</div>
-                        <div class="sell-price">${t('shopCasePrice')} ${cfg.price} 💰</div>
-                    </div>
-                    <span class="inv-count">×${count}</span>
-                    <button class="btn-sell" data-phone='${name}'>${t('sellBtn')}</button>
+                html += `<div class="inv-card rarity-${phone.rarity}">
+                    <span class="inv-card-count">x${count}</span>
+                    <img class="inv-card-img" src="${escapeHtml(phone.image)}" alt="${escapeHtml(name)}" style="color: ${cfg.color}">
+                    <div class="inv-card-name">${escapeHtml(name)}</div>
+                    <div class="inv-card-rarity" style="color: ${cfg.color}">${getRarityLabel(phone.rarity)}</div>
+                    <button class="btn-sell-card" data-phone='${escapeHtml(name)}'>${t('shopCasePrice')} ${cfg.price} 💰</button>
                 </div>`;
             }
+            html += `</div>`;
+
             el.inventoryList.innerHTML = html;
 
-            document.querySelectorAll('.btn-sell').forEach(btn => {
+            // Навешиваем события
+            document.querySelectorAll('.btn-sell-card').forEach(btn => {
+                btn.addEventListener('click', function() { sellPhone(this.getAttribute('data-phone'), this); });
+            });
+            const openCaseBtn = document.getElementById('openCaseBtn');
+            if (openCaseBtn) openCaseBtn.addEventListener('click', openCase);
+            
+            const sellAllBtn = document.getElementById('sellAllBtn');
+            if (sellAllBtn) sellAllBtn.addEventListener('click', sellAllCommon);
+
+            document.querySelectorAll('.sort-btn').forEach(btn => {
                 btn.addEventListener('click', function() {
-                    const phoneName = this.getAttribute('data-phone');
-                    sellPhone(phoneName, this);
+                    inventorySort = this.getAttribute('data-sort');
+                    renderInventory();
                 });
             });
-
-            const openCaseBtn = document.getElementById('openCaseBtn');
-            if (openCaseBtn) {
-                openCaseBtn.addEventListener('click', openCase);
-            }
-        }
-
-        function sellPhone(phoneName, btnElement) {
-            if (!collection[phoneName] || collection[phoneName] <= 0) return;
-            const phone = PHONE_MAP[phoneName];
-            if (!phone) return;
-            const cfg = RARITY[phone.rarity];
-            const price = cfg.price;
-            collection[phoneName]--;
-            if (collection[phoneName] <= 0) delete collection[phoneName];
-            balance += price;
-            totalSold++;
-            updateStats();
-            save();
-            if (btnElement) {
-                const flash = document.createElement('span');
-                flash.className = 'sell-flash';
-                flash.textContent = `+${price} 💰`;
-                btnElement.appendChild(flash);
-                setTimeout(() => flash.remove(), 1000);
-            }
-            renderInventory();
         }
 
         function openCase() {
-            if (caseCount <= 0) return;
-            caseCount--;
-            const roll = Math.random() * 100;
-            let rarity = 'rare', cumulative = 0;
-            for (const key of ['rare', 'epic', 'legendary', 'mythic', 'forbidden']) {
-                cumulative += CASE_CHANCES[key];
-                if (roll < cumulative) { rarity = key; break; }
-            }
+            if (caseCount <= 0) return; caseCount--;
+            const roll = Math.random() * 100; let rarity = 'rare', cumulative = 0;
+            for (const key of ['rare', 'epic', 'legendary', 'mythic', 'forbidden']) { cumulative += CASE_CHANCES[key]; if (roll < cumulative) { rarity = key; break; } }
             const pool = CASE_PHONES.filter(p => p.rarity === rarity);
             const phone = pool[Math.floor(Math.random() * pool.length)];
-            applyPhoneDisplay(phone);
-            collection[phone.name] = (collection[phone.name] || 0) + 1;
-            totalOpened++;
-            updateStats();
-            checkAchievements(phone);
-            save();
-            renderInventory();
+            applyPhoneDisplay(phone); collection[phone.name] = (collection[phone.name] || 0) + 1;
+            totalOpened++; updateStats(); checkAchievements(phone); save(); renderInventory();
             setTimeout(() => switchScreen('main'), 400);
         }
 
         function renderShop() {
-            let html = '';
-            html += `<div class="shop-item">
+            let html = `<div class="shop-item">
                 <img class="shop-icon" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='80' font-size='80'%3E📦%3C/text%3E%3C/svg%3E" alt="Кейс">
                 <div class="shop-info">
                     <div class="shop-name">${t('shopCaseName')}</div>
@@ -716,36 +731,20 @@
                 <button class="btn btn-case" id="buyCaseBtn" style="width:auto; padding:8px 16px; font-size:14px;">${t('buyCaseBtn')}</button>
             </div>`;
             el.shopList.innerHTML = html;
-
-            const buyBtn = document.getElementById('buyCaseBtn');
-            if (buyBtn) {
-                buyBtn.addEventListener('click', buyCase);
-            }
+            const buyBtn = document.getElementById('buyCaseBtn'); if (buyBtn) buyBtn.addEventListener('click', buyCase);
         }
 
         function buyCase() {
-            if (balance < CASE_PRICE) {
-                alert(t('notEnoughCoins'));
-                return;
-            }
-            balance -= CASE_PRICE;
-            caseCount++;
-            updateStats();
-            save();
-            renderShop();
-            renderInventory();
+            if (balance < CASE_PRICE) { alert(t('notEnoughCoins')); return; }
+            balance -= CASE_PRICE; caseCount++; updateStats(); save(); renderShop(); renderInventory();
         }
 
         function checkAchievements(phone) {
-            const stats = { totalOpened, bestTier: getBestTier(), uniqueByRarity };
-            let changed = false;
+            const stats = { totalOpened, bestTier: getBestTier(), uniqueByRarity }; let changed = false;
             for (const ach of ACHIEVEMENTS) {
                 if (unlockedAchievements.includes(ach.id)) continue;
-                if (ach.check.length > 1 && phone) {
-                    if (ach.check(stats, phone)) { unlockedAchievements.push(ach.id); changed = true; }
-                } else if (ach.check(stats)) {
-                    unlockedAchievements.push(ach.id); changed = true;
-                }
+                if (ach.check.length > 1 && phone) { if (ach.check(stats, phone)) { unlockedAchievements.push(ach.id); changed = true; } }
+                else if (ach.check(stats)) { unlockedAchievements.push(ach.id); changed = true; }
             }
             if (changed) { renderAchievements(); save(); }
         }
@@ -768,155 +767,86 @@
         }
 
         function save() {
-            const data = {
-                collection,
-                totalOpened,
-                totalSold,
-                balance,
-                caseCount,
-                unlockedAchievements,
-                timerRemainingBasic: timerActiveBasic ? Math.max(0, timerRemainingBasic - (performance.now() - timerStartBasic) / 1000) : 0,
-                lowSpecMode
-            };
+            const data = { collection, totalOpened, totalSold, balance, caseCount, unlockedAchievements,
+                timerRemainingBasic: timerActiveBasic ? Math.max(0, timerRemainingBasic - (performance.now() - timerStartBasic) / 1000) : 0, lowSpecMode };
             localStorage.setItem(SAVE_KEY, JSON.stringify(data));
         }
 
         function load() {
             try {
-                const raw = localStorage.getItem(SAVE_KEY);
-                if (!raw) return;
-                const data = JSON.parse(raw);
-                if (data.collection && typeof data.collection === 'object' && !Array.isArray(data.collection)) {
-                    collection = data.collection;
-                } else {
-                    collection = {};
-                    if (Array.isArray(data.collection)) {
-                        data.collection.forEach(phone => {
-                            collection[phone.name] = (collection[phone.name] || 0) + 1;
-                        });
-                    }
-                }
-                totalOpened = data.totalOpened || 0;
-                totalSold = data.totalSold || 0;
-                balance = data.balance || 0;
-                caseCount = data.caseCount || 0;
-                unlockedAchievements = data.unlockedAchievements || [];
-                lowSpecMode = data.lowSpecMode || false;
-                applyLowSpecMode();
-                updateStats();
-                renderAchievements();
-
+                const raw = localStorage.getItem(SAVE_KEY); if (!raw) return; const data = JSON.parse(raw);
+                if (data.collection && typeof data.collection === 'object' && !Array.isArray(data.collection)) collection = data.collection;
+                else { collection = {}; if (Array.isArray(data.collection)) data.collection.forEach(p => { collection[p.name] = (collection[p.name] || 0) + 1; }); }
+                totalOpened = data.totalOpened || 0; totalSold = data.totalSold || 0; balance = data.balance || 0;
+                caseCount = data.caseCount || 0; unlockedAchievements = data.unlockedAchievements || [];
+                lowSpecMode = data.lowSpecMode || false; applyLowSpecMode(); updateStats(); renderAchievements();
                 let remainingBasic = data.timerRemainingBasic || 0;
-                const maxBasicSec = COOLDOWN_BASIC + 10;
-                if (remainingBasic > maxBasicSec) remainingBasic = COOLDOWN_BASIC;
-
-                if (remainingBasic > 0) startTimer('basic', Math.ceil(remainingBasic));
-                else clearTimer('basic');
-            } catch (e) {
-                collection = {}; totalOpened = 0; totalSold = 0; balance = 0; caseCount = 0; unlockedAchievements = [];
-            }
+                if (remainingBasic > COOLDOWN_BASIC + 10) remainingBasic = COOLDOWN_BASIC;
+                if (remainingBasic > 0) startTimer('basic', Math.ceil(remainingBasic)); else clearTimer('basic');
+            } catch (e) { collection = {}; totalOpened = 0; totalSold = 0; balance = 0; caseCount = 0; unlockedAchievements = []; }
         }
 
         function resetGame() {
-            if (!confirm(t('confirmReset'))) return;
-            localStorage.removeItem(SAVE_KEY);
+            if (!confirm(t('confirmReset'))) return; localStorage.removeItem(SAVE_KEY);
             collection = {}; totalOpened = 0; totalSold = 0; balance = 0; caseCount = 0; unlockedAchievements = [];
             clearTimer('basic');
             el.phoneImage.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='80' font-size='80'%3E📦%3C/text%3E%3C/svg%3E";
-            el.phoneName.textContent = '???';
-            el.phoneName.style.color = '#fff';
-            el.phoneModel.textContent = t('phoneModelDefault');
-            el.phoneModel.style.color = 'rgba(255,255,255,0.7)';
-            el.phoneDisplay.style.borderColor = 'transparent';
-            el.phoneDisplay.style.boxShadow = 'none';
-            updateStats();
-            renderInventory();
-            renderShop();
-            renderAchievements();
+            el.phoneName.textContent = '???'; el.phoneName.style.color = '#fff';
+            el.phoneModel.textContent = t('phoneModelDefault'); el.phoneModel.style.color = 'rgba(255,255,255,0.7)';
+            el.phoneDisplay.style.borderColor = 'transparent'; el.phoneDisplay.style.boxShadow = 'none';
+            updateStats(); renderInventory(); renderShop(); renderAchievements();
         }
 
         function clearTimer(type) {
             if (type === 'basic') {
-                if (timerIdBasic) clearInterval(timerIdBasic);
-                timerIdBasic = null; timerActiveBasic = false; timerRemainingBasic = 0;
-                el.rollBasicBtn.disabled = false;
-                el.rollBasicBtn.textContent = t('rollBasicBtn');
-                el.timerBasic.textContent = '00:00';
+                if (timerIdBasic) clearInterval(timerIdBasic); timerIdBasic = null; timerActiveBasic = false; timerRemainingBasic = 0;
+                el.rollBasicBtn.disabled = false; el.rollBasicBtn.textContent = t('rollBasicBtn'); el.timerBasic.textContent = '00:00';
             }
         }
 
         function tick(type) {
             if (type === 'basic') {
-                const elapsed = (performance.now() - timerStartBasic) / 1000;
-                const left = Math.max(0, Math.ceil(timerRemainingBasic - elapsed));
-                el.timerBasic.textContent = fmtTime(left);
-                if (left <= 0) { clearTimer('basic'); save(); }
+                const left = Math.max(0, Math.ceil(timerRemainingBasic - (performance.now() - timerStartBasic) / 1000));
+                el.timerBasic.textContent = fmtTime(left); if (left <= 0) { clearTimer('basic'); save(); }
             }
         }
 
         function startTimer(type, seconds) {
             if (type === 'basic') {
-                if (timerIdBasic) clearInterval(timerIdBasic);
-                timerRemainingBasic = seconds; timerStartBasic = performance.now(); timerActiveBasic = true;
-                el.rollBasicBtn.disabled = true;
-                el.rollBasicBtn.textContent = t('waiting');
-                tick('basic'); timerIdBasic = setInterval(() => tick('basic'), 500);
-                save();
+                if (timerIdBasic) clearInterval(timerIdBasic); timerRemainingBasic = seconds; timerStartBasic = performance.now(); timerActiveBasic = true;
+                el.rollBasicBtn.disabled = true; el.rollBasicBtn.textContent = t('waiting');
+                tick('basic'); timerIdBasic = setInterval(() => tick('basic'), 500); save();
             }
         }
 
         function applyPhoneDisplay(phone) {
-            const cfg = RARITY[phone.rarity];
-            el.phoneImage.src = phone.image;
-            el.phoneImage.style.color = cfg.color;
-            el.phoneName.textContent = phone.name;
-            el.phoneName.style.color = cfg.color;
-            el.phoneModel.textContent = `${getRarityLabel(phone.rarity)} • ${phone.year}`;
-            el.phoneModel.style.color = cfg.color;
-            el.phoneDisplay.style.borderColor = cfg.color;
-            el.phoneDisplay.style.boxShadow = cfg.glow;
-            if (phone.rarity === 'forbidden') {
-                el.phoneName.classList.add('rarity-forbidden');
-                el.phoneModel.classList.add('rarity-forbidden');
-            } else {
-                el.phoneName.classList.remove('rarity-forbidden');
-                el.phoneModel.classList.remove('rarity-forbidden');
-            }
-            el.phoneImage.style.animation = 'none'; void el.phoneImage.offsetWidth;
-            el.phoneImage.style.animation = 'bounceIn 0.5s';
+            const cfg = RARITY[phone.rarity]; el.phoneImage.src = phone.image; el.phoneImage.style.color = cfg.color;
+            el.phoneName.textContent = phone.name; el.phoneName.style.color = cfg.color;
+            el.phoneModel.textContent = `${getRarityLabel(phone.rarity)} • ${phone.year}`; el.phoneModel.style.color = cfg.color;
+            el.phoneDisplay.style.borderColor = cfg.color; el.phoneDisplay.style.boxShadow = cfg.glow;
+            if (phone.rarity === 'forbidden') { el.phoneName.classList.add('rarity-forbidden'); el.phoneModel.classList.add('rarity-forbidden'); }
+            else { el.phoneName.classList.remove('rarity-forbidden'); el.phoneModel.classList.remove('rarity-forbidden'); }
+            el.phoneImage.style.animation = 'none'; void el.phoneImage.offsetWidth; el.phoneImage.style.animation = 'bounceIn 0.5s';
         }
 
         function rollBasicPhone() {
             if (timerActiveBasic) return;
             const phone = BASIC_PHONES[Math.floor(Math.random() * BASIC_PHONES.length)];
-            applyPhoneDisplay(phone);
-            collection[phone.name] = (collection[phone.name] || 0) + 1;
-            totalOpened++; updateStats(); checkAchievements(phone); save();
-            startTimer('basic', COOLDOWN_BASIC);
+            applyPhoneDisplay(phone); collection[phone.name] = (collection[phone.name] || 0) + 1;
+            totalOpened++; updateStats(); checkAchievements(phone); save(); startTimer('basic', COOLDOWN_BASIC);
         }
 
-        function toggleLowSpec() {
-            lowSpecMode = !lowSpecMode; applyLowSpecMode(); save();
-        }
+        function toggleLowSpec() { lowSpecMode = !lowSpecMode; applyLowSpecMode(); save(); }
 
         // Обработчики
         el.rollBasicBtn.addEventListener('click', rollBasicPhone);
         el.resetBtn.addEventListener('click', resetGame);
         el.lowSpecBtn.addEventListener('click', toggleLowSpec);
-        el.langBtn.addEventListener('click', () => {
-            const newLang = currentLang === 'uk' ? 'ru' : 'uk';
-            setLanguage(newLang);
-        });
-        document.querySelectorAll('.menu-btn').forEach(btn => {
-            btn.addEventListener('click', () => switchScreen(btn.dataset.screen));
-        });
+        el.langBtn.addEventListener('click', () => { setLanguage(currentLang === 'uk' ? 'ru' : 'uk'); });
+        document.querySelectorAll('.menu-btn').forEach(btn => { btn.addEventListener('click', () => switchScreen(btn.dataset.screen)); });
 
         // Инициализация
-        loadLanguage();
-        renderShop();
-        renderAchievements();
-        load();
-        updateStats();
+        loadLanguage(); renderShop(); renderAchievements(); load(); updateStats();
     })();
     </script>
 </body>
