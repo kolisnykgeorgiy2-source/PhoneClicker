@@ -182,6 +182,11 @@
             border-radius: 20px;
         }
         .btn-low-spec.active { background: rgba(255,45,117,0.2); border-color: var(--neon-pink); }
+        .btn-lang {
+            background: transparent; color: rgba(255,255,255,0.7); font-size: 14px;
+            border: 1px solid rgba(255,255,255,0.2); margin-bottom: 8px; padding: 8px 14px;
+            border-radius: 20px; cursor: pointer;
+        }
         .btn-sell {
             background: rgba(255,215,0,0.2); color: #ffd700;
             border: 1px solid rgba(255,215,0,0.5); font-size: 12px;
@@ -263,7 +268,7 @@
             100% { transform: translate(0); }
         }
         .label-timer { font-size: 12px; color: rgba(255,255,255,0.6); text-transform: uppercase; margin-bottom: 2px; }
-        .top-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .top-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; gap: 8px; }
         .case-item { background: rgba(138,43,226,0.15); border: 1px solid #8e2de2; }
     </style>
 </head>
@@ -277,38 +282,39 @@
             <span class="balance-value" id="balanceDisplay">0</span>
         </div>
         <div class="menu-bar">
-            <button class="menu-btn active" data-screen="main">🎮 Игра</button>
-            <button class="menu-btn" data-screen="inventory">📦 Инвентарь</button>
-            <button class="menu-btn" data-screen="shop">🛒 Магазин</button>
-            <button class="menu-btn" data-screen="achieve">🏆 Ачивки</button>
+            <button class="menu-btn active" data-screen="main" id="menuMain">🎮 Гра</button>
+            <button class="menu-btn" data-screen="inventory" id="menuInventory">📦 Інвентар</button>
+            <button class="menu-btn" data-screen="shop" id="menuShop">🛒 Магазин</button>
+            <button class="menu-btn" data-screen="achieve" id="menuAchieve">🏆 Ачівки</button>
         </div>
 
         <!-- Главный экран -->
         <div class="screen active" id="screenMain">
             <div class="top-row">
-                <button class="btn btn-reset" id="resetBtn">🗑 Сбросить</button>
+                <button class="btn btn-reset" id="resetBtn">🗑 Скинути</button>
+                <button class="btn btn-lang" id="langBtn">UA</button>
                 <button class="btn btn-low-spec" id="lowSpecBtn">⚡</button>
             </div>
             <div class="phone-display" id="phoneDisplay">
                 <img id="phoneImage" class="phone-image" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='80' font-size='80'%3E📦%3C/text%3E%3C/svg%3E" alt="Телефон">
                 <span class="phone-name" id="phoneName">???</span>
-                <span class="phone-model" id="phoneModel">Нажми кнопку</span>
+                <span class="phone-model" id="phoneModel">Натисни кнопку</span>
             </div>
-            <div class="label-timer">📱 Бесплатный телефон</div>
+            <div class="label-timer" id="basicPhoneLabel">📱 Безкоштовний телефон</div>
             <div class="timer" id="timerBasic">00:00</div>
-            <button class="btn btn-primary" id="rollBasicBtn">📱 Открыть</button>
+            <button class="btn btn-primary" id="rollBasicBtn">📱 Відкрити</button>
 
             <div class="stats-row">
-                <div class="stat-box"><div class="stat-value" id="totalOpened">0</div><div class="stat-label">Открыто</div></div>
-                <div class="stat-box"><div class="stat-value" id="uniquePhones">0</div><div class="stat-label">Уник.</div></div>
-                <div class="stat-box"><div class="stat-value" id="bestRarity">-</div><div class="stat-label">Лучшая</div></div>
-                <div class="stat-box"><div class="stat-value" id="totalSold">0</div><div class="stat-label">Продано</div></div>
+                <div class="stat-box"><div class="stat-value" id="totalOpened">0</div><div class="stat-label" id="statOpened">Відкрито</div></div>
+                <div class="stat-box"><div class="stat-value" id="uniquePhones">0</div><div class="stat-label" id="statUnique">Унік.</div></div>
+                <div class="stat-box"><div class="stat-value" id="bestRarity">-</div><div class="stat-label" id="statBest">Краща</div></div>
+                <div class="stat-box"><div class="stat-value" id="totalSold">0</div><div class="stat-label" id="statSold">Продано</div></div>
             </div>
         </div>
 
         <!-- Инвентарь -->
         <div class="screen" id="screenInventory">
-            <div class="list-container" id="inventoryList"><div class="empty-msg">📦 Пока пусто...</div></div>
+            <div class="list-container" id="inventoryList"><div class="empty-msg">📦 Поки пусто...</div></div>
         </div>
 
         <!-- Магазин -->
@@ -324,6 +330,121 @@
     <script>
     (function() {
         'use strict';
+
+        // ========== ЛОКАЛИЗАЦИЯ ==========
+        const LANG_KEY = 'phoneclicker_lang';
+        let currentLang = 'uk'; // по умолчанию украинский
+
+        const translations = {
+            ru: {
+                menuGame: '🎮 Игра',
+                menuInventory: '📦 Инвентарь',
+                menuShop: '🛒 Магазин',
+                menuAchieve: '🏆 Ачивки',
+                resetBtn: '🗑 Сбросить',
+                basicPhoneLabel: '📱 Бесплатный телефон',
+                rollBasicBtn: '📱 Открыть',
+                statOpened: 'Открыто',
+                statUnique: 'Уник.',
+                statBest: 'Лучшая',
+                statSold: 'Продано',
+                emptyInventory: '📦 Пока пусто...',
+                phoneModelDefault: 'Нажми кнопку',
+                caseItemName: 'Кейс с телефонами',
+                caseItemDesc: 'Содержит редкие и выше',
+                openCaseBtn: 'Открыть',
+                buyCaseBtn: 'Купить',
+                sellBtn: 'Продать',
+                notEnoughCoins: 'Недостаточно монет!',
+                confirmReset: 'Точно сбросить весь прогресс?',
+                waiting: '⏳ Ожидание...',
+                achievementLockedDesc: 'Продолжай открывать телефоны...',
+                shopCaseName: 'Кейс с телефонами',
+                shopCaseDesc: 'Содержит редкие и выше',
+                shopCasePrice: 'Цена:',
+            },
+            uk: {
+                menuGame: '🎮 Гра',
+                menuInventory: '📦 Інвентар',
+                menuShop: '🛒 Магазин',
+                menuAchieve: '🏆 Ачівки',
+                resetBtn: '🗑 Скинути',
+                basicPhoneLabel: '📱 Безкоштовний телефон',
+                rollBasicBtn: '📱 Відкрити',
+                statOpened: 'Відкрито',
+                statUnique: 'Унік.',
+                statBest: 'Краща',
+                statSold: 'Продано',
+                emptyInventory: '📦 Поки пусто...',
+                phoneModelDefault: 'Натисни кнопку',
+                caseItemName: 'Кейс із телефонами',
+                caseItemDesc: 'Містить рідкісні та вище',
+                openCaseBtn: 'Відкрити',
+                buyCaseBtn: 'Купити',
+                sellBtn: 'Продати',
+                notEnoughCoins: 'Недостатньо монет!',
+                confirmReset: 'Точно скинути весь прогрес?',
+                waiting: '⏳ Очікування...',
+                achievementLockedDesc: 'Продовжуй відкривати телефони...',
+                shopCaseName: 'Кейс із телефонами',
+                shopCaseDesc: 'Містить рідкісні та вище',
+                shopCasePrice: 'Ціна:',
+            }
+        };
+
+        function t(key) {
+            return translations[currentLang]?.[key] || key;
+        }
+
+        function setLanguage(lang) {
+            currentLang = lang;
+            localStorage.setItem(LANG_KEY, lang);
+            updateUITexts();
+            renderInventory();
+            renderShop();
+            renderAchievements();
+        }
+
+        function updateUITexts() {
+            document.getElementById('menuMain').textContent = t('menuGame');
+            document.getElementById('menuInventory').textContent = t('menuInventory');
+            document.getElementById('menuShop').textContent = t('menuShop');
+            document.getElementById('menuAchieve').textContent = t('menuAchieve');
+            document.getElementById('resetBtn').textContent = t('resetBtn');
+            document.getElementById('basicPhoneLabel').textContent = t('basicPhoneLabel');
+            // Кнопка открытия зависит от таймера
+            document.getElementById('rollBasicBtn').textContent = timerActiveBasic ? t('waiting') : t('rollBasicBtn');
+            document.getElementById('statOpened').textContent = t('statOpened');
+            document.getElementById('statUnique').textContent = t('statUnique');
+            document.getElementById('statBest').textContent = t('statBest');
+            document.getElementById('statSold').textContent = t('statSold');
+
+            const phoneModelEl = document.getElementById('phoneModel');
+            // Если сейчас показан дефолтный экран ("???"), ставим стандартный текст
+            if (document.getElementById('phoneName').textContent === '???') {
+                phoneModelEl.textContent = t('phoneModelDefault');
+            } else {
+                // Если на экране висит выпавший телефон, просто обновляем перевод его редкости
+                const currentPhone = PHONE_MAP[document.getElementById('phoneName').textContent];
+                if (currentPhone) {
+                    phoneModelEl.textContent = `${getRarityLabel(currentPhone.rarity)} • ${currentPhone.year}`;
+                }
+            }
+            document.getElementById('langBtn').textContent = currentLang === 'uk' ? 'UA' : 'RU';
+        }
+
+        function loadLanguage() {
+            const saved = localStorage.getItem(LANG_KEY);
+            if (saved && (saved === 'uk' || saved === 'ru')) {
+                currentLang = saved;
+            } else {
+                currentLang = 'uk';
+            }
+            updateUITexts();
+            document.getElementById('langBtn').textContent = currentLang === 'uk' ? 'UA' : 'RU';
+        }
+
+        // ========== ОСНОВНОЙ КОД ==========
         function escapeHtml(str) {
             return str.replace(/&/g, '&amp;')
                       .replace(/</g, '&lt;')
@@ -349,7 +470,6 @@
             particlesContainer.appendChild(particle);
         }
 
-        // iPhone 3GS теперь тоже SVG-заглушка
         const BASIC_PHONES = [
             { name: "iPhone 3GS", year: "2009", rarity: "common", image: placeholderSvg('iPhone 3GS', '39ff14') },
             { name: "iPhone 4", year: "2010", rarity: "common", image: placeholderSvg('iPhone 4', '39ff14') },
@@ -373,13 +493,17 @@
         [...BASIC_PHONES, ...CASE_PHONES].forEach(p => { PHONE_MAP[p.name] = p; });
 
         const RARITY = {
-            common:    { label: "Обычный",    color: "#39ff14", tier: 1, glow: "0 0 20px #39ff14", price: 10 },
-            rare:      { label: "Редкий",     color: "#00d4ff", tier: 2, glow: "0 0 20px #00d4ff", price: 50 },
-            epic:      { label: "Эпический",  color: "#b347ea", tier: 3, glow: "0 0 25px #b347ea", price: 150 },
-            legendary: { label: "Легендарный", color: "#ffe600", tier: 4, glow: "0 0 30px #ffe600", price: 500 },
-            mythic:    { label: "Мифический", color: "#ff2d75", tier: 5, glow: "0 0 35px #ff2d75", price: 1500 },
-            forbidden: { label: "Запрещено",  color: "#dc143c", tier: 6, glow: "0 0 40px #ff0000, 0 0 80px #ff0000", price: 5000 }
+            common:    { label: {ru: "Обычный", uk: "Звичайний"}, color: "#39ff14", tier: 1, glow: "0 0 20px #39ff14", price: 10 },
+            rare:      { label: {ru: "Редкий", uk: "Рідкісний"}, color: "#00d4ff", tier: 2, glow: "0 0 20px #00d4ff", price: 50 },
+            epic:      { label: {ru: "Эпический", uk: "Епічний"}, color: "#b347ea", tier: 3, glow: "0 0 25px #b347ea", price: 150 },
+            legendary: { label: {ru: "Легендарный", uk: "Легендарний"}, color: "#ffe600", tier: 4, glow: "0 0 30px #ffe600", price: 500 },
+            mythic:    { label: {ru: "Мифический", uk: "Міфічний"}, color: "#ff2d75", tier: 5, glow: "0 0 35px #ff2d75", price: 1500 },
+            forbidden: { label: {ru: "Запрещено", uk: "Заборонено"}, color: "#dc143c", tier: 6, glow: "0 0 40px #ff0000, 0 0 80px #ff0000", price: 5000 }
         };
+
+        function getRarityLabel(rarity) {
+            return RARITY[rarity].label[currentLang] || rarity;
+        }
 
         const CASE_CHANCES = {
             rare:      46,
@@ -393,16 +517,16 @@
         const CASE_PRICE = 100;
 
         const ACHIEVEMENTS = [
-            { id: "first_roll",   name: "Первый телефон",   desc: "Открыть телефон впервые",        icon: "📱", check: s => s.totalOpened >= 1 },
-            { id: "roll_10",      name: "Коллекционер",     desc: "Открыть 10 телефонов",            icon: "📦", check: s => s.totalOpened >= 10 },
-            { id: "roll_50",      name: "Фанатик",          desc: "Открыть 50 телефонов",            icon: "🔥", check: s => s.totalOpened >= 50 },
-            { id: "first_rare",   name: "Везунчик",         desc: "Найти редкий телефон",            icon: "💎", check: (s, phone) => phone && RARITY[phone.rarity].tier === 2 },
-            { id: "first_epic",   name: "Эпическая удача",  desc: "Найти эпический телефон",         icon: "✨", check: (s, phone) => phone && RARITY[phone.rarity].tier === 3 },
-            { id: "first_legend", name: "Легенда",          desc: "Найти легендарный телефон",       icon: "👑", check: (s, phone) => phone && RARITY[phone.rarity].tier === 4 },
-            { id: "first_mythic", name: "Миф стал реальностью", desc: "Найти мифический телефон",    icon: "🌟", check: (s, phone) => phone && RARITY[phone.rarity].tier === 5 },
-            { id: "first_forbidden", name: "Запретный плод", desc: "Найти запрещённый телефон",      icon: "🚫", check: (s, phone) => phone && RARITY[phone.rarity].tier === 6 },
-            { id: "all_common",   name: "Базовый набор",    desc: "Собрать все обычные телефоны",    icon: "✅", check: s => s.uniqueByRarity.common >= 4 },
-            { id: "all_mythic",   name: "Хранитель мифов",  desc: "Собрать все мифические телефоны", icon: "🏆", check: s => s.uniqueByRarity.mythic >= 2 }
+            { id: "first_roll",   name: {ru: "Первый телефон", uk: "Перший телефон"}, desc: {ru: "Открыть телефон впервые", uk: "Відкрити телефон вперше"}, icon: "📱", check: s => s.totalOpened >= 1 },
+            { id: "roll_10",      name: {ru: "Коллекционер", uk: "Колекціонер"}, desc: {ru: "Открыть 10 телефонов", uk: "Відкрити 10 телефонів"}, icon: "📦", check: s => s.totalOpened >= 10 },
+            { id: "roll_50",      name: {ru: "Фанатик", uk: "Фанатик"}, desc: {ru: "Открыть 50 телефонов", uk: "Відкрити 50 телефонів"}, icon: "🔥", check: s => s.totalOpened >= 50 },
+            { id: "first_rare",   name: {ru: "Везунчик", uk: "Щасливчик"}, desc: {ru: "Найти редкий телефон", uk: "Знайти рідкісний телефон"}, icon: "💎", check: (s, phone) => phone && RARITY[phone.rarity].tier === 2 },
+            { id: "first_epic",   name: {ru: "Эпическая удача", uk: "Епічна удача"}, desc: {ru: "Найти эпический телефон", uk: "Знайти епічний телефон"}, icon: "✨", check: (s, phone) => phone && RARITY[phone.rarity].tier === 3 },
+            { id: "first_legend", name: {ru: "Легенда", uk: "Легенда"}, desc: {ru: "Найти легендарный телефон", uk: "Знайти легендарний телефон"}, icon: "👑", check: (s, phone) => phone && RARITY[phone.rarity].tier === 4 },
+            { id: "first_mythic", name: {ru: "Миф стал реальностью", uk: "Міф став реальністю"}, desc: {ru: "Найти мифический телефон", uk: "Знайти міфічний телефон"}, icon: "🌟", check: (s, phone) => phone && RARITY[phone.rarity].tier === 5 },
+            { id: "first_forbidden", name: {ru: "Запретный плод", uk: "Заборонений плід"}, desc: {ru: "Найти запрещённый телефон", uk: "Знайти заборонений телефон"}, icon: "🚫", check: (s, phone) => phone && RARITY[phone.rarity].tier === 6 },
+            { id: "all_common",   name: {ru: "Базовый набор", uk: "Базовий набір"}, desc: {ru: "Собрать все обычные телефоны", uk: "Зібрати всі звичайні телефони"}, icon: "✅", check: s => s.uniqueByRarity.common >= 4 },
+            { id: "all_mythic",   name: {ru: "Хранитель мифов", uk: "Хранитель міфів"}, desc: {ru: "Собрать все мифические телефоны", uk: "Зібрати всі міфічні телефони"}, icon: "🏆", check: s => s.uniqueByRarity.mythic >= 2 }
         ];
 
         const SAVE_KEY = 'phoneclicker_save_v6';
@@ -431,7 +555,8 @@
             shopList: $('shopList'),
             screenMain: $('screenMain'), screenInventory: $('screenInventory'),
             screenShop: $('screenShop'), screenAchieve: $('screenAchieve'),
-            resetBtn: $('resetBtn'), lowSpecBtn: $('lowSpecBtn')
+            resetBtn: $('resetBtn'), lowSpecBtn: $('lowSpecBtn'),
+            langBtn: $('langBtn')
         };
 
         const fmtTime = s => `${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
@@ -469,8 +594,9 @@
             el.balanceDisplay.textContent = balance;
             const bestTier = getBestTier();
             const bestKey = Object.keys(RARITY).find(k => RARITY[k].tier === bestTier);
-            el.bestRarity.textContent = bestKey ? RARITY[bestKey].label : '-';
+            el.bestRarity.textContent = bestKey ? getRarityLabel(bestKey) : '-';
             el.bestRarity.style.color = bestKey ? RARITY[bestKey].color : '#888';
+            el.rollBasicBtn.textContent = timerActiveBasic ? t('waiting') : t('rollBasicBtn');
         }
 
         function switchScreen(screen) {
@@ -492,17 +618,17 @@
                 html += `<div class="inv-item case-item">
                     <img class="inv-icon" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='80' font-size='80'%3E📦%3C/text%3E%3C/svg%3E" alt="Кейс">
                     <div class="inv-info">
-                        <div class="inv-name">Кейс с телефонами</div>
-                        <div style="color:#c084fc;font-size:12px;">Содержит редкие и выше</div>
+                        <div class="inv-name">${t('caseItemName')}</div>
+                        <div style="color:#c084fc;font-size:12px;">${t('caseItemDesc')}</div>
                     </div>
                     <span class="inv-count">×${caseCount}</span>
-                    <button class="btn-open-case" id="openCaseBtn">Открыть</button>
+                    <button class="btn-open-case" id="openCaseBtn">${t('openCaseBtn')}</button>
                 </div>`;
             }
 
             const keys = Object.keys(collection);
             if (keys.length === 0 && caseCount === 0) {
-                el.inventoryList.innerHTML = '<div class="empty-msg">📦 Пока пусто...</div>'; return;
+                el.inventoryList.innerHTML = `<div class="empty-msg">${t('emptyInventory')}</div>`; return;
             }
 
             for (const name of keys) {
@@ -515,11 +641,11 @@
                     <img class="inv-icon" src="${escapeHtml(phone.image)}" alt="${escapeHtml(name)}" style="border: 2px solid ${cfg.color}">
                     <div class="inv-info">
                         <div class="inv-name">${escapeHtml(name)}</div>
-                        <div style="color:${cfg.color};font-size:12px;">${escapeHtml(cfg.label)}</div>
-                        <div class="sell-price">Цена: ${cfg.price} 💰</div>
+                        <div style="color:${cfg.color};font-size:12px;">${escapeHtml(getRarityLabel(phone.rarity))}</div>
+                        <div class="sell-price">${t('shopCasePrice')} ${cfg.price} 💰</div>
                     </div>
                     <span class="inv-count">×${count}</span>
-                    <button class="btn-sell" data-phone='${name}'>Продать</button>
+                    <button class="btn-sell" data-phone='${name}'>${t('sellBtn')}</button>
                 </div>`;
             }
             el.inventoryList.innerHTML = html;
@@ -585,11 +711,11 @@
             html += `<div class="shop-item">
                 <img class="shop-icon" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='80' font-size='80'%3E📦%3C/text%3E%3C/svg%3E" alt="Кейс">
                 <div class="shop-info">
-                    <div class="shop-name">Кейс с телефонами</div>
-                    <div style="color:#aaa;font-size:12px;">Содержит редкие и выше</div>
-                    <div style="color:#ffd700;font-size:14px;">Цена: ${CASE_PRICE} 💰</div>
+                    <div class="shop-name">${t('shopCaseName')}</div>
+                    <div style="color:#aaa;font-size:12px;">${t('shopCaseDesc')}</div>
+                    <div style="color:#ffd700;font-size:14px;">${t('shopCasePrice')} ${CASE_PRICE} 💰</div>
                 </div>
-                <button class="btn btn-case" id="buyCaseBtn" style="width:auto; padding:8px 16px; font-size:14px;">Купить</button>
+                <button class="btn btn-case" id="buyCaseBtn" style="width:auto; padding:8px 16px; font-size:14px;">${t('buyCaseBtn')}</button>
             </div>`;
             el.shopList.innerHTML = html;
 
@@ -601,7 +727,7 @@
 
         function buyCase() {
             if (balance < CASE_PRICE) {
-                alert('Недостаточно монет!');
+                alert(t('notEnoughCoins'));
                 return;
             }
             balance -= CASE_PRICE;
@@ -630,11 +756,13 @@
             let html = '';
             for (const ach of ACHIEVEMENTS) {
                 const unlocked = unlockedAchievements.includes(ach.id);
+                const achName = ach.name[currentLang] || ach.name.ru;
+                const achDesc = unlocked ? (ach.desc[currentLang] || ach.desc.ru) : t('achievementLockedDesc');
                 html += `<div class="achieve-item ${unlocked ? 'unlocked' : ''}">
                     <div class="achieve-icon">${ach.icon}</div>
                     <div class="achieve-info">
-                        <div class="achieve-name">${unlocked ? escapeHtml(ach.name) : '???'}</div>
-                        <div class="achieve-desc">${unlocked ? escapeHtml(ach.desc) : 'Продолжай открывать телефоны...'}</div>
+                        <div class="achieve-name">${unlocked ? escapeHtml(achName) : '???'}</div>
+                        <div class="achieve-desc">${escapeHtml(achDesc)}</div>
                     </div>
                 </div>`;
             }
@@ -692,22 +820,29 @@
         }
 
         function resetGame() {
-            if (!confirm('Точно сбросить весь прогресс?')) return;
+            if (!confirm(t('confirmReset'))) return;
             localStorage.removeItem(SAVE_KEY);
             collection = {}; totalOpened = 0; totalSold = 0; balance = 0; caseCount = 0; unlockedAchievements = [];
             clearTimer('basic');
             el.phoneImage.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='80' font-size='80'%3E📦%3C/text%3E%3C/svg%3E";
-            el.phoneName.textContent = '???'; el.phoneName.style.color = '#fff';
-            el.phoneModel.textContent = 'Нажми кнопку'; el.phoneModel.style.color = 'rgba(255,255,255,0.7)';
-            el.phoneDisplay.style.borderColor = 'transparent'; el.phoneDisplay.style.boxShadow = 'none';
-            updateStats(); renderInventory(); renderShop(); renderAchievements();
+            el.phoneName.textContent = '???';
+            el.phoneName.style.color = '#fff';
+            el.phoneModel.textContent = t('phoneModelDefault');
+            el.phoneModel.style.color = 'rgba(255,255,255,0.7)';
+            el.phoneDisplay.style.borderColor = 'transparent';
+            el.phoneDisplay.style.boxShadow = 'none';
+            updateStats();
+            renderInventory();
+            renderShop();
+            renderAchievements();
         }
 
         function clearTimer(type) {
             if (type === 'basic') {
                 if (timerIdBasic) clearInterval(timerIdBasic);
                 timerIdBasic = null; timerActiveBasic = false; timerRemainingBasic = 0;
-                el.rollBasicBtn.disabled = false; el.rollBasicBtn.textContent = '📱 Открыть';
+                el.rollBasicBtn.disabled = false;
+                el.rollBasicBtn.textContent = t('rollBasicBtn');
                 el.timerBasic.textContent = '00:00';
             }
         }
@@ -725,7 +860,8 @@
             if (type === 'basic') {
                 if (timerIdBasic) clearInterval(timerIdBasic);
                 timerRemainingBasic = seconds; timerStartBasic = performance.now(); timerActiveBasic = true;
-                el.rollBasicBtn.disabled = true; el.rollBasicBtn.textContent = '⏳ Ожидание...';
+                el.rollBasicBtn.disabled = true;
+                el.rollBasicBtn.textContent = t('waiting');
                 tick('basic'); timerIdBasic = setInterval(() => tick('basic'), 500);
                 save();
             }
@@ -737,7 +873,7 @@
             el.phoneImage.style.color = cfg.color;
             el.phoneName.textContent = phone.name;
             el.phoneName.style.color = cfg.color;
-            el.phoneModel.textContent = `${cfg.label} • ${phone.year}`;
+            el.phoneModel.textContent = `${getRarityLabel(phone.rarity)} • ${phone.year}`;
             el.phoneModel.style.color = cfg.color;
             el.phoneDisplay.style.borderColor = cfg.color;
             el.phoneDisplay.style.boxShadow = cfg.glow;
@@ -769,11 +905,16 @@
         el.rollBasicBtn.addEventListener('click', rollBasicPhone);
         el.resetBtn.addEventListener('click', resetGame);
         el.lowSpecBtn.addEventListener('click', toggleLowSpec);
+        el.langBtn.addEventListener('click', () => {
+            const newLang = currentLang === 'uk' ? 'ru' : 'uk';
+            setLanguage(newLang);
+        });
         document.querySelectorAll('.menu-btn').forEach(btn => {
             btn.addEventListener('click', () => switchScreen(btn.dataset.screen));
         });
 
         // Инициализация
+        loadLanguage(); // загружаем язык и обновляем тексты
         renderShop();
         renderAchievements();
         load();
