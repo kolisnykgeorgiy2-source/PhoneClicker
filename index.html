@@ -188,7 +188,7 @@
             border-radius: 20px; cursor: pointer;
         }
         
-        /* === НОВЫЙ ИНВЕНТАРЬ === */
+        /* === ИНВЕНТАРЬ === */
         .inv-controls {
             display: flex; gap: 6px; margin-bottom: 12px;
         }
@@ -212,10 +212,7 @@
             border: 1px solid #8e2de2; border-radius: 16px;
             padding: 12px; margin-bottom: 12px; display: flex; align-items: center; gap: 12px;
         }
-        .case-banner-icon {
-            width: 50px; height: 50px; object-fit: contain;
-            filter: drop-shadow(0 0 8px #8e2de2);
-        }
+        .case-banner-icon { width: 50px; height: 50px; object-fit: contain; filter: drop-shadow(0 0 8px #8e2de2); }
         .case-banner-info { flex: 1; }
         .case-banner-name { font-weight: bold; color: #c084fc; }
         .case-banner-desc { font-size: 11px; color: rgba(255,255,255,0.6); }
@@ -225,9 +222,7 @@
         }
         .btn-open-case:active { background: rgba(138,43,226,0.8); }
 
-        .inv-grid {
-            display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;
-        }
+        .inv-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
         .inv-card {
             background: rgba(0,0,0,0.4); border-radius: 16px; padding: 10px;
             border: 1px solid rgba(255,255,255,0.1); text-align: center;
@@ -235,7 +230,6 @@
             transition: all 0.2s; overflow: hidden;
         }
         .inv-card:active { transform: scale(0.95); }
-        /* Цвета рамок для карточек */
         .inv-card.rarity-common { border-color: rgba(57, 255, 20, 0.3); box-shadow: inset 0 0 20px rgba(57, 255, 20, 0.1); }
         .inv-card.rarity-rare { border-color: rgba(0, 212, 255, 0.3); box-shadow: inset 0 0 20px rgba(0, 212, 255, 0.1); }
         .inv-card.rarity-epic { border-color: rgba(179, 71, 234, 0.3); box-shadow: inset 0 0 20px rgba(179, 71, 234, 0.1); }
@@ -254,14 +248,8 @@
             background: rgba(0,0,0,0.8); padding: 2px 8px; border-radius: 10px;
             font-size: 12px; font-weight: bold; color: var(--neon-pink);
         }
-        .inv-card-img {
-            width: 80px; height: 80px; object-fit: contain; margin: 5px 0;
-            filter: drop-shadow(0 0 8px currentColor);
-        }
-        .inv-card-name {
-            font-size: 13px; font-weight: bold; width: 100%; 
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-        }
+        .inv-card-img { width: 80px; height: 80px; object-fit: contain; margin: 5px 0; filter: drop-shadow(0 0 8px currentColor); }
+        .inv-card-name { font-size: 13px; font-weight: bold; width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .inv-card-rarity { font-size: 10px; margin-bottom: 8px; opacity: 0.8; }
         .btn-sell-card {
             width: 100%; background: rgba(255,215,0,0.15); color: #ffd700;
@@ -269,16 +257,6 @@
             font-size: 11px; font-weight: bold; cursor: pointer; position: relative;
         }
         .btn-sell-card:active { background: rgba(255,215,0,0.4); }
-        /* ======================= */
-
-        .btn-sell { /* Оставлено для старых мест, если остались */
-            background: rgba(255,215,0,0.2); color: #ffd700;
-            border: 1px solid rgba(255,215,0,0.5); font-size: 12px;
-            padding: 6px 12px; border-radius: 20px;
-            font-weight: bold; cursor: pointer;
-            position: relative;
-        }
-        .btn-sell:active { background: rgba(255,215,0,0.4); }
         .sell-flash {
             position: absolute; left: 50%; bottom: 100%; transform: translateX(-50%);
             background: rgba(0,0,0,0.8); color: #39ff14; padding: 2px 6px;
@@ -289,7 +267,8 @@
             0% { opacity: 1; transform: translateX(-50%) translateY(0); }
             100% { opacity: 0; transform: translateX(-50%) translateY(-20px); }
         }
-        
+        /* ======================= */
+
         .stats-row { display: flex; gap: 8px; margin-top: 12px; }
         .stat-box {
             flex: 1; background: rgba(0,0,0,0.5); border-radius: 16px;
@@ -310,12 +289,7 @@
         }
         .achieve-item:active, .shop-item:active { background: rgba(255,45,117,0.15); }
         .achieve-item:last-child, .shop-item:last-child { border-bottom: none; }
-        .shop-icon {
-            width: 48px; height: 48px;
-            border-radius: 12px;
-            object-fit: contain;
-            filter: drop-shadow(0 0 5px currentColor);
-        }
+        .shop-icon { width: 48px; height: 48px; border-radius: 12px; object-fit: contain; filter: drop-shadow(0 0 5px currentColor); }
         .shop-info { flex: 1; }
         .shop-name { font-weight: bold; font-size: 15px; }
         .achieve-icon { font-size: 36px; opacity: 0.2; transition: all 0.5s; }
@@ -360,7 +334,6 @@
             <button class="menu-btn" data-screen="achieve" id="menuAchieve">🏆 Ачівки</button>
         </div>
 
-        <!-- Главный экран -->
         <div class="screen active" id="screenMain">
             <div class="top-row">
                 <button class="btn btn-reset" id="resetBtn">🗑 Скинути</button>
@@ -384,17 +357,14 @@
             </div>
         </div>
 
-        <!-- Инвентарь -->
         <div class="screen" id="screenInventory">
-            <div class="list-container" id="inventoryList"><div class="empty-msg">📦 Поки пусто...</div></div>
+            <div class="list-container" id="inventoryList"></div>
         </div>
 
-        <!-- Магазин -->
         <div class="screen" id="screenShop">
             <div class="list-container" id="shopList"></div>
         </div>
 
-        <!-- Ачивки -->
         <div class="screen" id="screenAchieve">
             <div class="list-container" id="achieveList"></div>
         </div>
@@ -403,10 +373,9 @@
     (function() {
         'use strict';
 
-        // ========== ЛОКАЛИЗАЦИЯ ==========
         const LANG_KEY = 'phoneclicker_lang';
         let currentLang = 'uk';
-        let inventorySort = 'default'; // Состояние сортировки
+        let inventorySort = 'default';
 
         const translations = {
             ru: {
@@ -419,7 +388,6 @@
                 confirmReset: 'Точно сбросить весь прогресс?', waiting: '⏳ Ожидание...',
                 achievementLockedDesc: 'Продолжай открывать телефоны...',
                 shopCaseName: 'Кейс с телефонами', shopCaseDesc: 'Содержит редкие и выше', shopCasePrice: 'Цена:',
-                // Новые тексты инвентаря
                 sortDefault: 'По умолчанию', sortRarity: 'По редкости', sortCount: 'По кол-ву',
                 sellAllCommon: 'Продать обычных', confirmSellAll: 'Продать все обычные телефоны?'
             },
@@ -433,7 +401,6 @@
                 confirmReset: 'Точно скинути весь прогрес?', waiting: '⏳ Очікування...',
                 achievementLockedDesc: 'Продовжуй відкривати телефони...',
                 shopCaseName: 'Кейс із телефонами', shopCaseDesc: 'Містить рідкісні та вище', shopCasePrice: 'Ціна:',
-                // Новые тексты инвентаря
                 sortDefault: 'За замовч.', sortRarity: 'За рідкістю', sortCount: 'За кільк.',
                 sellAllCommon: 'Продати звичайних', confirmSellAll: 'Продати всі звичайні телефони?'
             }
@@ -481,7 +448,6 @@
             updateUITexts();
         }
 
-        // ========== ОСНОВНОЙ КОД ==========
         function escapeHtml(str) {
             return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
                       .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
@@ -631,15 +597,13 @@
                     delete collection[name];
                 }
             }
-            if (earned > 0) {
-                balance += earned; updateStats(); save(); renderInventory();
-            }
+            if (earned > 0) { balance += earned; updateStats(); save(); renderInventory(); }
         }
 
         function renderInventory() {
             let html = '';
             
-            // 1. Баннер кейсов
+            // 1. Баннер кейсов (если есть)
             if (caseCount > 0) {
                 html += `<div class="case-banner">
                     <img class="case-banner-icon" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='80' font-size='80'%3E📦%3C/text%3E%3C/svg%3E" alt="Кейс">
@@ -651,7 +615,7 @@
                 </div>`;
             }
 
-            // 2. Панель управления (Сортировка и продажа)
+            // 2. Кнопки сортировки и продажи (ОТРИСОВЫВАЮТСЯ ВСЕГДА)
             let hasCommons = Object.keys(collection).some(name => PHONE_MAP[name]?.rarity === 'common');
             html += `<div class="inv-controls">
                 <button class="sort-btn ${inventorySort === 'default' ? 'active' : ''}" data-sort="default">${t('sortDefault')}</button>
@@ -660,34 +624,34 @@
                 ${hasCommons ? `<button class="btn-sell-all" id="sellAllBtn">${t('sellAllCommon')}</button>` : ''}
             </div>`;
 
-            // 3. Сетка карточек
+            // 3. Подготовка телефонов
             let keys = Object.keys(collection).filter(name => collection[name] > 0 && PHONE_MAP[name]);
 
-            // Сортировка
             if (inventorySort === 'rarity') {
                 keys.sort((a, b) => RARITY[PHONE_MAP[a].rarity].tier - RARITY[PHONE_MAP[b].rarity].tier);
             } else if (inventorySort === 'count') {
                 keys.sort((a, b) => collection[b] - collection[a]);
             }
 
-            if (keys.length === 0 && caseCount === 0) {
-                el.inventoryList.innerHTML = `<div class="empty-msg">${t('emptyInventory')}</div>`; return;
+            // 4. Если пусто - показываем текст. Если нет - рисуем сетку
+            if (keys.length === 0) {
+                html += `<div class="empty-msg">${t('emptyInventory')}</div>`;
+            } else {
+                html += `<div class="inv-grid">`;
+                for (const name of keys) {
+                    const count = collection[name];
+                    const phone = PHONE_MAP[name];
+                    const cfg = RARITY[phone.rarity];
+                    html += `<div class="inv-card rarity-${phone.rarity}">
+                        <span class="inv-card-count">x${count}</span>
+                        <img class="inv-card-img" src="${escapeHtml(phone.image)}" alt="${escapeHtml(name)}" style="color: ${cfg.color}">
+                        <div class="inv-card-name">${escapeHtml(name)}</div>
+                        <div class="inv-card-rarity" style="color: ${cfg.color}">${getRarityLabel(phone.rarity)}</div>
+                        <button class="btn-sell-card" data-phone='${escapeHtml(name)}'>${t('shopCasePrice')} ${cfg.price} 💰</button>
+                    </div>`;
+                }
+                html += `</div>`;
             }
-
-            html += `<div class="inv-grid">`;
-            for (const name of keys) {
-                const count = collection[name];
-                const phone = PHONE_MAP[name];
-                const cfg = RARITY[phone.rarity];
-                html += `<div class="inv-card rarity-${phone.rarity}">
-                    <span class="inv-card-count">x${count}</span>
-                    <img class="inv-card-img" src="${escapeHtml(phone.image)}" alt="${escapeHtml(name)}" style="color: ${cfg.color}">
-                    <div class="inv-card-name">${escapeHtml(name)}</div>
-                    <div class="inv-card-rarity" style="color: ${cfg.color}">${getRarityLabel(phone.rarity)}</div>
-                    <button class="btn-sell-card" data-phone='${escapeHtml(name)}'>${t('shopCasePrice')} ${cfg.price} 💰</button>
-                </div>`;
-            }
-            html += `</div>`;
 
             el.inventoryList.innerHTML = html;
 
@@ -838,14 +802,12 @@
 
         function toggleLowSpec() { lowSpecMode = !lowSpecMode; applyLowSpecMode(); save(); }
 
-        // Обработчики
         el.rollBasicBtn.addEventListener('click', rollBasicPhone);
         el.resetBtn.addEventListener('click', resetGame);
         el.lowSpecBtn.addEventListener('click', toggleLowSpec);
         el.langBtn.addEventListener('click', () => { setLanguage(currentLang === 'uk' ? 'ru' : 'uk'); });
         document.querySelectorAll('.menu-btn').forEach(btn => { btn.addEventListener('click', () => switchScreen(btn.dataset.screen)); });
 
-        // Инициализация
         loadLanguage(); renderShop(); renderAchievements(); load(); updateStats();
     })();
     </script>
