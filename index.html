@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PhoneClicker Test-3D</title>
+    <title>PhoneClicker Pre-Alpha 0A</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='80' font-size='80'>📱</text></svg>">
     <style>
         :root {
@@ -111,8 +111,15 @@
             opacity: 0.3;
         }
         @keyframes rotateGlow { 100% { transform: rotate(360deg); } }
-        #phoneEmoji {
-            font-size: 80px; display: block; position: relative; z-index: 1;
+        .phone-image {
+            width: 120px;
+            height: 120px;
+            object-fit: contain;
+            display: block;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+            border-radius: 16px;
             filter: drop-shadow(0 0 15px currentColor);
             animation: bounceIn 0.5s;
         }
@@ -191,7 +198,12 @@
         }
         .inv-item:active, .achieve-item:active { background: rgba(255,45,117,0.15); }
         .inv-item:last-child, .achieve-item:last-child { border-bottom: none; }
-        .inv-icon { font-size: 32px; filter: drop-shadow(0 0 5px currentColor); }
+        .inv-icon {
+            width: 48px; height: 48px;
+            border-radius: 12px;
+            object-fit: contain;
+            filter: drop-shadow(0 0 5px currentColor);
+        }
         .inv-info { flex: 1; }
         .inv-name { font-weight: bold; font-size: 16px; }
         .inv-count {
@@ -228,7 +240,7 @@
     <div class="particles" id="particlesContainer"></div>
     <div class="game-container">
         <h1>📱 PhoneClicker</h1>
-        <p class="status">Test-3D</p>
+        <p class="status">Pre-Alpha 0A</p>
         <div class="menu-bar">
             <button class="menu-btn active" data-screen="main">🎮 Игра</button>
             <button class="menu-btn" data-screen="inventory">📦 Инвентарь</button>
@@ -240,7 +252,8 @@
                 <button class="btn btn-low-spec" id="lowSpecBtn">⚡</button>
             </div>
             <div class="phone-display" id="phoneDisplay">
-                <span id="phoneEmoji">📦</span>
+                <!-- Здесь будет фото телефона -->
+                <img id="phoneImage" class="phone-image" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='80' font-size='80'%3E📦%3C/text%3E%3C/svg%3E" alt="Телефон">
                 <span class="phone-name" id="phoneName">???</span>
                 <span class="phone-model" id="phoneModel">Нажми кнопку</span>
             </div>
@@ -268,7 +281,6 @@
     <script>
     (function() {
         'use strict';
-        // Экранирование HTML (только для текстовых данных)
         function escapeHtml(str) {
             const div = document.createElement('div');
             div.textContent = str;
@@ -290,24 +302,24 @@
             particlesContainer.appendChild(particle);
         }
 
-        // Телефоны и редкости
+        // База телефонов с реальными изображениями (пока плейсхолдеры)
         const BASIC_PHONES = [
-            { name: "iPhone 3GS", emoji: "📱", year: "2009", rarity: "common" },
-            { name: "iPhone 4", emoji: "📱", year: "2010", rarity: "common" },
-            { name: "Samsung Galaxy S2", emoji: "📱", year: "2011", rarity: "common" },
-            { name: "Xiaomi Mi 1", emoji: "📱", year: "2011", rarity: "common" }
+            { name: "iPhone 3GS", year: "2009", rarity: "common", image: "https://via.placeholder.com/300/39ff14/000000?text=iPhone+3GS" },
+            { name: "iPhone 4", year: "2010", rarity: "common", image: "https://via.placeholder.com/300/39ff14/000000?text=iPhone+4" },
+            { name: "Samsung Galaxy S2", year: "2011", rarity: "common", image: "https://via.placeholder.com/300/39ff14/000000?text=Galaxy+S2" },
+            { name: "Xiaomi Mi 1", year: "2011", rarity: "common", image: "https://via.placeholder.com/300/39ff14/000000?text=Mi+1" }
         ];
         const CASE_PHONES = [
-            { name: "iPhone 5s", emoji: "📱", year: "2013", rarity: "rare" },
-            { name: "iPhone 6", emoji: "📱", year: "2014", rarity: "rare" },
-            { name: "Google Pixel", emoji: "📱", year: "2016", rarity: "rare" },
-            { name: "iPhone X", emoji: "📱", year: "2017", rarity: "epic" },
-            { name: "iPhone 12", emoji: "📱", year: "2020", rarity: "epic" },
-            { name: "Nokia 3310", emoji: "📞", year: "2000", rarity: "legendary" },
-            { name: "Motorola Razr V3", emoji: "📟", year: "2004", rarity: "legendary" },
-            { name: "iPhone 2G (первый)", emoji: "📱", year: "2007", rarity: "mythic" },
-            { name: "Nokia 8110 \"банан\"", emoji: "🍌", year: "1996", rarity: "mythic" },
-            { name: "Samsung Galaxy Note 7", emoji: "💥", year: "2016", rarity: "forbidden" }
+            { name: "iPhone 5s", year: "2013", rarity: "rare", image: "https://via.placeholder.com/300/00d4ff/000000?text=iPhone+5s" },
+            { name: "iPhone 6", year: "2014", rarity: "rare", image: "https://via.placeholder.com/300/00d4ff/000000?text=iPhone+6" },
+            { name: "Google Pixel", year: "2016", rarity: "rare", image: "https://via.placeholder.com/300/00d4ff/000000?text=Pixel" },
+            { name: "iPhone X", year: "2017", rarity: "epic", image: "https://via.placeholder.com/300/b347ea/000000?text=iPhone+X" },
+            { name: "iPhone 12", year: "2020", rarity: "epic", image: "https://via.placeholder.com/300/b347ea/000000?text=iPhone+12" },
+            { name: "Nokia 3310", year: "2000", rarity: "legendary", image: "https://via.placeholder.com/300/ffe600/000000?text=Nokia+3310" },
+            { name: "Motorola Razr V3", year: "2004", rarity: "legendary", image: "https://via.placeholder.com/300/ffe600/000000?text=Razr+V3" },
+            { name: "iPhone 2G (первый)", year: "2007", rarity: "mythic", image: "https://via.placeholder.com/300/ff2d75/ffffff?text=iPhone+2G" },
+            { name: "Nokia 8110 \"банан\"", year: "1996", rarity: "mythic", image: "https://via.placeholder.com/300/ff2d75/ffffff?text=Nokia+8110" },
+            { name: "Samsung Galaxy Note 7", year: "2016", rarity: "forbidden", image: "https://via.placeholder.com/300/dc143c/ffffff?text=Galaxy+Note+7" }
         ];
 
         const PHONE_MAP = {};
@@ -349,7 +361,6 @@
 
         const SAVE_KEY = 'phoneclicker_save_v3';
 
-        // Состояние
         let collection = {};
         let totalOpened = 0;
         let unlockedAchievements = [];
@@ -361,14 +372,21 @@
 
         const $ = id => document.getElementById(id);
         const el = {
-            phoneDisplay: $('phoneDisplay'), phoneEmoji: $('phoneEmoji'),
-            phoneName: $('phoneName'), phoneModel: $('phoneModel'),
-            timerBasic: $('timerBasic'), timerCase: $('timerCase'),
-            rollBasicBtn: $('rollBasicBtn'), rollCaseBtn: $('rollCaseBtn'),
-            totalOpened: $('totalOpened'), uniquePhones: $('uniquePhones'),
-            bestRarity: $('bestRarity'), inventoryList: $('inventoryList'),
+            phoneDisplay: $('phoneDisplay'),
+            phoneImage: $('phoneImage'),
+            phoneName: $('phoneName'),
+            phoneModel: $('phoneModel'),
+            timerBasic: $('timerBasic'),
+            timerCase: $('timerCase'),
+            rollBasicBtn: $('rollBasicBtn'),
+            rollCaseBtn: $('rollCaseBtn'),
+            totalOpened: $('totalOpened'),
+            uniquePhones: $('uniquePhones'),
+            bestRarity: $('bestRarity'),
+            inventoryList: $('inventoryList'),
             achieveList: $('achieveList'),
-            screenMain: $('screenMain'), screenInventory: $('screenInventory'),
+            screenMain: $('screenMain'),
+            screenInventory: $('screenInventory'),
             screenAchieve: $('screenAchieve'),
             resetBtn: $('resetBtn'),
             lowSpecBtn: $('lowSpecBtn')
@@ -432,7 +450,7 @@
                 const cfg = RARITY[phone.rarity];
                 const extraClass = phone.rarity === 'forbidden' ? ' rarity-forbidden' : '';
                 html += `<div class="inv-item${extraClass}">
-                    <span class="inv-icon" style="color:${cfg.color}">${phone.emoji}</span>
+                    <img class="inv-icon" src="${phone.image}" alt="${escapeHtml(name)}" style="border: 2px solid ${cfg.color}">
                     <div class="inv-info">
                         <div class="inv-name">${escapeHtml(name)}</div>
                         <div style="color:${cfg.color};font-size:12px;">${escapeHtml(cfg.label)}</div>
@@ -513,22 +531,15 @@
 
                 let remainingBasic = data.timerRemainingBasic || 0;
                 let remainingCase = data.timerRemainingCase || 0;
-
                 const maxBasicSec = COOLDOWN_BASIC + 10;
                 const maxCaseSec = COOLDOWN_CASE + 10;
                 if (remainingBasic > maxBasicSec) remainingBasic = COOLDOWN_BASIC;
                 if (remainingCase > maxCaseSec) remainingCase = COOLDOWN_CASE;
 
-                if (remainingBasic > 0) {
-                    startTimer('basic', Math.ceil(remainingBasic));
-                } else {
-                    clearTimer('basic');
-                }
-                if (remainingCase > 0) {
-                    startTimer('case', Math.ceil(remainingCase));
-                } else {
-                    clearTimer('case');
-                }
+                if (remainingBasic > 0) startTimer('basic', Math.ceil(remainingBasic));
+                else clearTimer('basic');
+                if (remainingCase > 0) startTimer('case', Math.ceil(remainingCase));
+                else clearTimer('case');
             } catch (e) {
                 collection = {}; totalOpened = 0; unlockedAchievements = [];
             }
@@ -539,7 +550,7 @@
             localStorage.removeItem(SAVE_KEY);
             collection = {}; totalOpened = 0; unlockedAchievements = [];
             clearTimer('basic'); clearTimer('case');
-            el.phoneEmoji.textContent = '📦';
+            el.phoneImage.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='80' font-size='80'%3E📦%3C/text%3E%3C/svg%3E";
             el.phoneName.textContent = '???';
             el.phoneName.style.color = '#fff';
             el.phoneModel.textContent = 'Нажми кнопку';
@@ -554,17 +565,13 @@
         function clearTimer(type) {
             if (type === 'basic') {
                 if (timerIdBasic) clearInterval(timerIdBasic);
-                timerIdBasic = null;
-                timerActiveBasic = false;
-                timerRemainingBasic = 0;
+                timerIdBasic = null; timerActiveBasic = false; timerRemainingBasic = 0;
                 el.rollBasicBtn.disabled = false;
                 el.rollBasicBtn.textContent = '📱 Открыть телефон';
                 el.timerBasic.textContent = '00:00';
             } else {
                 if (timerIdCase) clearInterval(timerIdCase);
-                timerIdCase = null;
-                timerActiveCase = false;
-                timerRemainingCase = 0;
+                timerIdCase = null; timerActiveCase = false; timerRemainingCase = 0;
                 el.rollCaseBtn.disabled = false;
                 el.rollCaseBtn.textContent = '📦 Открыть кейс';
                 el.timerCase.textContent = '00:00';
@@ -576,18 +583,12 @@
                 const elapsed = (performance.now() - timerStartBasic) / 1000;
                 const left = Math.max(0, Math.ceil(timerRemainingBasic - elapsed));
                 el.timerBasic.textContent = fmtTime(left);
-                if (left <= 0) {
-                    clearTimer('basic');
-                    save();
-                }
+                if (left <= 0) { clearTimer('basic'); save(); }
             } else {
                 const elapsed = (performance.now() - timerStartCase) / 1000;
                 const left = Math.max(0, Math.ceil(timerRemainingCase - elapsed));
                 el.timerCase.textContent = fmtTime(left);
-                if (left <= 0) {
-                    clearTimer('case');
-                    save();
-                }
+                if (left <= 0) { clearTimer('case'); save(); }
             }
         }
 
@@ -616,8 +617,8 @@
 
         function applyPhoneDisplay(phone) {
             const cfg = RARITY[phone.rarity];
-            el.phoneEmoji.textContent = phone.emoji;
-            el.phoneEmoji.style.color = cfg.color;
+            el.phoneImage.src = phone.image;
+            el.phoneImage.style.color = cfg.color; // для drop-shadow
             el.phoneName.textContent = phone.name;
             el.phoneName.style.color = cfg.color;
             el.phoneModel.textContent = `${cfg.label} • ${phone.year}`;
@@ -633,15 +634,15 @@
                 el.phoneModel.classList.remove('rarity-forbidden');
             }
 
-            el.phoneEmoji.style.animation = 'none';
-            void el.phoneEmoji.offsetWidth;
-            el.phoneEmoji.style.animation = 'bounceIn 0.5s';
+            // Анимация
+            el.phoneImage.style.animation = 'none';
+            void el.phoneImage.offsetWidth;
+            el.phoneImage.style.animation = 'bounceIn 0.5s';
         }
 
         function rollBasicPhone() {
             if (timerActiveBasic) return;
-            const randomIndex = Math.floor(Math.random() * BASIC_PHONES.length);
-            const phone = BASIC_PHONES[randomIndex];
+            const phone = BASIC_PHONES[Math.floor(Math.random() * BASIC_PHONES.length)];
             applyPhoneDisplay(phone);
             collection[phone.name] = (collection[phone.name] || 0) + 1;
             totalOpened++;
@@ -654,8 +655,7 @@
         function rollCasePhone() {
             if (timerActiveCase) return;
             const roll = Math.random() * 100;
-            let rarity = 'rare';
-            let cumulative = 0;
+            let rarity = 'rare', cumulative = 0;
             for (const key of ['rare', 'epic', 'legendary', 'mythic', 'forbidden']) {
                 cumulative += CASE_CHANCES[key];
                 if (roll < cumulative) { rarity = key; break; }
