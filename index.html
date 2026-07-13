@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PhoneClicker Pre-Alpha 0C</title>
+    <title>PhoneClicker Pre-Alpha 0D</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='80' font-size='80'>📱</text></svg>">
     <style>
         :root {
@@ -188,6 +188,13 @@
             font-weight: bold; cursor: pointer;
         }
         .btn-sell:active { background: rgba(255,215,0,0.4); }
+        .btn-open-case {
+            background: rgba(138,43,226,0.3); color: #c084fc;
+            border: 1px solid #8e2de2; font-size: 12px;
+            padding: 6px 12px; border-radius: 20px;
+            font-weight: bold; cursor: pointer;
+        }
+        .btn-open-case:active { background: rgba(138,43,226,0.6); }
         .stats-row { display: flex; gap: 8px; margin-top: 12px; }
         .stat-box {
             flex: 1; background: rgba(0,0,0,0.5); border-radius: 16px;
@@ -245,14 +252,14 @@
         }
         .label-timer { font-size: 12px; color: rgba(255,255,255,0.6); text-transform: uppercase; margin-bottom: 2px; }
         .top-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-        .case-count { font-size: 16px; font-weight: bold; color: #e0b0ff; margin: 4px 0; }
+        .case-item { background: rgba(138,43,226,0.15); border: 1px solid #8e2de2; }
     </style>
 </head>
 <body class="">
     <div class="particles" id="particlesContainer"></div>
     <div class="game-container">
         <h1>📱 PhoneClicker</h1>
-        <p class="status">Pre-Alpha 0C</p>
+        <p class="status">Pre-Alpha 0D</p>
         <div class="balance-bar">
             <span class="balance-icon">💰</span>
             <span class="balance-value" id="balanceDisplay">0</span>
@@ -278,13 +285,6 @@
             <div class="label-timer">📱 Бесплатный телефон</div>
             <div class="timer" id="timerBasic">00:00</div>
             <button class="btn btn-primary" id="rollBasicBtn">📱 Открыть</button>
-
-            <div style="margin-top: 12px;">
-                <div class="label-timer">📦 Кейс (редкие+)</div>
-                <div class="case-count" id="caseCountDisplay">Кейсов: 0</div>
-                <div class="timer" id="timerCase">00:00</div>
-                <button class="btn btn-case" id="rollCaseBtn" disabled>📦 Открыть кейс</button>
-            </div>
 
             <div class="stats-row">
                 <div class="stat-box"><div class="stat-value" id="totalOpened">0</div><div class="stat-label">Открыто</div></div>
@@ -373,7 +373,6 @@
         };
 
         const COOLDOWN_BASIC = 20;
-        const COOLDOWN_CASE = 120;
         const CASE_PRICE = 100; // Монет за один кейс
 
         const ACHIEVEMENTS = [
@@ -390,27 +389,25 @@
             { id: "all_forbidden", name: "Взрывоопасный",   desc: "Найти Galaxy Note 7",             icon: "⛔", check: s => s.uniqueByRarity.forbidden >= 1 }
         ];
 
-        const SAVE_KEY = 'phoneclicker_save_v5';
+        const SAVE_KEY = 'phoneclicker_save_v6';
 
         let collection = {};
         let totalOpened = 0;
         let totalSold = 0;
         let balance = 0;
-        let caseCount = 0;      // количество купленных кейсов
+        let caseCount = 0;
         let unlockedAchievements = [];
         let uniqueByRarity = { common: 0, rare: 0, epic: 0, legendary: 0, mythic: 0, forbidden: 0 };
         let timerRemainingBasic = 0, timerStartBasic = 0, timerActiveBasic = false;
-        let timerRemainingCase = 0, timerStartCase = 0, timerActiveCase = false;
-        let timerIdBasic = null, timerIdCase = null;
+        let timerIdBasic = null;
         let lowSpecMode = false;
 
         const $ = id => document.getElementById(id);
         const el = {
             phoneDisplay: $('phoneDisplay'), phoneImage: $('phoneImage'),
             phoneName: $('phoneName'), phoneModel: $('phoneModel'),
-            timerBasic: $('timerBasic'), timerCase: $('timerCase'),
-            rollBasicBtn: $('rollBasicBtn'), rollCaseBtn: $('rollCaseBtn'),
-            caseCountDisplay: $('caseCountDisplay'),
+            timerBasic: $('timerBasic'),
+            rollBasicBtn: $('rollBasicBtn'),
             totalOpened: $('totalOpened'), uniquePhones: $('uniquePhones'),
             bestRarity: $('bestRarity'), totalSold: $('totalSold'),
             balanceDisplay: $('balanceDisplay'),
@@ -451,7 +448,6 @@
             el.uniquePhones.textContent = uniqueCount;
             el.totalSold.textContent = totalSold;
             el.balanceDisplay.textContent = balance;
-            el.caseCountDisplay.textContent = `Кейсов: ${caseCount}`;
             const bestKey = Object.keys(RARITY).find(k => RARITY[k].tier === bestTier);
             el.bestRarity.textContent = bestKey ? RARITY[bestKey].label : '-';
             el.bestRarity.style.color = bestKey ? RARITY[bestKey].color : '#888';
@@ -471,11 +467,25 @@
         }
 
         function renderInventory() {
+            let html = '';
+            // Сначала показываем кейсы, если есть
+            if (caseCount > 0) {
+                html += `<div class="inv-item case-item">
+                    <img class="inv-icon" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='80' font-size='80'%3E📦%3C/text%3E%3C/svg%3E" alt="Кейс">
+                    <div class="inv-info">
+                        <div class="inv-name">Кейс с телефонами</div>
+                        <div style="color:#c084fc;font-size:12px;">Содержит редкие и выше</div>
+                    </div>
+                    <span class="inv-count">×${caseCount}</span>
+                    <button class="btn-open-case" id="openCaseBtn">Открыть</button>
+                </div>`;
+            }
+
             const keys = Object.keys(collection);
-            if (keys.length === 0) {
+            if (keys.length === 0 && caseCount === 0) {
                 el.inventoryList.innerHTML = '<div class="empty-msg">📦 Пока пусто...</div>'; return;
             }
-            let html = '';
+
             for (const name of keys) {
                 const count = collection[name];
                 const phone = PHONE_MAP[name];
@@ -495,12 +505,19 @@
             }
             el.inventoryList.innerHTML = html;
 
+            // Обработчики продажи
             document.querySelectorAll('.btn-sell').forEach(btn => {
                 btn.addEventListener('click', function() {
                     const phoneName = this.getAttribute('data-phone');
                     sellPhone(phoneName);
                 });
             });
+
+            // Обработчик открытия кейса
+            const openCaseBtn = document.getElementById('openCaseBtn');
+            if (openCaseBtn) {
+                openCaseBtn.addEventListener('click', openCase);
+            }
         }
 
         function sellPhone(phoneName) {
@@ -515,12 +532,31 @@
             updateStats();
             save();
             renderInventory();
-            renderShop(); // обновим магазин на случай изменения баланса
+            renderShop(); // обновим магазин
+        }
+
+        function openCase() {
+            if (caseCount <= 0) return;
+            caseCount--;
+            const roll = Math.random() * 100;
+            let rarity = 'rare', cumulative = 0;
+            for (const key of ['rare', 'epic', 'legendary', 'mythic', 'forbidden']) {
+                cumulative += CASE_CHANCES[key];
+                if (roll < cumulative) { rarity = key; break; }
+            }
+            const pool = CASE_PHONES.filter(p => p.rarity === rarity);
+            const phone = pool[Math.floor(Math.random() * pool.length)];
+            applyPhoneDisplay(phone);
+            collection[phone.name] = (collection[phone.name] || 0) + 1;
+            totalOpened++;
+            updateStats();
+            checkAchievements(phone);
+            save();
+            renderInventory();
         }
 
         function renderShop() {
             let html = '';
-            // Товар: кейс
             html += `<div class="shop-item">
                 <img class="shop-icon" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='80' font-size='80'%3E📦%3C/text%3E%3C/svg%3E" alt="Кейс">
                 <div class="shop-info">
@@ -548,6 +584,7 @@
             updateStats();
             save();
             renderShop();
+            renderInventory(); // обновим инвентарь, чтобы кейс отобразился
         }
 
         function checkAchievements(phone) {
@@ -593,7 +630,6 @@
                 caseCount,
                 unlockedAchievements,
                 timerRemainingBasic: timerActiveBasic ? Math.max(0, timerRemainingBasic - (performance.now() - timerStartBasic) / 1000) : 0,
-                timerRemainingCase: timerActiveCase ? Math.max(0, timerRemainingCase - (performance.now() - timerStartCase) / 1000) : 0,
                 lowSpecMode
             };
             localStorage.setItem(SAVE_KEY, JSON.stringify(data));
@@ -625,16 +661,11 @@
                 renderAchievements();
 
                 let remainingBasic = data.timerRemainingBasic || 0;
-                let remainingCase = data.timerRemainingCase || 0;
                 const maxBasicSec = COOLDOWN_BASIC + 10;
-                const maxCaseSec = COOLDOWN_CASE + 10;
                 if (remainingBasic > maxBasicSec) remainingBasic = COOLDOWN_BASIC;
-                if (remainingCase > maxCaseSec) remainingCase = COOLDOWN_CASE;
 
                 if (remainingBasic > 0) startTimer('basic', Math.ceil(remainingBasic));
                 else clearTimer('basic');
-                if (remainingCase > 0) startTimer('case', Math.ceil(remainingCase));
-                else clearTimer('case');
             } catch (e) {
                 collection = {}; totalOpened = 0; totalSold = 0; balance = 0; caseCount = 0; unlockedAchievements = [];
             }
@@ -644,7 +675,7 @@
             if (!confirm('Точно сбросить весь прогресс?')) return;
             localStorage.removeItem(SAVE_KEY);
             collection = {}; totalOpened = 0; totalSold = 0; balance = 0; caseCount = 0; unlockedAchievements = [];
-            clearTimer('basic'); clearTimer('case');
+            clearTimer('basic');
             el.phoneImage.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='80' font-size='80'%3E📦%3C/text%3E%3C/svg%3E";
             el.phoneName.textContent = '???'; el.phoneName.style.color = '#fff';
             el.phoneModel.textContent = 'Нажми кнопку'; el.phoneModel.style.color = 'rgba(255,255,255,0.7)';
@@ -658,24 +689,6 @@
                 timerIdBasic = null; timerActiveBasic = false; timerRemainingBasic = 0;
                 el.rollBasicBtn.disabled = false; el.rollBasicBtn.textContent = '📱 Открыть';
                 el.timerBasic.textContent = '00:00';
-            } else {
-                if (timerIdCase) clearInterval(timerIdCase);
-                timerIdCase = null; timerActiveCase = false; timerRemainingCase = 0;
-                updateCaseButtonState();
-                el.timerCase.textContent = '00:00';
-            }
-        }
-
-        function updateCaseButtonState() {
-            if (timerActiveCase) {
-                el.rollCaseBtn.disabled = true;
-                el.rollCaseBtn.textContent = '⏳ Ожидание...';
-            } else if (caseCount <= 0) {
-                el.rollCaseBtn.disabled = true;
-                el.rollCaseBtn.textContent = '📦 Нет кейсов';
-            } else {
-                el.rollCaseBtn.disabled = false;
-                el.rollCaseBtn.textContent = '📦 Открыть кейс';
             }
         }
 
@@ -685,11 +698,6 @@
                 const left = Math.max(0, Math.ceil(timerRemainingBasic - elapsed));
                 el.timerBasic.textContent = fmtTime(left);
                 if (left <= 0) { clearTimer('basic'); save(); }
-            } else {
-                const elapsed = (performance.now() - timerStartCase) / 1000;
-                const left = Math.max(0, Math.ceil(timerRemainingCase - elapsed));
-                el.timerCase.textContent = fmtTime(left);
-                if (left <= 0) { clearTimer('case'); save(); }
             }
         }
 
@@ -699,13 +707,8 @@
                 timerRemainingBasic = seconds; timerStartBasic = performance.now(); timerActiveBasic = true;
                 el.rollBasicBtn.disabled = true; el.rollBasicBtn.textContent = '⏳ Ожидание...';
                 tick('basic'); timerIdBasic = setInterval(() => tick('basic'), 500);
-            } else {
-                if (timerIdCase) clearInterval(timerIdCase);
-                timerRemainingCase = seconds; timerStartCase = performance.now(); timerActiveCase = true;
-                updateCaseButtonState();
-                tick('case'); timerIdCase = setInterval(() => tick('case'), 500);
+                save();
             }
-            save();
         }
 
         function applyPhoneDisplay(phone) {
@@ -732,32 +735,12 @@
             startTimer('basic', COOLDOWN_BASIC);
         }
 
-        function rollCasePhone() {
-            if (timerActiveCase || caseCount <= 0) return;
-            caseCount--; // тратим кейс
-            updateStats();
-            const roll = Math.random() * 100;
-            let rarity = 'rare', cumulative = 0;
-            for (const key of ['rare', 'epic', 'legendary', 'mythic', 'forbidden']) {
-                cumulative += CASE_CHANCES[key];
-                if (roll < cumulative) { rarity = key; break; }
-            }
-            const pool = CASE_PHONES.filter(p => p.rarity === rarity);
-            const phone = pool[Math.floor(Math.random() * pool.length)];
-            applyPhoneDisplay(phone);
-            collection[phone.name] = (collection[phone.name] || 0) + 1;
-            totalOpened++; updateStats(); checkAchievements(phone); save();
-            startTimer('case', COOLDOWN_CASE);
-            updateCaseButtonState();
-        }
-
         function toggleLowSpec() {
             lowSpecMode = !lowSpecMode; applyLowSpecMode(); save();
         }
 
         // Обработчики
         el.rollBasicBtn.addEventListener('click', rollBasicPhone);
-        el.rollCaseBtn.addEventListener('click', rollCasePhone);
         el.resetBtn.addEventListener('click', resetGame);
         el.lowSpecBtn.addEventListener('click', toggleLowSpec);
         document.querySelectorAll('.menu-btn').forEach(btn => {
@@ -769,7 +752,6 @@
         renderAchievements();
         load();
         updateStats();
-        updateCaseButtonState();
     })();
     </script>
 </body>
