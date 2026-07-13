@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PhoneClicker Pre-Alpha 0D</title>
+    <title>PhoneClicker Pre-Alpha 0E</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='80' font-size='80'>📱</text></svg>">
     <style>
         :root {
@@ -39,7 +39,7 @@
             box-shadow: none !important;
         }
         body.low-spec .phone-display::before { display: none; }
-        body.low-spec .particles { display: none; } /* скрываем частицы для слабых устройств */
+        body.low-spec .particles { display: none; }
         .particles {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             pointer-events: none; z-index: 0;
@@ -187,8 +187,19 @@
             border: 1px solid rgba(255,215,0,0.5); font-size: 12px;
             padding: 6px 12px; border-radius: 20px;
             font-weight: bold; cursor: pointer;
+            position: relative;
         }
         .btn-sell:active { background: rgba(255,215,0,0.4); }
+        .sell-flash {
+            position: absolute; left: 50%; bottom: 100%; transform: translateX(-50%);
+            background: rgba(0,0,0,0.8); color: #39ff14; padding: 2px 6px;
+            border-radius: 8px; font-size: 12px; white-space: nowrap; opacity: 0;
+            animation: sellFlash 1s ease-out;
+        }
+        @keyframes sellFlash {
+            0% { opacity: 1; transform: translateX(-50%) translateY(0); }
+            100% { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+        }
         .btn-open-case {
             background: rgba(138,43,226,0.3); color: #c084fc;
             border: 1px solid #8e2de2; font-size: 12px;
@@ -260,7 +271,7 @@
     <div class="particles" id="particlesContainer"></div>
     <div class="game-container">
         <h1>📱 PhoneClicker</h1>
-        <p class="status">Pre-Alpha 0D</p>
+        <p class="status">Pre-Alpha 0E</p>
         <div class="balance-bar">
             <span class="balance-icon">💰</span>
             <span class="balance-value" id="balanceDisplay">0</span>
@@ -313,7 +324,6 @@
     <script>
     (function() {
         'use strict';
-        // Улучшенная функция экранирования (теперь кавычки тоже экранируются)
         function escapeHtml(str) {
             return str.replace(/&/g, '&amp;')
                       .replace(/</g, '&lt;')
@@ -322,7 +332,10 @@
                       .replace(/'/g, '&#39;');
         }
 
-        // Частицы
+        function placeholderSvg(text, bgColor) {
+            return `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 300'%3E%3Crect width='300' height='300' fill='${bgColor}'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-size='40' fill='white' font-family='sans-serif'%3E${encodeURIComponent(text)}%3C/text%3E%3C/svg%3E`;
+        }
+
         const particlesContainer = document.getElementById('particlesContainer');
         for (let i = 0; i < 40; i++) {
             const particle = document.createElement('div');
@@ -336,24 +349,24 @@
             particlesContainer.appendChild(particle);
         }
 
-        // Телефоны
+        // iPhone 3GS теперь тоже SVG-заглушка
         const BASIC_PHONES = [
-            { name: "iPhone 3GS", year: "2009", rarity: "common", image: "https://th.bing.com/th/id/R.aa9efd4f14d7c0d7b7eaf3134fa24193?rik=HW79v29VQjFjA&riu=http%3a%2f%2fm.phonegg.com%2f11%2f1130b-2.jpg&ehk=PZCmOfcvtD0FKaN6NY9MUCZLEQHz6NppZo%2bj66fwb1M%3d&risl=&pid=ImgRaw&r=0" },
-            { name: "iPhone 4", year: "2010", rarity: "common", image: "https://via.placeholder.com/300/39ff14/000000?text=iPhone+4" },
-            { name: "Samsung Galaxy S2", year: "2011", rarity: "common", image: "https://via.placeholder.com/300/39ff14/000000?text=Galaxy+S2" },
-            { name: "Xiaomi Mi 1", year: "2011", rarity: "common", image: "https://via.placeholder.com/300/39ff14/000000?text=Mi+1" }
+            { name: "iPhone 3GS", year: "2009", rarity: "common", image: placeholderSvg('iPhone 3GS', '39ff14') },
+            { name: "iPhone 4", year: "2010", rarity: "common", image: placeholderSvg('iPhone 4', '39ff14') },
+            { name: "Samsung Galaxy S2", year: "2011", rarity: "common", image: placeholderSvg('Galaxy S2', '39ff14') },
+            { name: "Xiaomi Mi 1", year: "2011", rarity: "common", image: placeholderSvg('Mi 1', '39ff14') }
         ];
         const CASE_PHONES = [
-            { name: "iPhone 5s", year: "2013", rarity: "rare", image: "https://via.placeholder.com/300/00d4ff/000000?text=iPhone+5s" },
-            { name: "iPhone 6", year: "2014", rarity: "rare", image: "https://via.placeholder.com/300/00d4ff/000000?text=iPhone+6" },
-            { name: "Google Pixel", year: "2016", rarity: "rare", image: "https://via.placeholder.com/300/00d4ff/000000?text=Pixel" },
-            { name: "iPhone X", year: "2017", rarity: "epic", image: "https://via.placeholder.com/300/b347ea/000000?text=iPhone+X" },
-            { name: "iPhone 12", year: "2020", rarity: "epic", image: "https://via.placeholder.com/300/b347ea/000000?text=iPhone+12" },
-            { name: "Nokia 3310", year: "2000", rarity: "legendary", image: "https://via.placeholder.com/300/ffe600/000000?text=Nokia+3310" },
-            { name: "Motorola Razr V3", year: "2004", rarity: "legendary", image: "https://via.placeholder.com/300/ffe600/000000?text=Razr+V3" },
-            { name: "iPhone 2G (первый)", year: "2007", rarity: "mythic", image: "https://via.placeholder.com/300/ff2d75/ffffff?text=iPhone+2G" },
-            { name: "Nokia 8110 \"банан\"", year: "1996", rarity: "mythic", image: "https://via.placeholder.com/300/ff2d75/ffffff?text=Nokia+8110" },
-            { name: "Samsung Galaxy Note 7", year: "2016", rarity: "forbidden", image: "https://via.placeholder.com/300/dc143c/ffffff?text=Galaxy+Note+7" }
+            { name: "iPhone 5s", year: "2013", rarity: "rare", image: placeholderSvg('iPhone 5s', '00d4ff') },
+            { name: "iPhone 6", year: "2014", rarity: "rare", image: placeholderSvg('iPhone 6', '00d4ff') },
+            { name: "Google Pixel", year: "2016", rarity: "rare", image: placeholderSvg('Pixel', '00d4ff') },
+            { name: "iPhone X", year: "2017", rarity: "epic", image: placeholderSvg('iPhone X', 'b347ea') },
+            { name: "iPhone 12", year: "2020", rarity: "epic", image: placeholderSvg('iPhone 12', 'b347ea') },
+            { name: "Nokia 3310", year: "2000", rarity: "legendary", image: placeholderSvg('Nokia 3310', 'ffe600') },
+            { name: "Motorola Razr V3", year: "2004", rarity: "legendary", image: placeholderSvg('Razr V3', 'ffe600') },
+            { name: "iPhone 2G (первый)", year: "2007", rarity: "mythic", image: placeholderSvg('iPhone 2G', 'ff2d75') },
+            { name: "Nokia 8110 \"банан\"", year: "1996", rarity: "mythic", image: placeholderSvg('Nokia 8110', 'ff2d75') },
+            { name: "Samsung Galaxy Note 7", year: "2016", rarity: "forbidden", image: placeholderSvg('Note 7', 'dc143c') }
         ];
 
         const PHONE_MAP = {};
@@ -389,8 +402,7 @@
             { id: "first_mythic", name: "Миф стал реальностью", desc: "Найти мифический телефон",    icon: "🌟", check: (s, phone) => phone && RARITY[phone.rarity].tier === 5 },
             { id: "first_forbidden", name: "Запретный плод", desc: "Найти запрещённый телефон",      icon: "🚫", check: (s, phone) => phone && RARITY[phone.rarity].tier === 6 },
             { id: "all_common",   name: "Базовый набор",    desc: "Собрать все обычные телефоны",    icon: "✅", check: s => s.uniqueByRarity.common >= 4 },
-            { id: "all_mythic",   name: "Хранитель мифов",  desc: "Собрать все мифические телефоны", icon: "🏆", check: s => s.uniqueByRarity.mythic >= 2 },
-            { id: "all_forbidden", name: "Взрывоопасный",   desc: "Найти Galaxy Note 7",             icon: "⛔", check: s => s.uniqueByRarity.forbidden >= 1 }
+            { id: "all_mythic",   name: "Хранитель мифов",  desc: "Собрать все мифические телефоны", icon: "🏆", check: s => s.uniqueByRarity.mythic >= 2 }
         ];
 
         const SAVE_KEY = 'phoneclicker_save_v6';
@@ -436,6 +448,13 @@
             }
         }
 
+        function getBestTier() {
+            return Object.keys(collection).reduce((max, name) => {
+                const p = PHONE_MAP[name];
+                return p ? Math.max(max, RARITY[p.rarity].tier) : max;
+            }, 0);
+        }
+
         function updateStats() {
             uniqueByRarity = { common: 0, rare: 0, epic: 0, legendary: 0, mythic: 0, forbidden: 0 };
             const uniqueNames = Object.keys(collection);
@@ -444,14 +463,11 @@
                 if (phone) uniqueByRarity[phone.rarity]++;
             }
             const uniqueCount = uniqueNames.length;
-            const bestTier = uniqueNames.reduce((max, name) => {
-                const p = PHONE_MAP[name];
-                return p ? Math.max(max, RARITY[p.rarity].tier) : max;
-            }, 0);
             el.totalOpened.textContent = totalOpened;
             el.uniquePhones.textContent = uniqueCount;
             el.totalSold.textContent = totalSold;
             el.balanceDisplay.textContent = balance;
+            const bestTier = getBestTier();
             const bestKey = Object.keys(RARITY).find(k => RARITY[k].tier === bestTier);
             el.bestRarity.textContent = bestKey ? RARITY[bestKey].label : '-';
             el.bestRarity.style.color = bestKey ? RARITY[bestKey].color : '#888';
@@ -472,7 +488,6 @@
 
         function renderInventory() {
             let html = '';
-            // Кейсы отображаем отдельно
             if (caseCount > 0) {
                 html += `<div class="inv-item case-item">
                     <img class="inv-icon" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='80' font-size='80'%3E📦%3C/text%3E%3C/svg%3E" alt="Кейс">
@@ -496,9 +511,8 @@
                 if (!phone || count <= 0) continue;
                 const cfg = RARITY[phone.rarity];
                 const extraClass = phone.rarity === 'forbidden' ? ' rarity-forbidden' : '';
-                // data-phone без экранирования, в одинарных кавычках для безопасности
                 html += `<div class="inv-item${extraClass}">
-                    <img class="inv-icon" src="${phone.image}" alt="${escapeHtml(name)}" style="border: 2px solid ${cfg.color}">
+                    <img class="inv-icon" src="${escapeHtml(phone.image)}" alt="${escapeHtml(name)}" style="border: 2px solid ${cfg.color}">
                     <div class="inv-info">
                         <div class="inv-name">${escapeHtml(name)}</div>
                         <div style="color:${cfg.color};font-size:12px;">${escapeHtml(cfg.label)}</div>
@@ -510,33 +524,39 @@
             }
             el.inventoryList.innerHTML = html;
 
-            // Обработчики продажи
             document.querySelectorAll('.btn-sell').forEach(btn => {
                 btn.addEventListener('click', function() {
                     const phoneName = this.getAttribute('data-phone');
-                    sellPhone(phoneName);
+                    sellPhone(phoneName, this);
                 });
             });
 
-            // Обработчик открытия кейса
             const openCaseBtn = document.getElementById('openCaseBtn');
             if (openCaseBtn) {
                 openCaseBtn.addEventListener('click', openCase);
             }
         }
 
-        function sellPhone(phoneName) {
+        function sellPhone(phoneName, btnElement) {
             if (!collection[phoneName] || collection[phoneName] <= 0) return;
             const phone = PHONE_MAP[phoneName];
             if (!phone) return;
             const cfg = RARITY[phone.rarity];
+            const price = cfg.price;
             collection[phoneName]--;
             if (collection[phoneName] <= 0) delete collection[phoneName];
-            balance += cfg.price;
+            balance += price;
             totalSold++;
             updateStats();
             save();
-            renderInventory(); // только обновляем инвентарь, магазин не трогаем
+            if (btnElement) {
+                const flash = document.createElement('span');
+                flash.className = 'sell-flash';
+                flash.textContent = `+${price} 💰`;
+                btnElement.appendChild(flash);
+                setTimeout(() => flash.remove(), 1000);
+            }
+            renderInventory();
         }
 
         function openCase() {
@@ -557,7 +577,7 @@
             checkAchievements(phone);
             save();
             renderInventory();
-            switchScreen('main'); // показываем выпавший телефон на главном экране
+            setTimeout(() => switchScreen('main'), 400);
         }
 
         function renderShop() {
@@ -589,16 +609,11 @@
             updateStats();
             save();
             renderShop();
-            renderInventory(); // покажем новый кейс в инвентаре
+            renderInventory();
         }
 
         function checkAchievements(phone) {
-            const stats = { totalOpened, bestTier: 0, uniqueByRarity };
-            const bestTier = Object.keys(collection).reduce((max, name) => {
-                const p = PHONE_MAP[name];
-                return p ? Math.max(max, RARITY[p.rarity].tier) : max;
-            }, 0);
-            stats.bestTier = bestTier;
+            const stats = { totalOpened, bestTier: getBestTier(), uniqueByRarity };
             let changed = false;
             for (const ach of ACHIEVEMENTS) {
                 if (unlockedAchievements.includes(ach.id)) continue;
@@ -718,14 +733,20 @@
 
         function applyPhoneDisplay(phone) {
             const cfg = RARITY[phone.rarity];
-            el.phoneImage.src = phone.image; el.phoneImage.style.color = cfg.color;
-            el.phoneName.textContent = phone.name; el.phoneName.style.color = cfg.color;
-            el.phoneModel.textContent = `${cfg.label} • ${phone.year}`; el.phoneModel.style.color = cfg.color;
-            el.phoneDisplay.style.borderColor = cfg.color; el.phoneDisplay.style.boxShadow = cfg.glow;
+            el.phoneImage.src = phone.image;
+            el.phoneImage.style.color = cfg.color;
+            el.phoneName.textContent = phone.name;
+            el.phoneName.style.color = cfg.color;
+            el.phoneModel.textContent = `${cfg.label} • ${phone.year}`;
+            el.phoneModel.style.color = cfg.color;
+            el.phoneDisplay.style.borderColor = cfg.color;
+            el.phoneDisplay.style.boxShadow = cfg.glow;
             if (phone.rarity === 'forbidden') {
-                el.phoneName.classList.add('rarity-forbidden'); el.phoneModel.classList.add('rarity-forbidden');
+                el.phoneName.classList.add('rarity-forbidden');
+                el.phoneModel.classList.add('rarity-forbidden');
             } else {
-                el.phoneName.classList.remove('rarity-forbidden'); el.phoneModel.classList.remove('rarity-forbidden');
+                el.phoneName.classList.remove('rarity-forbidden');
+                el.phoneModel.classList.remove('rarity-forbidden');
             }
             el.phoneImage.style.animation = 'none'; void el.phoneImage.offsetWidth;
             el.phoneImage.style.animation = 'bounceIn 0.5s';
