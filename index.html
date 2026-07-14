@@ -2,9 +2,9 @@
   <html lang="ru">
   <head>
   <meta charset="UTF-8">
-  <title>Телефон‑кликер с кулдауном</title>
+  <title>Телефон‑кликер (минималка)</title>
   <style>
-    :root {
+    :root{
       --bg:#1e1e2f;
       --panel:#2a2a40;
       --text:#e0e0ff;
@@ -14,7 +14,7 @@
       --epic:#ff9800;
       --legendary:#ff5252;
     }
-    * { box-sizing:border-box; margin:0; padding:0; }
+    *{box-sizing:border-box;margin:0;padding:0}
     body{
       font-family:Arial,Helvetica,sans-serif;
       background:var(--bg);
@@ -23,15 +23,14 @@
       flex-direction:column;
       align-items:center;
       min-height:100vh;
-      padding:20px;
+      padding:20px
     }
-    h1{ margin-bottom:1rem; }
+    h1{margin-bottom:1rem}
     #game{
       background:var(--panel);
       border-radius:12px;
       padding:20px;
-      width:100%;
-      max-width:500px;
+      width:100%;max-width:420px
     }
     #clickBtn{
       font-size:1.5rem;
@@ -40,71 +39,52 @@
       background:#4caf50;
       border:none;
       border-radius:6px;
-      color:white;
-      transition:background .2s, transform .1s;
+      color:#fff;
+      transition:background .2s
     }
-    #clickBtn:hover{background:#45a049;}
-    #clickBtn:active{transform:scale(0.97);}
-    #clickBtn:disabled{
-      background:#555;
-      cursor:not-allowed;
-    }
+    #clickBtn:hover{background:#45a049}
+    #clickBtn:active{transform:scale(.97)}
     #dropZone{
       margin-top:20px;
-      min-height:140px;
+      min-height:120px;
       text-align:center;
       font-size:1.2rem;
-      color:#aaa;
-      display:flex;
-      align-items:center;
-      justify-content:center;
+      color:#aaa
     }
     .card{
       display:inline-block;
-      width:90px;
-      height:130px;
+      margin:8px;
+      width:70px;height:110px;
       border-radius:8px;
       overflow:hidden;
-      position:relative;
       transition:transform .2s;
-      box-shadow:0 4px 8px rgba(0,0,0,0.3);
+      border:3px solid transparent
     }
-    .card img{width:100%;height:100%;object-fit:cover;}
-    .card::after{
-      content:attr(data-name);
-      position:absolute;
-      bottom:0;left:0;right:0;
-      background:rgba(0,0,0,0.6);
-      color:white;
-      font-size:0.75rem;
-      text-align:center;
-      padding:2px 0;
-    }
-    .common   {border:3px solid var(--common);}
-    .uncommon {border:3px solid var(--uncommon);}
-    .rare     {border:3px solid var(--rare);}
-    .epic     {border:3px solid var(--epic);}
-    .legendary{border:3px solid var(--legendary);}
-    .stats{display:flex;justify-content:space-between;margin-top:1rem;font-size:0.9rem;}
-    #inventory{margin-top:1.5rem;display:flex;flex-wrap:wrap;justify-content:center;gap:8px;}
-    .achievements{margin-top:1.5rem;max-height:150px;overflow-y:auto;}
-    .ach{border-top:1px solid #444;padding:4px 0;font-size:0.85rem;color:#bbb;}
-    .ach.earned{color:var(--common);}
-    /* toast */
+    .card img{width:100%;height:100%;object-fit:cover}
+    .common   {border-color:var(--common)}
+    .uncommon {border-color:var(--uncommon)}
+    .rare     {border-color:var(--rare)}
+    .epic     {border-color:var(--epic)}
+    .legendary{border-color:var(--legendary)}
+    .stats{display:flex;justify-content:space-between;margin-top:1rem;font-size:.9rem}
+    #inventory{margin-top:1.5rem;display:flex;flex-wrap:wrap;justify-content:center}
+    .achievements{margin-top:1.5rem;max-height:150px;overflow-y:auto}
+    .ach{border-top:1px solid #444;padding:4px 0;font-size:.85rem;color:#bbb}
+    .ach.earned{color:var(--common)}
     #toast{
       position:fixed;bottom:20px;right:20px;
       background:#333;color:#fff;padding:10px 18px;
       border-radius:6px;opacity:0;transform:translateY(20px);
-      transition:opacity .3s,transform .3s;
+      transition:opacity .3s,transform .3s
     }
-    #toast.show{opacity:1;transform:translateY(0);}
+    #toast.show{opacity:1;transform:translateY(0)}
   </style>
   </head>
   <body>
-  <h1>Телефон‑кликер (с таймером)</h1>
+  <h1>Телефон‑кликер</h1>
   <div id="game">
     <button id="clickBtn">📱 Нажать кнопку</button>
-    <div id="dropZone">Здесь появится карточка телефона</div>
+    <div id="dropZone">Здесь появятся карточки</div>
     <div class="stats">
       <span>Монеты: <span id="coinCount">0</span></span>
       <span>Кликов: <span id="clickCount">0</span></span>
@@ -112,29 +92,21 @@
     <div id="inventory"></div>
     <div class="achievements" id="achList"></div>
   </div>
-
   <div id="toast"></div>
 
   <script>
-  /* ---------- DATA ---------- */
+  /* ---------- Данные ---------- */
   const phones = [
-    {name:"iPhone 4",   rarity:"common",  coins:10,  weight:60,
-  img:"https://via.placeholder.com/90x130?text=iPhone+4"},
-    {name:"iPhone 5S",  rarity:"common",  coins:12,  weight:55, img:"https://via.placeholder.com/90x130?text=5S"},
-    {name:"Galaxy S3",  rarity:"uncommon",coins:20,  weight:20,
-  img:"https://via.placeholder.com/90x130?text=Galaxy+S3"},
-    {name:"Pixel 2",    rarity:"uncommon",coins:22,  weight:15,
-  img:"https://via.placeholder.com/90x130?text=Pixel+2"},
-    {name:"iPhone X",   rarity:"rare",    coins:40,  weight:8,
-  img:"https://via.placeholder.com/90x130?text=iPhone+X"},
-    {name:"Galaxy Note10",rarity:"rare",coins:45,weight:6, img:"https://via.placeholder.com/90x130?text=Note10"},
-    {name:"iPhone 12 Pro",rarity:"epic", coins:70, weight:3, img:"https://via.placeholder.com/90x130?text=12+Pro"},
-    {name:"Galaxy S21
-  Ultra",rarity:"epic",coins:75,weight:2,img:"https://via.placeholder.com/90x130?text=S21+Ultra"},
-    {name:"iPhone 14 Pro
-  Max",rarity:"legendary",coins:150,weight:1,img:"https://via.placeholder.com/90x130?text=14+Pro+Max"},
-    {name:"Galaxy Z Fold
-  4",rarity:"legendary",coins:160,weight:1,img:"https://via.placeholder.com/90x130?text=Z+Fold4"}
+    {name:"iPhone 4",   rarity:"common",  coins:10, weight:60, color:"#8bc34a"},
+    {name:"iPhone 5S",  rarity:"common",  coins:12, weight:55, color:"#8bc34a"},
+    {name:"Galaxy S3",  rarity:"uncommon",coins:20, weight:20, color:"#4fc3f7"},
+    {name:"Pixel 2",    rarity:"uncommon",coins:22, weight:15, color:"#4fc3f7"},
+    {name:"iPhone X",   rarity:"rare",    coins:40, weight:8,  color:"#9575cd"},
+    {name:"Galaxy Note10",rarity:"rare",coins:45,weight:6, color:"#9575cd"},
+    {name:"iPhone 12 Pro",rarity:"epic", coins:70, weight:3, color:"#ff9800"},
+    {name:"Galaxy S21 Ultra",rarity:"epic",coins:75,weight:2,color:"#ff9800"},
+    {name:"iPhone 14 Pro Max",rarity:"legendary",coins:150,weight:1,color:"#ff5252"},
+    {name:"Galaxy Z Fold 4",rarity:"legendary",coins:160,weight:1,color:"#ff5252"}
   ];
 
   const achievements = [
@@ -146,23 +118,23 @@
     {id:"collectLegend",desc:"Получить первый легендарный телефон",threshold:1,type:"legendary"}
   ];
 
-  /* ---------- STATE ---------- */
+  /* ---------- Состояние ---------- */
   let state = {
     coins:0,
     clicks:0,
-    inventory:{},   // name => count
-    earned:{},      // achievementId => true
-    cooldownSec:3   // <-- можно изменить длительность кулдауна
+    inventory:{},   // name → count
+    earned:{},      // achievementId → true
+    cooldownSec:3   // пауза между кликами (секунды)
   };
 
-  /* ---------- HELPERS ---------- */
-  function saveState(){ localStorage.setItem('phoneClickerCd',JSON.stringify(state)); }
+  /* ---------- Хранилище ---------- */
+  function saveState(){ try{localStorage.setItem('phoneClicker_mini',JSON.stringify(state));}catch(e){} }
   function loadState(){
-    const saved = localStorage.getItem('phoneClickerCd');
-    if(saved){
-      try{ state = JSON.parse(saved); }catch(e){}
-    }
+    const s = localStorage.getItem('phoneClicker_mini');
+    if(s){ try{ state = JSON.parse(s); }catch(e){} }
   }
+
+  /* ---------- Вспомогательные ---------- */
   function randPhone(){
     const r = Math.random()*100;
     let sum=0;
@@ -174,7 +146,7 @@
   }
   function addCoin(n){ state.coins+=n; document.getElementById('coinCount').textContent=state.coins; saveState(); }
   function addClick(){
-    state.clicks++;
+    state.clicks = state.clicks+1;
     document.getElementById('clickCount').textContent=state.clicks;
     checkAchievements('clicks',state.clicks);
     saveState();
@@ -189,7 +161,7 @@
   function showToast(msg,type='info'){
     const t=document.getElementById('toast');
     t.textContent=msg;
-    t.className=''; // очищаем
+    t.className='';
     t.classList.add(type,'show');
     setTimeout(()=>t.classList.remove('show'),2000);
   }
@@ -201,7 +173,9 @@
       const div=document.createElement('div');
       div.className=`card ${p.rarity}`;
       div.dataset.name=name;
-      div.innerHTML=`<img src="${p.img}" alt="${name}">`;
+      // простой цветной квадрат вместо картинки
+      div.style.background = p.color;
+      div.title = name;
       cont.appendChild(div);
     }
   }
@@ -226,29 +200,29 @@
     renderAchievements();
   }
 
-  /* ---------- COOLDOWN LOGIC ---------- */
-  let cooldownTimer = null;
+  /* ---------- Кулдаун ---------- */
+  let cdTimer = null;
   function startCooldown(){
-    const btn = document.getElementById('clickBtn');
-    btn.disabled = true;
-    let remaining = state.cooldownSec;
-    btn.textContent = `Нажмите через ${remaining}с`;
-    cooldownTimer = setInterval(()=>{
+    const btn=document.getElementById('clickBtn');
+    btn.disabled=true;
+    let remaining=state.cooldownSec;
+    btn.textContent=`Нажмите через ${remaining}с`;
+    cdTimer=setInterval(()=>{
       remaining--;
       if(remaining>0){
-        btn.textContent = `Нажмите через ${remaining}с`;
+        btn.textContent=`Нажмите через ${remaining}с`;
       }else{
-        clearInterval(cooldownTimer);
-        cooldownTimer = null;
-        btn.disabled = false;
-        btn.textContent = '📱 Нажать кнопку';
+        clearInterval(cdTimer);
+        cdTimer=null;
+        btn.disabled=false;
+        btn.textContent='📱 Нажать кнопку';
       }
     },1000);
   }
 
-  /* ---------- EVENTS ---------- */
+  /* ---------- Обработчик клика ---------- */
   document.getElementById('clickBtn').addEventListener('click',()=>{
-    // 1️⃣блокируем кнопку и стартуем таймер
+    // 1️⃣блокируем и запускаем таймер
     startCooldown();
 
     // 2️⃣считаем клик и начисляем монеты
@@ -257,40 +231,38 @@
     addCoin(phone.coins);
     addToInventory(phone.name);
 
-    // 3️⃣визуальный эффект появления карточки
+    // 3️⃣визуальный вывод «карточки»
     const zone=document.getElementById('dropZone');
     zone.textContent='';
     const card=document.createElement('div');
     card.className=`card ${phone.rarity}`;
     card.dataset.name=phone.name;
-    card.innerHTML=`<img src="${phone.img}" alt="${phone.name}">`;
+    card.style.background = phone.color; // цвет вместо картинки
     zone.appendChild(card);
-    // небольшая анимация появления
+    // анимация появления
     requestAnimationFrame(()=>{
       card.style.opacity='0';
-      card.style.transform='scale(0.8)';
+      card.style.transform='scale(.8)';
       setTimeout(()=>{
         card.style.transition='opacity .3s, transform .3s';
         card.style.opacity='1';
         card.style.transform='scale(1)';
       },10);
     });
-
-    // 4️⃣кратко покажем название выпавшего телефона
-    setTimeout(()=>{
-      zone.textContent = `Выпал: ${phone.name}`;
-    },500);
+    // кратко покажем название
+    setTimeout(()=>{zone.textContent=`Выпал: ${phone.name}`;},500);
   });
 
-  /* ---------- INIT ---------- */
+  /* ---------- Инициализация ---------- */
   loadState();
   renderInventory();
   renderAchievements();
   document.getElementById('coinCount').textContent=state.coins;
   document.getElementById('clickCount').textContent=state.clicks;
   if(state.clicks===0){
-    showToast('Добро пожаловать! Нажмите кнопку – после каждого выпадения будет небольшая пауza.');
+    showToast('Добро пожаловать! Нажмите кнопку – после каждого выпадения будет небольшая пауза.','info');
   }
+  console.log('🎮 Игра инициализирована. Откройте консоль (F12) для отладки.');
   </script>
   </body>
   </html>
