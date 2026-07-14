@@ -23,12 +23,11 @@
         h1 { font-size: 22px; font-weight: 700; margin-bottom: 4px; text-align: center; }
         .sub { text-align: center; font-size: 11px; color: var(--text-sec); margin-bottom: 20px; letter-spacing: 1px; }
         .bal { text-align: center; font-size: 24px; font-weight: 700; margin-bottom: 20px; padding: 10px; background: var(--surface-2); border-radius: 6px; }
-        /* Кнопка меню */
         .menu-btn {
             position: absolute; top: 16px; left: 16px;
             background: var(--surface-2); border: 1px solid var(--border); color: var(--text);
             padding: 8px 12px; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer;
-            z-index: 10;
+            z-index: 10; display: none; /* Скрыта на стартовом экране */
         }
         .menu-dropdown {
             display: none; position: absolute; top: 48px; left: 16px;
@@ -101,49 +100,68 @@
         .ad { font-size: 12px; color: var(--text-sec); margin-top: 2px; }
         .empty { text-align: center; padding: 40px; color: var(--text-sec); font-size: 13px; }
         .rarity-forbidden-text { animation: g 0.3s infinite; }
+
+        /* Стартовый экран */
+        .start-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; }
+        .start-logo { font-size: 64px; margin-bottom: 16px; }
+        .start-title { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
+        .start-version { font-size: 14px; color: var(--text-sec); margin-bottom: 32px; }
+        .start-btn { padding: 14px 40px; border: none; border-radius: 6px; font-size: 16px; font-weight: 600; cursor: pointer; background: var(--text); color: var(--bg); }
     </style>
 </head>
 <body>
     <div class="c">
-        <!-- Кнопка меню -->
-        <button class="menu-btn" id="menuBtn">☰ Меню</button>
-        <div class="menu-dropdown" id="menuDropdown">
-            <button data-screen="main">🎮 Игра</button>
-            <button data-screen="inv">📦 Инвентарь</button>
-            <button data-screen="shop">🛒 Магазин</button>
-            <button data-screen="ach">🏆 Ачивки</button>
-        </div>
-
-        <h1>PhoneClicker</h1>
-        <div class="sub">MINIMAL v1.2</div>
-        <div class="bal" id="balanceDisplay">0</div>
-
-        <div class="sc on" id="screenMain">
-            <div class="tr">
-                <button class="bs" id="resetBtn">Сброс</button>
-                <button class="bs" id="langBtn">RU</button>
-            </div>
-            <div class="disp" id="phoneDisplay">
-                <img id="phoneImage" class="di" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23202020'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-size='40' fill='%233333' font-family='sans-serif'%3E?%3C/text%3E%3C/svg%3E" alt="Телефон">
-                <span class="dn" id="phoneName" style="color: var(--text-sec)">???</span>
-                <span class="ds" id="phoneModel">Нажми открыть</span>
-            </div>
-            <div class="tw">
-                <div class="tl">Бесплатный телефон</div>
-                <div class="tm" id="timerBasic">00:00</div>
-            </div>
-            <button class="bm" id="rollBasicBtn">Открыть</button>
-            <div class="sr">
-                <div class="sb"><span class="sv" id="totalOpened">0</span><span class="sl">Всего</span></div>
-                <div class="sb"><span class="sv" id="uniquePhones">0</span><span class="sl">Уник.</span></div>
-                <div class="sb"><span class="sv" id="bestRarity">-</span><span class="sl">Лучшая</span></div>
-                <div class="sb"><span class="sv" id="totalSold">0</span><span class="sl">Продано</span></div>
+        <!-- Стартовый экран -->
+        <div class="sc on" id="startScreen">
+            <div class="start-screen">
+                <div class="start-logo">📱</div>
+                <div class="start-title">PhoneClicker</div>
+                <div class="start-version">MINIMAL v1.3</div>
+                <button class="start-btn" id="playBtn">Играть</button>
             </div>
         </div>
 
-        <div class="sc" id="screenInv"><div class="list" id="inventoryList"></div></div>
-        <div class="sc" id="screenShop"><div class="list" id="shopList"></div></div>
-        <div class="sc" id="screenAch"><div class="list" id="achList"></div></div>
+        <!-- Игровые экраны (изначально скрыты) -->
+        <div class="sc" id="gameContainer">
+            <button class="menu-btn" id="menuBtn">☰ Меню</button>
+            <div class="menu-dropdown" id="menuDropdown">
+                <button data-screen="main">🎮 Игра</button>
+                <button data-screen="inv">📦 Инвентарь</button>
+                <button data-screen="shop">🛒 Магазин</button>
+                <button data-screen="ach">🏆 Ачивки</button>
+            </div>
+
+            <h1>PhoneClicker</h1>
+            <div class="sub">MINIMAL v1.3</div>
+            <div class="bal" id="balanceDisplay">0</div>
+
+            <div class="sc on" id="screenMain">
+                <div class="tr">
+                    <button class="bs" id="resetBtn">Сброс</button>
+                    <button class="bs" id="langBtn">RU</button>
+                </div>
+                <div class="disp" id="phoneDisplay">
+                    <img id="phoneImage" class="di" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23202020'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-size='40' fill='%233333' font-family='sans-serif'%3E?%3C/text%3E%3C/svg%3E" alt="Телефон">
+                    <span class="dn" id="phoneName" style="color: var(--text-sec)">???</span>
+                    <span class="ds" id="phoneModel">Нажми открыть</span>
+                </div>
+                <div class="tw">
+                    <div class="tl">Бесплатный телефон</div>
+                    <div class="tm" id="timerBasic">00:00</div>
+                </div>
+                <button class="bm" id="rollBasicBtn">Открыть</button>
+                <div class="sr">
+                    <div class="sb"><span class="sv" id="totalOpened">0</span><span class="sl">Всего</span></div>
+                    <div class="sb"><span class="sv" id="uniquePhones">0</span><span class="sl">Уник.</span></div>
+                    <div class="sb"><span class="sv" id="bestRarity">-</span><span class="sl">Лучшая</span></div>
+                    <div class="sb"><span class="sv" id="totalSold">0</span><span class="sl">Продано</span></div>
+                </div>
+            </div>
+
+            <div class="sc" id="screenInv"><div class="list" id="inventoryList"></div></div>
+            <div class="sc" id="screenShop"><div class="list" id="shopList"></div></div>
+            <div class="sc" id="screenAch"><div class="list" id="achList"></div></div>
+        </div>
     </div>
 
     <script>
@@ -165,7 +183,6 @@
             const pm = document.getElementById('phoneName').textContent;
             const ml = document.getElementById('phoneModel');
             ml.textContent = pm === '???' ? t('defModel') : (PHONE_MAP[pm] ? `${getRarity(PHONE_MAP[pm].rarity)} • ${PHONE_MAP[pm].year}` : '');
-            // Обновим пункты меню
             const menuItems = document.querySelectorAll('.menu-dropdown button');
             if (menuItems.length) {
                 menuItems[0].textContent = `🎮 ${t('play')}`;
@@ -244,7 +261,8 @@
             balanceDisplay: $('balanceDisplay'), inventoryList: $('inventoryList'), achList: $('achList'), shopList: $('shopList'),
             screenMain: $('screenMain'), screenInv: $('screenInv'), screenShop: $('screenShop'), screenAch: $('screenAch'),
             resetBtn: $('resetBtn'), langBtn: $('langBtn'), phoneDisplay: $('phoneDisplay'),
-            menuBtn: $('menuBtn'), menuDropdown: $('menuDropdown')
+            menuBtn: $('menuBtn'), menuDropdown: $('menuDropdown'),
+            startScreen: $('startScreen'), gameContainer: $('gameContainer'), playBtn: $('playBtn')
         };
 
         const fmt = s => `${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
@@ -272,7 +290,6 @@
             if (s === 'inv') renderInv();
             if (s === 'shop') renderShop();
             if (s === 'ach') renderAch();
-            // Закрываем меню
             el.menuDropdown.classList.remove('show');
         };
 
@@ -434,7 +451,6 @@
                 if (screen) switchScreen(screen);
             });
         });
-        // Закрываем меню при клике вне
         document.addEventListener('click', (e) => {
             if (!el.menuBtn.contains(e.target) && !el.menuDropdown.contains(e.target)) {
                 el.menuDropdown.classList.remove('show');
@@ -445,7 +461,18 @@
         el.resetBtn.addEventListener('click', resetGame);
         el.langBtn.addEventListener('click', () => setLang(lang === 'uk' ? 'ru' : 'uk'));
 
+        // Запуск игры со стартового экрана
+        el.playBtn.addEventListener('click', () => {
+            el.startScreen.classList.remove('on');
+            el.gameContainer.classList.add('on');
+            el.menuBtn.style.display = 'block'; // показываем кнопку меню
+        });
+
         loadLang(); renderShop(); renderAch(); load(); updateStats();
+        // На старте показываем только заставку
+        el.gameContainer.classList.remove('on');
+        el.startScreen.classList.add('on');
+        el.menuBtn.style.display = 'none';
     })();
     </script>
 </body>
