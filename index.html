@@ -2,636 +2,359 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PhoneClicker Pre-Alpha 0F</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='80' font-size='80'>📱</text></svg>">
+    <meta name="viewport" content="width_DIGIT-al, initial-scale=1.0">
+    <title>PhoneClicker</title>
     <style>
         :root {
-            --neon-pink: #ff2d75;
-            --neon-blue: #00d4ff;
-            --neon-purple: #b347ea;
-            --neon-green: #39ff14;
-            --neon-yellow: #ffe600;
-            --forbidden-red: #dc143c;
-            --bg-dark: #0a0a0f;
-            --glass: rgba(16, 18, 27, 0.8);
+            --bg: #0a0a0a; --surface: #111; --surface-2: #1a1a1a; --border: #252525;
+            --text: #e5e5e5; --text-sec: #666;
+            --c-common: #8b8b8b; --c-rare: #5b8fb9; --c-epic: #8b5cf6; --c-legendary: #c8a215;
+            --c-platinum: #b0b0b0; --c-mythic: #c084fc; --c-forbidden: #ef4444;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
-            font-family: 'Segoe UI', system-ui, sans-serif;
-            background: var(--bg-dark);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg); color: var(--text);
             display: flex; justify-content: center; align-items: center;
             min-height: 100vh; min-height: 100dvh;
-            padding: 12px; color: #fff;
-            -webkit-user-select: none; user-select: none;
-            overflow-x: hidden;
-            background-image: 
-                radial-gradient(ellipse at 20% 50%, rgba(255,45,117,0.15) 0%, transparent 50%),
-                radial-gradient(ellipse at 80% 20%, rgba(0,212,255,0.15) 0%, transparent 50%),
-                radial-gradient(ellipse at 50% 80%, rgba(179,71,234,0.15) 0%, transparent 50%);
+            padding: 16px; -webkit-user-select: none; user-select: none;
         }
-        body.low-spec .game-container,
-        body.low-spec .phone-display,
-        body.low-spec .list-container,
-        body.low-spec .timer,
-        body.low-spec .stat-box {
-            backdrop-filter: none;
-            box-shadow: none !important;
-        }
-        body.low-spec .phone-display::before { display: none; }
-        body.low-spec .particles { display: none; }
-        .particles {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none; z-index: 0;
-        }
-        .particle {
-            position: absolute; background: var(--neon-blue);
-            border-radius: 50%; opacity: 0.6;
-            animation: floatUp linear infinite;
-        }
-        @keyframes floatUp {
-            0% { transform: translateY(100vh) scale(0); opacity: 0; }
-            10% { opacity: 0.8; }
-            100% { transform: translateY(-10vh) scale(1); opacity: 0; }
-        }
-        .game-container {
-            position: relative; z-index: 1;
-            background: var(--glass);
-            backdrop-filter: blur(20px);
-            padding: 20px 16px; border-radius: 30px;
-            border: 1px solid rgba(255,255,255,0.1);
-            box-shadow: 0 20px 50px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,45,117,0.3);
-            width: 100%; max-width: 420px;
-            transition: all 0.3s ease;
-        }
-        h1 {
-            font-size: 28px; font-weight: 900; letter-spacing: 1px;
-            background: linear-gradient(135deg, var(--neon-pink), var(--neon-blue));
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            background-clip: text; margin-bottom: 2px; text-align: center;
-        }
-        .status {
-            text-align: center; font-size: 11px; color: rgba(255,255,255,0.5);
-            letter-spacing: 2px; margin-bottom: 10px; text-transform: uppercase;
-        }
-        .balance-bar {
-            display: flex; justify-content: center; align-items: center;
-            gap: 8px; margin-bottom: 10px; padding: 8px 16px;
-            background: rgba(255,215,0,0.1); border-radius: 20px;
-            border: 1px solid rgba(255,215,0,0.3);
-        }
-        .balance-icon { font-size: 24px; }
-        .balance-value { font-size: 20px; font-weight: bold; color: #ffd700; }
-        .menu-bar {
-            display: flex; gap: 6px; margin-bottom: 15px;
-            background: rgba(0,0,0,0.4); border-radius: 20px; padding: 4px;
-        }
-        .menu-btn {
-            flex: 1; background: transparent; border: none;
-            color: rgba(255,255,255,0.6); font-size: 12px; font-weight: bold;
-            padding: 10px 4px; border-radius: 18px; cursor: pointer;
-            transition: all 0.3s; position: relative; overflow: hidden;
-        }
-        .menu-btn.active {
-            background: rgba(255,45,117,0.25); color: #fff;
-            box-shadow: 0 0 15px rgba(255,45,117,0.4);
-        }
-        .screen { display: none; animation: screenIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        .screen.active { display: block; }
-        @keyframes screenIn {
-            0% { opacity: 0; transform: translateY(10px) scale(0.95); }
-            100% { opacity: 1; transform: translateY(0) scale(1); }
-        }
-        .phone-display {
-            background: rgba(0,0,0,0.5); border-radius: 24px; padding: 20px 16px;
-            margin-bottom: 15px; text-align: center;
-            border: 2px solid transparent;
-            transition: all 0.4s ease;
-            position: relative; overflow: hidden;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
-        .phone-display::before {
-            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
-            background: conic-gradient(from 0deg, transparent, rgba(255,255,255,0.1), transparent, rgba(255,255,255,0.1), transparent);
-            animation: rotateGlow 10s linear infinite;
-            opacity: 0.3;
-        }
-        @keyframes rotateGlow { 100% { transform: rotate(360deg); } }
-        .phone-image {
-            width: 240px; height: 240px;
-            object-fit: contain;
-            display: block; margin: 0 auto;
-            position: relative; z-index: 1;
-            border-radius: 16px;
-            filter: drop-shadow(0 0 25px currentColor);
-            animation: bounceIn 0.5s;
-        }
-        @keyframes bounceIn {
-            0% { transform: scale(0); }
-            50% { transform: scale(1.2); }
-            100% { transform: scale(1); }
-        }
-        .phone-name { font-size: 24px; font-weight: 800; margin-top: 8px; position: relative; z-index: 1; }
-        .phone-model { font-size: 14px; color: rgba(255,255,255,0.7); position: relative; z-index: 1; }
-        .timer {
-            font-size: 28px; font-weight: 900; letter-spacing: 2px;
-            text-align: center; margin: 5px 0; padding: 8px;
-            background: rgba(0,0,0,0.6); border-radius: 16px;
-            color: var(--neon-yellow); text-shadow: 0 0 10px var(--neon-yellow);
-            font-variant-numeric: tabular-nums;
-            border: 1px solid rgba(255,230,0,0.3);
-        }
-        .btn {
-            border: none; width: 100%; padding: 12px; border-radius: 30px;
-            font-weight: bold; font-size: 14px; letter-spacing: 1px;
-            cursor: pointer; transition: all 0.2s; position: relative;
-            overflow: hidden; text-transform: uppercase;
-        }
-        .btn-primary {
-            background: linear-gradient(135deg, var(--neon-pink), #c0392b);
-            color: #fff; box-shadow: 0 6px 20px rgba(255,45,117,0.5);
-            border: 1px solid rgba(255,255,255,0.2);
-        }
-        .btn-primary:active { transform: scale(0.96); box-shadow: 0 4px 10px rgba(255,45,117,0.7); }
-        .btn-primary:disabled { background: #3a3a4a; box-shadow: none; color: #888; border-color: transparent; cursor: not-allowed; }
-        .btn-case {
-            background: linear-gradient(135deg, #4a00e0, #8e2de2);
-            color: #fff; box-shadow: 0 6px 20px rgba(138,43,226,0.5);
-            border: 1px solid rgba(255,255,255,0.2); margin-top: 8px;
-        }
-        .btn-case:active { transform: scale(0.96); box-shadow: 0 4px 10px rgba(138,43,226,0.7); }
-        .btn-case:disabled { background: #3a3a4a; box-shadow: none; color: #888; border-color: transparent; cursor: not-allowed; }
-        .btn-reset { background: transparent; color: rgba(255,255,255,0.6); font-size: 13px; border: 1px solid rgba(255,255,255,0.15); margin-bottom: 12px; padding: 10px; box-shadow: none; }
-        .btn-low-spec { background: transparent; color: rgba(255,255,255,0.7); font-size: 14px; border: 1px solid rgba(255,255,255,0.2); margin-bottom: 8px; padding: 8px 14px; border-radius: 20px; }
-        .btn-low-spec.active { background: rgba(255,45,117,0.2); border-color: var(--neon-pink); }
-        .btn-lang { background: transparent; color: rgba(255,255,255,0.7); font-size: 14px; border: 1px solid rgba(255,255,255,0.2); margin-bottom: 8px; padding: 8px 14px; border-radius: 20px; cursor: pointer; }
-        
-        .inv-controls { display: flex; gap: 6px; margin-bottom: 12px; }
-        .sort-btn { flex: 1; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.6); padding: 8px 4px; border-radius: 12px; font-size: 11px; font-weight: bold; cursor: pointer; transition: all 0.2s; }
-        .sort-btn.active { background: rgba(255,45,117,0.2); border-color: var(--neon-pink); color: #fff; }
-        .btn-sell-all { background: rgba(255,215,0,0.1); color: #ffd700; border: 1px solid rgba(255,215,0,0.3); padding: 8px; border-radius: 12px; font-size: 11px; font-weight: bold; cursor: pointer; transition: all 0.2s; }
-        .btn-sell-all:active { background: rgba(255,215,0,0.3); }
-
-        .case-banner { background: linear-gradient(135deg, rgba(138,43,226,0.2), rgba(75,0,224,0.4)); border: 1px solid #8e2de2; border-radius: 16px; padding: 12px; margin-bottom: 12px; display: flex; align-items: center; gap: 12px; }
-        .case-banner-icon { width: 50px; height: 50px; object-fit: contain; filter: drop-shadow(0 0 8px #8e2de2); }
-        .case-banner-info { flex: 1; }
-        .case-banner-name { font-weight: bold; color: #c084fc; }
-        .case-banner-desc { font-size: 11px; color: rgba(255,255,255,0.6); }
-        .btn-open-case { background: rgba(138,43,226,0.5); color: #fff; border: none; padding: 8px 16px; border-radius: 20px; font-weight: bold; font-size: 12px; cursor: pointer; }
-        .btn-open-case:active { background: rgba(138,43,226,0.8); }
-
-        .inv-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-        .inv-card { background: rgba(0,0,0,0.4); border-radius: 16px; padding: 10px; border: 1px solid rgba(255,255,255,0.1); text-align: center; display: flex; flex-direction: column; align-items: center; position: relative; transition: all 0.2s; overflow: hidden; }
-        .inv-card:active { transform: scale(0.95); }
-        .inv-card.rarity-common { border-color: rgba(57, 255, 20, 0.3); box-shadow: inset 0 0 20px rgba(57, 255, 20, 0.1); }
-        .inv-card.rarity-rare { border-color: rgba(0, 212, 255, 0.3); box-shadow: inset 0 0 20px rgba(0, 212, 255, 0.1); }
-        .inv-card.rarity-epic { border-color: rgba(179, 71, 234, 0.3); box-shadow: inset 0 0 20px rgba(179, 71, 234, 0.1); }
-        .inv-card.rarity-legendary { border-color: rgba(255, 230, 0, 0.3); box-shadow: inset 0 0 20px rgba(255, 230, 0, 0.1); }
-        .inv-card.rarity-mythic { border-color: rgba(255, 45, 117, 0.3); box-shadow: inset 0 0 20px rgba(255, 45, 117, 0.1); }
-        .inv-card.rarity-forbidden { border-color: rgba(220, 20, 60, 0.5); box-shadow: inset 0 0 30px rgba(255, 0, 0, 0.2); animation: glitchBorder 0.5s infinite; }
-        @keyframes glitchBorder { 0% { border-color: rgba(220, 20, 60, 0.5); } 50% { border-color: rgba(255, 0, 0, 0.8); } 100% { border-color: rgba(220, 20, 60, 0.5); } }
-
-        .inv-card-count { position: absolute; top: 6px; right: 6px; background: rgba(0,0,0,0.8); padding: 2px 8px; border-radius: 10px; font-size: 12px; font-weight: bold; color: var(--neon-pink); }
-        .inv-card-img { width: 80px; height: 80px; object-fit: contain; margin: 5px 0; filter: drop-shadow(0 0 8px currentColor); }
-        .inv-card-name { font-size: 13px; font-weight: bold; width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .inv-card-rarity { font-size: 10px; margin-bottom: 8px; opacity: 0.8; }
-        .btn-sell-card { width: 100%; background: rgba(255,215,0,0.15); color: #ffd700; border: 1px solid rgba(255,215,0,0.3); padding: 6px; border-radius: 12px; font-size: 11px; font-weight: bold; cursor: pointer; position: relative; }
-        .btn-sell-card:active { background: rgba(255,215,0,0.4); }
-        .sell-flash { position: absolute; left: 50%; bottom: 100%; transform: translateX(-50%); background: rgba(0,0,0,0.8); color: #39ff14; padding: 2px 6px; border-radius: 8px; font-size: 12px; white-space: nowrap; opacity: 0; animation: sellFlash 1s ease-out; }
-        @keyframes sellFlash { 0% { opacity: 1; transform: translateX(-50%) translateY(0); } 100% { opacity: 0; transform: translateX(-50%) translateY(-20px); } }
-
-        .stats-row { display: flex; gap: 8px; margin-top: 12px; }
-        .stat-box { flex: 1; background: rgba(0,0,0,0.5); border-radius: 16px; padding: 12px 4px; text-align: center; backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.1); }
-        .stat-value { font-size: 20px; font-weight: 900; color: var(--neon-pink); }
-        .stat-label { font-size: 9px; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 1px; }
-        .list-container { background: rgba(0,0,0,0.5); border-radius: 24px; padding: 12px; max-height: 450px; overflow-y: auto; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
-        .achieve-item, .shop-item { display: flex; align-items: center; gap: 10px; padding: 10px 6px; border-bottom: 1px solid rgba(255,255,255,0.08); transition: background 0.3s; border-radius: 12px; }
-        .achieve-item:active, .shop-item:active { background: rgba(255,45,117,0.15); }
-        .achieve-item:last-child, .shop-item:last-child { border-bottom: none; }
-        .shop-icon { width: 48px; height: 48px; border-radius: 12px; object-fit: contain; filter: drop-shadow(0 0 5px currentColor); }
-        .shop-info { flex: 1; }
-        .shop-name { font-weight: bold; font-size: 15px; }
-        .achieve-icon { font-size: 36px; opacity: 0.2; transition: all 0.5s; }
-        .achieve-item.unlocked .achieve-icon { opacity: 1; filter: drop-shadow(0 0 10px currentColor); }
-        .achieve-info { flex: 1; }
-        .achieve-name { font-weight: bold; font-size: 16px; }
-        .achieve-desc { font-size: 12px; color: rgba(255,255,255,0.5); }
-        .achieve-item:not(.unlocked) .achieve-name { color: #555; }
-        .empty-msg { text-align: center; padding: 30px; color: rgba(255,255,255,0.4); font-style: italic; }
-        .list-container::-webkit-scrollbar { width: 4px; }
-        .list-container::-webkit-scrollbar-track { background: transparent; }
-        .list-container::-webkit-scrollbar-thumb { background: var(--neon-pink); border-radius: 4px; }
-        .rarity-forbidden { animation: glitch 0.3s infinite; text-shadow: 0 0 10px #ff0000, 0 0 20px #ff0000, 0 0 40px #ff0000; }
-        @keyframes glitch { 0% { transform: translate(0); } 20% { transform: translate(-2px, 2px); } 40% { transform: translate(-2px, -2px); } 60% { transform: translate(2px, 2px); } 80% { transform: translate(2px, -2px); } 100% { transform: translate(0); } }
-        .label-timer { font-size: 12px; color: rgba(255,255,255,0.6); text-transform: uppercase; margin-bottom: 2px; }
-        .top-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; gap: 8px; }
+        .c { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 24px; width: 100%; max-width: 400px; }
+        h1 { font-size: 22px; font-weight: 700; margin-bottom: 4px; text-align: center; }
+        .sub { text-align: center; font-size: 11px; color: var(--text-sec); margin-bottom: 20px; letter-spacing: 1px; }
+        .bal { text-align: center; font-size: 24px; font-weight: 700; margin-bottom: 20px; padding: 10px; background: var(--surface-2); border-radius: 6px; }
+        .menu { display: flex; gap: 4px; margin-bottom: 20px; background: var(--surface-2); border-radius: 6px; padding: 4px; }
+        .mb { flex: 1; padding: 10px 4px; border: none; background: transparent; color: var(--text-sec); font-size: 12px; font-weight: 500; border-radius: 4px; cursor: pointer; transition: 0.2s; }
+        .mb.on { background: var(--text); color: var(--bg); font-weight: 600; }
+        .sc { display: none; animation: fi 0.2s ease; } .sc.on { display: block; }
+        @keyframes fi { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        .tr { display: flex; gap: 8px; margin-bottom: 16px; }
+        .bs { flex: 1; padding: 10px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 6px; color: var(--text-sec); font-size: 12px; font-weight: 500; cursor: pointer; text-align: center; }
+        .bs:active { background: var(--border); }
+        .disp { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 24px 16px; margin-bottom: 16px; text-align: center; }
+        .di { width: 180px; height: 180px; object-fit: contain; display: block; margin: 0 auto 12px; animation: p 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes p { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .dn { font-size: 20px; font-weight: 600; display: block; margin-bottom: 2px; }
+        .ds { font-size: 13px; color: var(--text-sec); display: block; margin-bottom: 0; }
+        .tw { margin-bottom: 16px; text-align: center; }
+        .tl { font-size: 11px; color: var(--text-sec); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+        .tm { font-size: 24px; font-weight: 700; letter-spacing: 2px; padding: 12px; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; text-align: center; font-variant-numeric: tabular-nums; }
+        .bm { width: 100%; padding: 14px; border: none; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; transition: 0.15s; background: var(--text); color: var(--bg); }
+        .bm:active { opacity: 0.8; }
+        .bm:disabled { background: var(--surface-2); color: var(--text-sec); cursor: not-allowed; }
+        .sr { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 16px; }
+        .sb { background: var(--surface-2); border-radius: 6px; padding: 10px 0; text-align: center; }
+        .sv { font-size: 18px; font-weight: 700; display: block; }
+        .sl { font-size: 9px; color: var(--text-sec); text-transform: uppercase; display: block; margin-top: 2px; }
+        .ih { display: flex; gap: 0; margin-bottom: 12px; background: var(--surface-2); border-radius: 6px; padding: 3px; }
+        .sb { flex: 1; border: none; background: transparent; color: var(--text-sec); padding: 8px 4px; border-radius: 4px; font-size: 11px; font-weight: 500; cursor: pointer; transition: 0.2s; }
+        .sb.on { background: var(--text); color: var(--bg); font-weight: 600; }
+        .sa { border: none; background: transparent; color: var(--c-forbidden); padding: 8px 12px; border-radius: 4px; font-size: 11px; font-weight: 600; cursor: pointer; margin-left: auto; }
+        .cr { display: flex; align-items: center; gap: 12px; padding: 12px; margin-bottom: 12px; background: var(--surface-2); border-radius: 6px; border: 1px solid var(--border); }
+        .ci { width: 36px; height: 36px; object-fit: contain; opacity: 0.8; }
+        .cinfo { flex: 1; }
+        .cn { font-weight: 600; font-size: 14px; margin-bottom: 2px; }
+        .cd { font-size: 11px; color: var(--text-sec); }
+        .co { background: var(--text); color: var(--bg); border: none; padding: 8px 16px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+        .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+        .cd { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--border); border-radius: 6px; padding: 12px 8px; text-align: center; display: flex; flex-direction: column; align-items: center; position: relative; transition: 0.2s; }
+        .cd:active { background: var(--border); }
+        .cd.rc { border-left-color: var(--c-common); } .cd.rr { border-left-color: var(--c-rare); } .cd.re { border-left-color: var(--c-epic); }
+        .cd.lg { border-left-color: var(--c-legendary); } .cd.pl { border-left-color: var(--c-platinum); }
+        .cd.my { border-left-color: var(--c-mythic); } .cd.fb { border-left-color: var(--c-forbidden); animation: g 0.4s infinite; }
+        @keyframes g { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .cc { position: absolute; top: 6px; right: 6px; font-size: 11px; font-weight: 600; color: var(--text-2); }
+        .ci { width: 80px; height: 80px; object-fit: contain; margin-bottom: 8px; }
+        .cn { font-size: 13px; font-weight: 600; width: 100%; white-space: nowrap; overflow: hidden; text-align: center; text-overflow: ellipsis; margin-bottom: 2px; }
+        .cs { font-size: 10px; color: var(--text-sec); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+        .bs { width: 100%; background: var(--surface-2); color: var(--text-sec); border: 1px solid var(--border); padding: 6px; border-radius: 4px; font-size: 11px; font-weight: 500; cursor: pointer; position: relative; }
+        .bs:active { background: var(--border); }
+        .sp { position: absolute; left: 50%; bottom: 100%; transform: translateX(-50%); background: var(--bg); color: var(--text); padding: 2px 6px; border-radius: 4px; font-size: 11px; border: 1px solid var(--border); white-space: nowrap; opacity: 0; animation: sp 1s ease-out; }
+        @keyframes sp { 0% { opacity: 1; transform: translateX(-50%) translateY(0); } 100% { opacity: 0; transform: translateX(-50%) translateY(-12px); } }
+        .list { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 4px; max-height: 450px; overflow-y: auto; }
+        .list::-webkit-scrollbar { width: 4px; } .list::-webkit-scrollbar-track { background: transparent; } .list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+        .r { display: flex; align-items: center; gap: 12px; padding: 12px; border-bottom: 1px solid var(--border); }
+        .r:last-child { border-bottom: none; }
+        .ri { width: 36px; height: 36px; object-fit: contain; opacity: 0.8; }
+        .ri2 { flex: 1; }
+        .rn { font-weight: 600; font-size: 14px; margin-bottom: 2px; }
+        .rd { font-size: 12px; color: var(--text-sec); }
+        .ai { font-size: 24px; opacity: 0.2; width: 30px; text-align: center; }
+        .r.unlocked .ai { opacity: 1; }
+        .an { font-weight: 600; font-size: 14px; color: var(--text); }
+        .r:not(.unlocked) .an { color: var(--text-sec); }
+        .ad { font-size: 12px; color: var(--text-sec); margin-top: 2px; }
+        .empty { text-align: center; padding: 40px; color: var(--text-sec); font-size: 13px; }
     </style>
 </head>
-<body class="">
-    <div class="particles" id="particlesContainer"></div>
-    <div class="game-container">
-        <h1>📱 PhoneClicker</h1>
-        <p class="status">Pre-Alpha 0F</p>
-        <div class="balance-bar">
-            <span class="balance-icon">💰</span>
-            <span class="balance-value" id="balanceDisplay">0</span>
-        </div>
-        <div class="menu-bar">
-            <button class="menu-btn active" data-screen="main" id="menuMain">🎮 Гра</button>
-            <button class="menu-btn" data-screen="inventory" id="menuInventory">📦 Інвентар</button>
-            <button class="menu-btn" data-screen="shop" id="menuShop">🛒 Магазин</button>
-            <button class="menu-btn" data-screen="achieve" id="menuAchieve">🏆 Ачівки</button>
+<body>
+    <div class="c">
+        <h1>PhoneClicker</h1>
+        <div class="sub">MINIMAL v1.0</div>
+        <div class="bal" id="balanceDisplay">0</div>
+        <div class="menu">
+            <button class="mb on" data-screen="main">Игра</button>
+            <button class="mb" data-screen="inv">Инвентарь</button>
+            <button class="mb" data-screen="shop">Магазин</button>
+            <button class="mb" data-screen="ach">Ачивки</button>
         </div>
 
-        <div class="screen active" id="screenMain">
-            <div class="top-row">
-                <button class="btn btn-reset" id="resetBtn">🗑 Скинути</button>
-                <button class="btn btn-lang" id="langBtn">UA</button>
-                <button class="btn btn-low-spec" id="lowSpecBtn">⚡</button>
+        <div class="sc on" id="screenMain">
+            <div class="tr">
+                <button class="bs" id="resetBtn">Сброс</button>
+                <button class="bs" id="langBtn">RU</button>
             </div>
-            <div class="phone-display" id="phoneDisplay">
-                <img id="phoneImage" class="phone-image" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='80' font-size='80'%3E📦%3C/text%3E%3C/svg%3E" alt="Телефон">
-                <span class="phone-name" id="phoneName">???</span>
-                <span class="phone-model" id="phoneModel">Натисни кнопку</span>
+            <div class="disp" id="phoneDisplay">
+                <img id="phoneImage" class="di" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23202020'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-size='40' fill='%233333' font-family='sans-serif'%3E?%3C/text%3E%3C/svg%3E" alt="Телефон">
+                <span class="dn" id="phoneName" style="color: var(--text-sec)">???</span>
+                <span class="ds" id="phoneModel">Нажми открыть</span>
             </div>
-            <div class="label-timer" id="basicPhoneLabel">📱 Безкоштовний телефон</div>
-            <div class="timer" id="timerBasic">00:00</div>
-            <button class="btn btn-primary" id="rollBasicBtn">📱 Відкрити</button>
-
-            <div class="stats-row">
-                <div class="stat-box"><div class="stat-value" id="totalOpened">0</div><div class="stat-label" id="statOpened">Відкрито</div></div>
-                <div class="stat-box"><div class="stat-value" id="uniquePhones">0</div><div class="stat-label" id="statUnique">Унік.</div></div>
-                <div class="stat-box"><div class="stat-value" id="bestRarity">-</div><div class="stat-label" id="statBest">Краща</div></div>
-                <div class="stat-box"><div class="stat-value" id="totalSold">0</div><div class="stat-label" id="statSold">Продано</div></div>
+            <div class="tw">
+                <div class="tl">Бесплатный телефон</div>
+                <div class="tm" id="timerBasic">00:00</div>
+            </div>
+            <button class="bm" id="rollBasicBtn">Открыть</button>
+            <div class="sr">
+                <div class="sb"><span class="sv" id="totalOpened">0</span><span class="sl">Всего</span></div>
+                <div class="sb"><span class="sv" id="uniquePhones">0</span><span class="sl">Уник.</span></div>
+                <div class="sb"><span class="sv" id="bestRarity">-</span><span class="sl">Лучшая</span></div>
+                <div class="sb"><span class="sv" id="totalSold">0</span><span class="sl">Продано</span></div>
             </div>
         </div>
 
-        <div class="screen" id="screenInventory">
-            <div class="list-container" id="inventoryList"></div>
-        </div>
-
-        <div class="screen" id="screenShop">
-            <div class="list-container" id="shopList"></div>
-        </div>
-
-        <div class="screen" id="screenAchieve">
-            <div class="list-container" id="achieveList"></div>
-        </div>
+        <div class="sc" id="screenInv"><div class="list" id="inventoryList"></div></div>
+        <div class="sc" id="screenShop"><div class="list" id="shopList"></div></div>
+        <div class="sc" id="screenAch"><div class="list" id="achList"></div></div>
     </div>
+
     <script>
     (function() {
         'use strict';
+        let lang = 'ru', sort = 'default';
 
-        const LANG_KEY = 'phoneclicker_lang';
-        let currentLang = 'uk';
-        let inventorySort = 'default';
-
-        const translations = {
-            ru: { menuGame: '🎮 Игра', menuInventory: '📦 Инвентарь', menuShop: '🛒 Магазин', menuAchieve: '🏆 Ачивки', resetBtn: '🗑 Сбросить', basicPhoneLabel: '📱 Бесплатный телефон', rollBasicBtn: '📱 Открыть', statOpened: 'Открыто', statUnique: 'Уник.', statBest: 'Лучшая', statSold: 'Продано', emptyInventory: '📦 Пока пусто...', phoneModelDefault: 'Нажми кнопку', caseItemName: 'Кейс с телефонами', caseItemDesc: 'Содержит редкие и выше', openCaseBtn: 'Открыть', buyCaseBtn: 'Купить', sellBtn: 'Продать', notEnoughCoins: 'Недостаточно монет!', confirmReset: 'Точно сбросить весь прогресс?', waiting: '⏳ Ожидание...', achievementLockedDesc: 'Продолжай открывать телефоны...', shopCaseName: 'Кейс с телефонами', shopCaseDesc: 'Содержит редкие и выше', shopCasePrice: 'Цена:', sortDefault: 'По умолчанию', sortRarity: 'По редкости', sortCount: 'По кол-ву', sellAllCommon: 'Продать обычных', confirmSellAll: 'Продать все обычные телефоны?' },
-            uk: { menuGame: '🎮 Гра', menuInventory: '📦 Інвентар', menuShop: '🛒 Магазин', menuAchieve: '🏆 Ачівки', resetBtn: '🗑 Скинути', basicPhoneLabel: '📱 Безкоштовний телефон', rollBasicBtn: '📱 Відкрити', statOpened: 'Відкрито', statUnique: 'Унік.', statBest: 'Краща', statSold: 'Продано', emptyInventory: '📦 Поки пусто...', phoneModelDefault: 'Натисни кнопку', caseItemName: 'Кейс із телефонами', caseItemDesc: 'Містить рідкісні та вище', openCaseBtn: 'Відкрити', buyCaseBtn: 'Купити', sellBtn: 'Продати', notEnoughCoins: 'Недостатньо монет!', confirmReset: 'Точно скинути весь прогрес?', waiting: '⏳ Очікування...', achievementLockedDesc: 'Продовжуй відкривати телефони...', shopCaseName: 'Кейс із телефонами', shopCaseDesc: 'Містить рідкісні та вище', shopCasePrice: 'Ціна:', sortDefault: 'За замовч.', sortRarity: 'За рідкістю', sortCount: 'За кільк.', sellAllCommon: 'Продати звичайних', confirmSellAll: 'Продати всі звичайні телефони?' }
+        const L = {
+            ru: { play:'Игра', inv:'Инвентарь', shop:'Магазин', ach:'Ачивки', reset:'Сброс', getPhoneLabel:'Бесплатный телефон', openBtn:'Открыть', waiting:'Ожидание...', emptyInv:'Пусто', defModel:'Нажми открыть', getCaseName:'Кейс', getCaseDesc:'Редкие и выше', getCaseBtn:'Открыть', getBuyBtn:'Купить', getSellBtn:'Продать', noCoins:'Мало монет', confirmReset:'Сбросить прогресс?', achLocked:'Открывай кейсы...', shopName:'Кейс', shopDesc:'Редкие и выше', getPrice:'За', sortDef:'Все', sortRar:'Редкость', sortCnt:'Кол-во', sellAll:'Слить базу', sellAllConf:'Продать все обычные?' },
+            uk: { play:'Гра', inv:'Інвентар', shop:'Магазин', ach:'Ачівки', reset:'Скинути', getPhoneLabel:'Безкоштовний телефон', openBtn:'Відкрити', waiting:'Очікування...', emptyInv:'Пусто', defModel:'Натисни відкрити', getCaseName:'Кейс', getCaseDesc:'Рідкісні та вище', getCaseBtn:'Відкрити', getBuyBtn:'Купити', getSellBtn:'Продати', noCoins:'Мало монет', confirmReset:'Скинути прогрес?', achLocked:'Відкривай кейси...', shopName:'Кейс', shopDesc:'Рідкісні та вище', getPrice:'За', sortDef:'Усі', sortRar:'Рідкість', sortCnt:'Кільк.', sellAll:'Злити базу', sellAllConf:'Продати всі звичайні?' }
         };
+        const t = k => L[lang]?.[k] || k;
+        const setLang = l => { lang = l; localStorage.setItem('pc_min_l', l); updateUI(); renderInv(); renderShop(); renderAch(); };
+        const updateUI = () => {
+            document.querySelector('[data-screen="main"]').textContent = t('play');
+            document.querySelector('[data-screen="inv"]').textContent = t('inv');
+            document.querySelector('[data-screen="shop"]').textContent = t('shop');
+            document.querySelector('[data-screen="ach]').textContent = t('ach');
+            document.getElementById('resetBtn').textContent = t('reset');
+            document.querySelector('.tl').textContent = t('getPhoneLabel');
+            document.getElementById('rollBasicBtn').textContent = tAct ? t('waiting') : t('openBtn');
+            document.getElementById('langBtn').textContent = lang === 'uk' ? 'UA' : 'RU';
+            const pm = document.getElementById('phoneName').textContent;
+            const ml = document.getElementById('phoneModel');
+            ml.textContent = pm === '???' ? t('defModel') : (PHONE_MAP[pm] ? `${getRarity(PHONE_MAP[pm].rarity)} • ${PHONE_MAP[pm].year}` : '');
+        };
+        const loadLang = () => { const s = localStorage.getItem('pc_min_l'); if (s === 'uk' || s === 'ru') lang = s; updateUI(); };
+        
+        const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 
-        function t(key) { return translations[currentLang]?.[key] || key; }
+        // Функция для создания текстовых заглушек (нужна, т.к. большинство картинок пока заглушки)
+        const svg = (t, c) => `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Crect width='200' height='200' fill='%23202020'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-size='30' fill='${c}' font-family='sans-serif'%3E${encodeURIComponent(t)}%3C/text%3E%3C/svg%3E`;
 
-        function setLanguage(lang) {
-            currentLang = lang;
-            localStorage.setItem(LANG_KEY, lang);
-            updateUITexts();
-            renderInventory();
-            renderShop();
-            renderAchievements();
-        }
-
-        function updateUITexts() {
-            document.getElementById('menuMain').textContent = t('menuGame');
-            document.getElementById('menuInventory').textContent = t('menuInventory');
-            document.getElementById('menuShop').textContent = t('menuShop');
-            document.getElementById('menuAchieve').textContent = t('menuAchieve');
-            document.getElementById('resetBtn').textContent = t('resetBtn');
-            document.getElementById('basicPhoneLabel').textContent = t('basicPhoneLabel');
-            document.getElementById('rollBasicBtn').textContent = timerActiveBasic ? t('waiting') : t('rollBasicBtn');
-            document.getElementById('statOpened').textContent = t('statOpened');
-            document.getElementById('statUnique').textContent = t('statUnique');
-            document.getElementById('statBest').textContent = t('statBest');
-            document.getElementById('statSold').textContent = t('statSold');
-
-            const phoneModelEl = document.getElementById('phoneModel');
-            if (document.getElementById('phoneName').textContent === '???') {
-                phoneModelEl.textContent = t('phoneModelDefault');
-            } else {
-                const currentPhone = PHONE_MAP[document.getElementById('phoneName').textContent];
-                if (currentPhone) {
-                    phoneModelEl.textContent = `${getRarityLabel(currentPhone.rarity)} • ${currentPhone.year}`;
-                }
-            }
-            document.getElementById('langBtn').textContent = currentLang === 'uk' ? 'UA' : 'RU';
-        }
-
-        function loadLanguage() {
-            const saved = localStorage.getItem(LANG_KEY);
-            currentLang = (saved && (saved === 'uk' || saved === 'ru')) ? saved : 'uk';
-            updateUITexts();
-        }
-
-        function escapeHtml(str) { return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
-
-        function placeholderSvg(text, bgColor) {
-            return `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 300'%3E%3Crect width='300' height='300' fill='${bgColor}'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-size='40' fill='white' font-family='sans-serif'%3E${encodeURIComponent(text)}%3C/text%3E%3C/svg%3E`;
-        }
-
-        const particlesContainer = document.getElementById('particlesContainer');
-        for (let i = 0; i < 40; i++) {
-            const particle = document.createElement('div');
-            particle.className = 'particle';
-            const size = Math.random() * 4 + 2;
-            particle.style.width = size + 'px'; particle.style.height = size + 'px';
-            particle.style.left = Math.random() * 100 + '%';
-            particle.style.animationDuration = Math.random() * 10 + 8 + 's';
-            particle.style.animationDelay = Math.random() * 5 + 's';
-            particle.style.background = ['#ff2d75','#00d4ff','#b347ea','#39ff14'][Math.floor(Math.random()*4)];
-            particlesContainer.appendChild(particle);
-        }
-
-        const BASIC_PHONES = [
+        // Базовые телефоны (Твои ссылки, исправленные с PhoneCallager на PhoneClicker)
+        const BASIC = [
             { name: "iPhone 3GS", year: "2009", rarity: "common", image: "https://raw.githubusercontent.com/kolisnykgeorgiy2-source/PhoneClicker/main/images/iphone3gs.png" },
             { name: "iPhone 4", year: "2010", rarity: "common", image: "https://raw.githubusercontent.com/kolisnykgeorgiy2-source/PhoneClicker/main/images/iphone4.png" },
             { name: "Samsung Galaxy S2", year: "2011", rarity: "common", image: "https://raw.githubusercontent.com/kolisnykgeorgiy2-source/PhoneClicker/main/images/samsunggalaxys2.png" },
             { name: "Xiaomi Mi 1", year: "2011", rarity: "common", image: "https://raw.githubusercontent.com/kolisnykgeorgiy2-source/PhoneClicker/main/images/xiaomimi1.png" }
         ];
-        const CASE_PHONES = [
-            { name: "iPhone 5s", year: "2013", rarity: "rare", image: placeholderSvg('iPhone 5s', '00d4ff') },
-            { name: "iPhone 6", year: "2014", rarity: "rare", image: placeholderSvg('iPhone 6', '00d4ff') },
-            { name: "Google Pixel", year: "2016", rarity: "rare", image: placeholderSvg('Pixel', '00d4ff') },
+
+        // Кейсы (Платина 2%, Vivo X300 Ultra в платине, шансы пересчитаны: 46+26+15+7+2+4 = 100%)
+        const CASE = [
+            { name: "iPhone 5s", year: "2013", rarity: "rare", image: svg('5s', '#5b8fb9') },
+            { name: "iPhone 6", year: "2014", rarity: "rare", image: svg('6', '#5b8fb9') },
+            { name: "Pixel", year: "2016", rarity: "rare", image: svg('Pixel', '#5b8fb9') },
             { name: "iPhone X", year: "2017", rarity: "epic", image: "https://raw.githubusercontent.com/kolisnykgeorgiy2-source/PhoneClicker/main/images/iphonex.png" },
-            { name: "iPhone 12", year: "2020", rarity: "epic", image: placeholderSvg('iPhone 12', 'b347ea') },
-            { name: "Nokia 3310", year: "2000", rarity: "legendary", image: placeholderSvg('Nokia 3310', 'ffe600') },
-            { name: "Motorola Razr V3", year: "2004", rarity: "legendary", image: placeholderSvg('Razr V3', 'ffe600') },
-            { name: "iPhone 2G (первый)", year: "2007", rarity: "mythic", image: placeholderSvg('iPhone 2G', 'ff2d75') },
-            { name: "Nokia 8110 \"банан\"", year: "1996", rarity: "mythic", image: placeholderSvg('Nokia 8110', 'ff2d75') },
-            { name: "Samsung Galaxy Note 7", year: "2016", rarity: "forbidden", image: placeholderSvg('Note 7', 'dc143c') }
+            { name: "iPhone 12", year: "2020", rarity: "epic", image: svg('12', '#8b5cf6') },
+            { name: "Nokia 3310", year: "2000", rarity: "legendary", image: svg('3310', '#c8a215') },
+            { name: "Razr V3", year: "2004", rarity: "legendary", image: svg('Razr', '#c8a215') },
+            { name: "iPhone 2G", year: "2007", rarity: "mythic", image: svg('2G', '#c084fc') },
+            { name: "Nokia 8110", year: "1996", rarity: "mythic", image: svg('8110', '#c084fc') },
+            { name: "Z Fold 6", year: "2024", rarity: "platinum", image: svg('Fold 6', '#b0b0b0') },
+            { name: "16 Pro Max", year: "2024", rarity: "platinum", image: svg('16PM', '#b0b0b0') },
+            { name: "vivo X300 Ultra", year: "2024", rarity: "platinum", image: s('X300 Ultra', '#b0b0b0') },
+            { name: "Note 7", year: "2016", rarity: "forbidden", image: svg('Note 7', '#ef4444') }
         ];
 
-        const PHONE_MAP = {};
-        [...BASIC_PHONES, ...CASE_PHONES].forEach(p => { PHONE_MAP[p.name] = p; });
+        const PM = {}; [...BASIC, ...CASE].forEach(p => PM[p.name] = p);
 
-        const RARITY = {
-            common:    { label: {ru: "Обычный", uk: "Звичайний"}, color: "#39ff14", tier: 1, glow: "0 0 20px #39ff14", price: 10 },
-            rare:      { label: {ru: "Редкий", uk: "Рідкісний"}, color: "#00d4ff", tier: 2, glow: "0 0 20px #00d4ff", price: 50 },
-            epic:      { label: {ru: "Эпический", uk: "Епічний"}, color: "#b347ea", tier: 3, glow: "0 0 25px #b347ea", price: 150 },
-            legendary: { label: {ru: "Легендарный", uk: "Легендарний"}, color: "#ffe600", tier: 4, glow: "0 0 30px #ffe600", price: 500 },
-            mythic:    { label: {ru: "Мифический", uk: "Міфічний"}, color: "#ff2d75", tier: 5, glow: "0 0 35px #ff2d75", price: 1500 },
-            forbidden: { label: {ru: "Запрещено", uk: "Заборонено"}, color: "#dc143c", tier: 6, glow: "0 0 40px #ff0000, 0 0 80px #ff0000", price: 5000 }
+        const R = {
+            common:    { label: {ru:"Обычный", uk:"Звичайний"}, color: "var(--c-common)", tier: 1, price: 10 },
+            rare:      { label: {ru:"Редкий", uk:"Рідкісний"}, color: "var(--c-rare)", tier: 2, price: 50 },
+            epic:      { label: {ru:"Эпический", uk:"Епічний"}, color: "var(--c-epic)", tier: 3, price: 150 },
+            legendary: { label: {ru:"Легендарный", uk:"Легендарний"}, color: "var(--c-legendary)", tier: 4, price: 500 },
+            mythic:    { label: {ru:"Мифический", uk:"Міфічний"}, color: "var(--c-mythic)", tier: 5, price: 1500 },
+            platinum:  { label: {ru:"Платиновый", uk:"Платиновий"}, color: "var(--c-platinum)", tier: 6, price: 1000 },
+            forbidden: { label: {ru:"Запрещено", uk:"Заборонено"}, color: "var(--c-forbidden)", tier: 7, price: 5000 }
         };
 
-        function getRarityLabel(rarity) { return RARITY[rarity].label[currentLang] || rarity; }
-        const CASE_CHANCES = { rare: 46, epic: 28, legendary: 15, mythic: 7, forbidden: 4 };
-        const COOLDOWN_BASIC = 20;
-        const CASE_PRICE = 100;
+        // 46+26+15+7+2+4 = 100
+        const CHANCES = { rare: 46, epic: 26, legendary: 15, mythic: 7, platinum: 2, forbidden: 4 };
+        const CD = 20, CP = 100, SK = 'pc_min_s1';
 
-        const ACHIEVEMENTS = [
-            { id: "first_roll", name: {ru: "Первый телефон", uk: "Перший телефон"}, desc: {ru: "Открыть телефон впервые", uk: "Відкрити телефон вперше"}, icon: "📱", check: s => s.totalOpened >= 1 },
-            { id: "roll_10", name: {ru: "Коллекционер", uk: "Колекціонер"}, desc: {ru: "Открыть 10 телефонов", uk: "Відкрити 10 телефонів"}, icon: "📦", check: s => s.totalOpened >= 10 },
-            { id: "roll_50", name: {ru: "Фанатик", uk: "Фанатик"}, desc: {ru: "Открыть 50 телефонов", uk: "Відкрити 50 телефонів"}, icon: "🔥", check: s => s.totalOpened >= 50 },
-            { id: "first_rare", name: {ru: "Везунчик", uk: "Щасливчик"}, desc: {ru: "Найти редкий телефон", uk: "Знайти рідкісний телефон"}, icon: "💎", check: (s, phone) => phone && RARITY[phone.rarity].tier === 2 },
-            { id: "first_epic", name: {ru: "Эпическая удача", uk: "Епічна удача"}, desc: {ru: "Найти эпический телефон", uk: "Знайти епічний телефон"}, icon: "✨", check: (s, phone) => phone && RARITY[phone.rarity].tier === 3 },
-            { id: "first_legend", name: {ru: "Легенда", uk: "Легенда"}, desc: {ru: "Найти легендарный телефон", uk: "Знайти легендарний телефон"}, icon: "👑", check: (s, phone) => phone && RARITY[phone.rarity].tier === 4 },
-            { id: "first_mythic", name: {ru: "Миф стал реальностью", uk: "Міф став реальністю"}, desc: {ru: "Найти мифический телефон", uk: "Знайти міфічний телефон"}, icon: "🌟", check: (s, phone) => phone && RARITY[phone.rarity].tier === 5 },
-            { id: "first_forbidden", name: {ru: "Запретный плод", uk: "Заборонений плід"}, desc: {ru: "Найти запрещённый телефон", uk: "Знайти заборонений телефон"}, icon: "🚫", check: (s, phone) => phone && RARITY[phone.rarity].tier === 6 },
-            { id: "all_common", name: {ru: "Базовый набор", uk: "Базовий набір"}, desc: {ru: "Собрать все обычные телефоны", uk: "Зібрати всі звичайні телефони"}, icon: "✅", check: s => s.uniqueByRarity.common >= 4 },
-            { id: "all_mythic", name: {ru: "Хранитель мифов", uk: "Хранитель міфів"}, desc: {ru: "Собрать все мифические телефоны", uk: "Зібрати всі міфічні телефони"}, icon: "🏆", check: s => s.uniqueByRarity.mythic >= 2 }
-        ];
-
-        const SAVE_KEY = 'phoneclicker_save_v7';
-        let collection = {}; let totalOpened = 0; let totalSold = 0; let balance = 0; let caseCount = 0;
-        let unlockedAchievements = []; let uniqueByRarity = { common: 0, rare: 0, epic: 0, legendary: 0, mythic: 0, forbidden: 0 };
-        let timerRemainingBasic = 0, timerStartBasic = 0, timerActiveBasic = false, timerIdBasic = null, lowSpecMode = false;
+        let col = {}, op = 0, sold = 0, bal = 0, cases = 0, achs = [];
+        let tRB = 0, tRS = 0, tSA = 0, tID = null, tAct = false;
 
         const $ = id => document.getElementById(id);
-        const el = {
-            phoneDisplay: $('phoneDisplay'), phoneImage: $('phoneImage'), phoneName: $('phoneName'), phoneModel: $('phoneModel'),
-            timerBasic: $('timerBasic'), rollBasicBtn: $('rollBasicBtn'), totalOpened: $('totalOpened'), uniquePhones: $('uniquePhones'),
-            bestRarity: $('bestRarity'), totalSold: $('totalSold'), balanceDisplay: $('balanceDisplay'),
-            inventoryList: $('inventoryList'), achieveList: $('achieveList'), shopList: $('shopList'),
-            screenMain: $('screenMain'), screenInventory: $('screenInventory'), screenShop: $('screenShop'), screenAchieve: $('screenAchieve'),
-            resetBtn: $('resetBtn'), lowSpecBtn: $('lowSpecBtn'), langBtn: $('langBtn')
+        const fmt = s => `${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
+        const getTier = () => Object.keys(col).reduce((m, n) => { const p = PM[n]; return p ? Math.max(m, R[p.rarity].tier) : m; }, 0);
+        const getR = r => R[r].label[lang] || r;
+
+        const updateStats = () => {
+            const u = Object.keys(col);
+            el.totalOpened.textContent = op; el.uniquePhones.textContent = u.length; el.totalSold.textContent = sold; el.balanceDisplay.textContent = bal;
+            const bT = getTier(); const bK = Object.keys(R).find(k => R[k].tier === bT);
+            el.bestRarity.textContent = bK ? getR(bK) : '-';
+            el.bestRarity.style.color = bK ? R[bK].color : 'var(--text-sec)';
+            el.rollBasicBtn.textContent = tAct ? t('waiting') : t('openBtn');
         };
 
-        const fmtTime = s => `${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
+        const switchS = s => {
+            document.querySelectorAll('.screen').forEach(e => e.classList.remove('active'));
+            document.querySelectorAll('.menu-btn').forEach(e => e.classList.remove('active'));
+            const map = { main: $('screenMain'), inv: $('screenInv'), shop: $('screenShop'), ach: $('screenAch') };
+            if(map[s]) { map[s].classList.add('active'); document.querySelector(`[data-screen="${s}"]`).classList.add('active'); }
+            if(s==='inv') renderInv(); if(s==='shop') renderShop(); if(s==='ach') renderAch();
+        };
 
-        function applyLowSpecMode() {
-            if (lowSpecMode) { document.body.classList.add('low-spec'); el.lowSpecBtn.classList.add('active'); el.lowSpecBtn.textContent = '⚡ ON'; }
-            else { document.body.classList.remove('low-spec'); el.lowSpecBtn.classList.remove('active'); el.lowSpecBtn.textContent = '⚡'; }
-        }
+        const sell = (n, btn) => {
+            if (!col[n] || col[n] <= 0) return;
+            const p = PM[n]; if (!p) return;
+            const price = R[p.rarity].price;
+            col[n]--; if (col[n] <= 0) delete col[n];
+            bal += price; sold++; updateStats(); save();
+            if (btn) { const f = document.createElement('div'); f.className = 'sell-pop'; f.textContent = `+${price}`; btn.appendChild(f); setTimeout(() => f.remove(), 1000); }
+            renderInv();
+        };
 
-        function getBestTier() {
-            return Object.keys(collection).reduce((max, name) => {
-                const p = PHONE_MAP[name]; return p ? Math.max(max, RARITY[p.rarity].tier) : max;
-            }, 0);
-        }
+        const sellAll = () => {
+            if (!confirm('Продать все обычные телефоны?')) return; let e = 0;
+            for (const n in col) { if (PM[n]?.rarity === 'common') { e += col[n] * R.common.price; sold += col[n]; delete col[n]; } }
+            if (e) { bal += e; updateStats(); save(); renderInv(); }
+        };
 
-        function updateStats() {
-            uniqueByRarity = { common: 0, rare: 0, epic: 0, legendary: 0, mythic: 0, forbidden: 0 };
-            const uniqueNames = Object.keys(collection);
-            for (const name of uniqueNames) { const phone = PHONE_MAP[name]; if (phone) uniqueByRarity[phone.rarity]++; }
-            el.totalOpened.textContent = totalOpened; el.uniquePhones.textContent = uniqueNames.length;
-            el.totalSold.textContent = totalSold; el.balanceDisplay.textContent = balance;
-            const bestTier = getBestTier();
-            const bestKey = Object.keys(RARITY).find(k => RARITY[k].tier === bestTier);
-            el.bestRarity.textContent = bestKey ? getRarityLabel(bestKey) : '-';
-            el.bestRarity.style.color = bestKey ? RARITY[bestKey].color : '#888';
-            el.rollBasicBtn.textContent = timerActiveBasic ? t('waiting') : t('rollBasicBtn');
-        }
-
-        function switchScreen(screen) {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
-            const screens = { main: el.screenMain, inventory: el.screenInventory, shop: el.screenShop, achieve: el.screenAchieve };
-            if (screens[screen]) { screens[screen].classList.add('active'); document.querySelector(`.menu-btn[data-screen="${screen}"]`).classList.add('active'); }
-            if (screen === 'inventory') renderInventory();
-            if (screen === 'shop') renderShop();
-            if (screen === 'achieve') renderAchievements();
-        }
-
-        function sellPhone(phoneName, btnElement) {
-            if (!collection[phoneName] || collection[phoneName] <= 0) return;
-            const phone = PHONE_MAP[phoneName]; if (!phone) return;
-            const price = RARITY[phone.rarity].price;
-            collection[phoneName]--; if (collection[phoneName] <= 0) delete collection[phoneName];
-            balance += price; totalSold++;
-            updateStats(); save();
-            if (btnElement) {
-                const flash = document.createElement('span'); flash.className = 'sell-flash'; flash.textContent = `+${price} 💰`;
-                btnElement.appendChild(flash); setTimeout(() => flash.remove(), 1000);
+        const renderInv = () => {
+            let h = '';
+            if (cases > 0) {
+                h += `<div class="cr"><img class="ci" src="${svg('📦','#555')"><div class="cinfo"><div class="cn">${t('getCaseName')}</div><div class="cd">${t('getCaseDesc')}</div></div><button class="co" id="openCaseBtn">${t('getCaseBtn')} (${cases})</button></div>`;
             }
-            renderInventory();
-        }
+            
+            const hasC = Object.keys(col).some(n => PM[n]?.rarity === 'common');
+            h += `<div class="ih"><button class="sb ${sort==='default'?'on':''}" data-sort="default">${t('sortDef')}</button><button class="sb ${sort==='rarity'?'on':''}" data-sort="rarity">${t('sortRar')}</button><button class="sb ${sort==='count'?'on':''}" data-sort="count">${t('sortCnt')}</button>${hasC?`<button class="sa" id="sellAllBtn">${t('sellAll')}</button>`:''}</div>`;
 
-        function sellAllCommon() {
-            if (!confirm(t('confirmSellAll'))) return;
-            let earned = 0;
-            for (const name in collection) {
-                const phone = PHONE_MAP[name];
-                if (phone && phone.rarity === 'common') {
-                    earned += collection[name] * RARITY.common.price;
-                    totalSold += collection[name];
-                    delete collection[name];
+            let keys = Object.keys(col).filter(n => col[n] > 0 && PM[n]);
+            if (sort === 'rarity') keys.sort((a, b) => R[PM[a].tier] - R[PM[b].tier);
+            else if (sort === 'count') keys.sort((a, b) => col[b] - col[a]);
+
+            if (!keys.length) { h += `<div class="empty">${t('emptyInv')}</div>`; }
+            else {
+                h += `<div class="grid">`;
+                for (const n of keys) {
+                    const c = col[n], p = PM[n], r = R[p.rarity];
+                    h += `<div class="cd ${`r.color.replace('var(--c-','')}">${c > 1 ? `<span class="cc">x${c}</span>` : ''}<img class="ci" src="${esc(p.image)}" alt=""><div class="ri"><div class="cn">${esc(n)}</div><div class="cs" style="color:${r.color}">${getR(p.rarity)}</div><button class="bs" data-phone='${esc(n)}'>${t('getSellBtn')}</button></div></div>`;
                 }
+                h += `</div>`;
             }
-            if (earned > 0) { balance += earned; updateStats(); save(); renderInventory(); }
-        }
+            el.inventoryList.innerHTML = h;
+            el.inventoryList.querySelectorAll('.bs').forEach(b => b.addEventListener('click', function() { sell(this.dataset.phone, this); }));
+            const oC = document.getElementById('openCaseBtn'); if(oC) oC.addEventListener('click', openCase);
+            const sA = document.getElementById('sellAllBtn'); if(sA) sA.addEventListener('click', sellAll);
+            el.inventoryList.querySelectorAll('.sb').forEach(b => b.addEventListener('click', function() { sort = this.dataset.sort; renderInv(); }));
+        };
 
-        function renderInventory() {
-            let html = '';
-            if (caseCount > 0) {
-                html += `<div class="case-banner"><img class="case-banner-icon" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='80' font-size='80'%3E📦%3C/text%3E%3C/svg%3E" alt="Кейс"><div class="case-banner-info"><div class="case-banner-name">${t('caseItemName')}</div><div class="case-banner-desc">${t('caseItemDesc')}</div></div><button class="btn-open-case" id="openCaseBtn">${t('openCaseBtn')} (x${caseCount})</button></div>`;
+        const openCase = () => {
+            if (cases <= 0) return; cases--;
+            let rar = 'rare', cum = 0;
+            for (const k of ['rare','epic','legendary','mythic','platinum','forbidden']) { cum += CHANCES[k]; if (Math.random()*100 < cum) { rar = k; break; } }
+            const pool = CASE.filter(p => p.rarity === rar);
+            const ph = pool[Math.floor(Math.random() * pool.length)];
+            applyDisp(ph); col[ph.name] = (col[ph.name] || 0) + 1;
+            op++; updateStats(); checkAch(ph); save(); renderInv();
+            setTimeout(() => switchS('main'), 300);
+        };
+
+        const renderShop = () => {
+            el.shopList.innerHTML = `<div class="r"><img class="ri" src="${svg('📦','#555')"><div class="ri2"><div class="rn">${t('shopName')}</div><div class="rd">${t('shopDesc')}</div><div class="rd" style="color:var(--text);font-weight:600;margin-top:2px;">${t('getPrice')} ${CP}</div></div><button class="co" id="buyBtn">${t('getBuyBtn')}</button></div>`;
+            document.getElementById('buyBtn').addEventListener('click', buyCase);
+        };
+
+        const buyCase = () => { if (bal < CP) { alert(t('noCoins')); return; } bal -= CP; cases++; updateStats(); save(); renderShop(); renderInv(); };
+
+        const checkAch = ph => {
+            const s = { totalOpened: op, bestTier: getTier() };
+            let ch = false;
+            for (const a of achs) {
+                if (achs.includes(a.id)) continue;
+                if (a.check.length > 1 && ph) { if (a.check(s, ph)) { achs.push(a.id); ch = true; } }
+                else if (a.check(s)) { achs.push(a.id); ch = true; }
             }
-            let hasCommons = Object.keys(collection).some(name => PHONE_MAP[name]?.rarity === 'common');
-            html += `<div class="inv-controls"><button class="sort-btn ${inventorySort === 'default' ? 'active' : ''}" data-sort="default">${t('sortDefault')}</button><button class="sort-btn ${inventorySort === 'rarity' ? 'active' : ''}" data-sort="rarity">${t('sortRarity')}</button><button class="sort-btn ${inventorySort === 'count' ? 'active' : ''}" data-sort="count">${t('sortCount')}</button>${hasCommons ? `<button class="btn-sell-all" id="sellAllBtn">${t('sellAllCommon')}</button>` : ''}</div>`;
+            if (ch) { renderAch(); save(); }
+        };
 
-            let keys = Object.keys(collection).filter(name => collection[name] > 0 && PHONE_MAP[name]);
-            if (inventorySort === 'rarity') keys.sort((a, b) => RARITY[PHONE_MAP[a].rarity].tier - RARITY[PHONE_MAP[b].rarity].tier);
-            else if (inventorySort === 'count') keys.sort((a, b) => collection[b] - collection[a]);
-
-            if (keys.length === 0) {
-                html += `<div class="empty-msg">${t('emptyInventory')}</div>`;
-            } else {
-                html += `<div class="inv-grid">`;
-                for (const name of keys) {
-                    const count = collection[name]; const phone = PHONE_MAP[name]; const cfg = RARITY[phone.rarity];
-                    html += `<div class="inv-card rarity-${phone.rarity}"><span class="inv-card-count">x${count}</span><img class="inv-card-img" src="${escapeHtml(phone.image)}" alt="${escapeHtml(name)}" style="color: ${cfg.color}"><div class="inv-card-name">${escapeHtml(name)}</div><div class="inv-card-rarity" style="color: ${cfg.color}">${getRarityLabel(phone.rarity)}</div><button class="btn-sell-card" data-phone='${escapeHtml(name)}'>${t('shopCasePrice')} ${cfg.price} 💰</button></div>`;
-                }
-                html += `</div>`;
+        const renderAch = () => {
+            let h = '';
+            for (const a of achs) {
+                const u = achs.includes(a.id);
+                h += `<div class="r ${u ? 'unlocked' : ''}"><div class="ai">${a.icon}</div><div class="ri2"><div class="an">${u ? a.name[lang] || '???'}</div><div class="ad">${u ? a.desc[lang] || t('achLocked')}</div></div></div></div>`;
             }
-            el.inventoryList.innerHTML = html;
+            el.achList.innerHTML = h;
+        };
 
-            document.querySelectorAll('.btn-sell-card').forEach(btn => { btn.addEventListener('click', function() { sellPhone(this.getAttribute('data-phone'), this); }); });
-            const openCaseBtn = document.getElementById('openCaseBtn'); if (openCaseBtn) openCaseBtn.addEventListener('click', openCase);
-            const sellAllBtn = document.getElementById('sellAllBtn'); if (sellAllBtn) sellAllBtn.addEventListener('click', sellAllCommon);
-            document.querySelectorAll('.sort-btn').forEach(btn => { btn.addEventListener('click', function() { inventorySort = this.getAttribute('data-sort'); renderInventory(); }); });
-        }
-
-        function openCase() {
-            if (caseCount <= 0) return; caseCount--;
-            const roll = Math.random() * 100; let rarity = 'rare', cumulative = 0;
-            for (const key of ['rare', 'epic', 'legendary', 'mythic', 'forbidden']) { cumulative += CASE_CHANCES[key]; if (roll < cumulative) { rarity = key; break; } }
-            const pool = CASE_PHONES.filter(p => p.rarity === rarity);
-            const phone = pool[Math.floor(Math.random() * pool.length)];
-            applyPhoneDisplay(phone); collection[phone.name] = (collection[phone.name] || 0) + 1;
-            totalOpened++; updateStats(); checkAchievements(phone); save(); renderInventory();
-            setTimeout(() => switchScreen('main'), 400);
-        }
-
-        function renderShop() {
-            let html = `<div class="shop-item"><img class="shop-icon" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='80' font-size='80'%3E📦%3C/text%3E%3C/svg%3E" alt="Кейс"><div class="shop-info"><div class="shop-name">${t('shopCaseName')}</div><div style="color:#aaa;font-size:12px;">${t('shopCaseDesc')}</div><div style="color:#ffd700;font-size:14px;">${t('shopCasePrice')} ${CASE_PRICE} 💰</div></div><button class="btn btn-case" id="buyCaseBtn" style="width:auto; padding:8px 16px; font-size:14px;">${t('buyCaseBtn')}</button></div>`;
-            el.shopList.innerHTML = html;
-            const buyBtn = document.getElementById('buyCaseBtn'); if (buyBtn) buyBtn.addEventListener('click', buyCase);
-        }
-
-        function buyCase() {
-            if (balance < CASE_PRICE) { alert(t('notEnoughCoins')); return; }
-            balance -= CASE_PRICE; caseCount++; updateStats(); save(); renderShop(); renderInventory();
-        }
-
-        function checkAchievements(phone) {
-            const stats = { totalOpened, bestTier: getBestTier(), uniqueByRarity }; let changed = false;
-            for (const ach of ACHIEVEMENTS) {
-                if (unlockedAchievements.includes(ach.id)) continue;
-                if (ach.check.length > 1 && phone) { if (ach.check(stats, phone)) { unlockedAchievements.push(ach.id); changed = true; } }
-                else if (ach.check(stats)) { unlockedAchievements.push(ach.id); changed = true; }
-            }
-            if (changed) { renderAchievements(); save(); }
-        }
-
-        function renderAchievements() {
-            let html = '';
-            for (const ach of ACHIEVEMENTS) {
-                const unlocked = unlockedAchievements.includes(ach.id);
-                const achName = ach.name[currentLang] || ach.name.ru;
-                const achDesc = unlocked ? (ach.desc[currentLang] || ach.desc.ru) : t('achievementLockedDesc');
-                html += `<div class="achieve-item ${unlocked ? 'unlocked' : ''}"><div class="achieve-icon">${ach.icon}</div><div class="achieve-info"><div class="achieve-name">${unlocked ? escapeHtml(achName) : '???'}</div><div class="achieve-desc">${escapeHtml(achDesc)}</div></div></div>`;
-            }
-            el.achieveList.innerHTML = html;
-        }
-
-        function save() {
-            const data = { collection, totalOpened, totalSold, balance, caseCount, unlockedAchievements, timerRemainingBasic: timerActiveBasic ? Math.max(0, timerRemainingBasic - (performance.now() - timerStartBasic) / 1000) : 0, lowSpecMode };
-            localStorage.setItem(SAVE_KEY, JSON.stringify(data));
-        }
-
-        function load() {
+        const save = () => localStorage.setItem(SK, JSON.stringify({ col, op, sold, bal, cases, achs, tRB: tAct ? Math.max(0, tRB - (performance.now() - tSA) / 1000) : 0 } ));
+        const load = () => {
             try {
-                const raw = localStorage.getItem(SAVE_KEY); if (!raw) return; const data = JSON.parse(raw);
-                if (data.collection && typeof data.collection === 'object' && !Array.isArray(data.collection)) collection = data.collection;
-                else { collection = {}; if (Array.isArray(data.collection)) data.collection.forEach(p => { collection[p.name] = (collection[p.name] || 0) + 1; }); }
-                totalOpened = data.totalOpened || 0; totalSold = data.totalSold || 0; balance = data.balance || 0;
-                caseCount = data.caseCount || 0; unlockedAchievements = data.unlockedAchievements || [];
-                lowSpecMode = data.lowSpecMode || false; applyLowSpecMode(); updateStats(); renderAchievements();
-                let remainingBasic = data.timerRemainingBasic || 0;
-                if (remainingBasic > COOLDOWN_BASIC + 10) remainingBasic = COOLDOWN_BASIC;
-                if (remainingBasic > 0) startTimer('basic', Math.ceil(remainingBasic)); else clearTimer('basic');
-            } catch (e) { collection = {}; totalOpened = 0; totalSold = 0; balance = 0; caseCount = 0; unlockedAchievements = []; }
-        }
+                const raw = localStorage.getItem(SK); if (!raw) return; const d = JSON.parse(raw);
+                if (d.col && typeof d.col === 'object' && !Array.isArray(d.col)) col = d.col;
+                else { col = {}; if (Array.isArray(d.col)) d.col.forEach(p => { col[p.name] = (col[p.name] || 0) + 1; }); }
+                op = d.op || 0; sold = d.sold || 0; bal = d.bal || 0; cases = d.cases || 0; achs = d.achs || [];
+                updateStats(); renderAch();
+                let rem = d.tRB || 0; if (rem > 30) rem = CD;
+                if (rem > 0) startT(Math.ceil(rem)); else clearT();
+            } catch(e) { col = {}; op = 0; sold = 0; bal = 0; cases = 0; achs = []; }
+        };
 
-        function resetGame() {
-            if (!confirm(t('confirmReset'))) return; localStorage.removeItem(SAVE_KEY);
-            collection = {}; totalOpened = 0; totalSold = 0; balance = 0; caseCount = 0; unlockedAchievements = [];
-            clearTimer('basic');
-            el.phoneImage.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='80' font-size='80'%3E📦%3C/text%3E%3C/svg%3E";
-            el.phoneName.textContent = '???'; el.phoneName.style.color = '#fff';
-            el.phoneModel.textContent = t('phoneModelDefault'); el.phoneModel.style.color = 'rgba(255,255,255,0.7)';
-            el.phoneDisplay.style.borderColor = 'transparent'; el.phoneDisplay.style.boxShadow = 'none';
-            updateStats(); renderInventory(); renderShop(); renderAchievements();
-        }
+        const resetG = () => {
+            if (!confirm('Сбросить весь прогресс?')) return; localStorage.removeItem(SK);
+            col = {}; op = 0; sold = 0; bal = 0; cases = 0; achs = []; clearT();
+            el.phoneImage.src = svg('?', '#333'); el.phoneName.textContent = '???'; el.phoneName.style.color = 'var(--text-sec)';
+            el.phoneModel.textContent = t('defModel'); el.phoneModel.style.color = 'var(--text-sec)';
+            el.phoneDisplay.style.borderColor = 'var(--border)'; updateStats(); renderInv(); renderShop(); renderAch();
+        };
 
-        function clearTimer(type) {
-            if (type === 'basic') {
-                if (timerIdBasic) clearInterval(timerIdBasic); timerIdBasic = null; timerActiveBasic = false; timerRemainingBasic = 0;
-                el.rollBasicBtn.disabled = false; el.rollBasicBtn.textContent = t('rollBasicBtn'); el.timerBasic.textContent = '00:00';
-            }
-        }
+        const clearT = () => { if (tID) clearInterval(tID); tID = null; tAct = false; tRB = 0; el.rollBasicBtn.disabled = false; el.rollBasicBtn.textContent = t('openBtn'); el.timerBasic.textContent = '00:00'; };
+        const tick = () => { const l = Math.max(0, Math.ceil(tRB - (performance.now() - tSA) / 1000)); el.timerBasic.textContent = fmt(l); if (l <= 0) { clearT(); save(); } };
+        const startT = s => { if (tID) clearInterval(tID); tRB = s; tSA = performance.now(); tAct = true; el.rollBasicBtn.disabled = true; el.rollBasicBtn.textContent = t('waiting'); tick(); tID = setInterval(tick, 500); save(); };
 
-        function tick(type) {
-            if (type === 'basic') {
-                const left = Math.max(0, Math.ceil(timerRemainingBasic - (performance.now() - timerStartBasic) / 1000));
-                el.timerBasic.textContent = fmtTime(left); if (left <= 0) { clearTimer('basic'); save(); }
-            }
-        }
+        const applyDisp = p => {
+            const r = R[p.rarity]; el.phoneImage.src = p.image;
+            el.phoneName.textContent = p.name; el.phoneName.style.color = r.color;
+            el.phoneModel.textContent = `${getR(p.rarity)} • ${p.year}`; el.phoneModel.style.color = r.color;
+            el.phoneDisplay.style.borderColor = r.color;
+            if (p.rarity === 'forbidden') { el.phoneName.classList.add('rarity-forbidden-text'); el.phoneModel.classList.add('rarity-forbidden-text'); }
+            else { el.phoneName.classList.remove('rarity-forbidden-text'); el.phoneModel.classList.remove('rarity-forbidden-text'); }
+            el.phoneImage.style.animation = 'none'; void el.phoneImage.offsetWidth; el.phoneImage.style.animation = 'p 0.3s';
+        };
 
-        function startTimer(type, seconds) {
-            if (type === 'basic') {
-                if (timerIdBasic) clearInterval(timerIdBasic); timerRemainingBasic = seconds; timerStartBasic = performance.now(); timerActiveBasic = true;
-                el.rollBasicBtn.disabled = true; el.rollBasicBtn.textContent = t('waiting');
-                tick('basic'); timerIdBasic = setInterval(() => tick('basic'), 500); save();
-            }
-        }
+        const rollB = () => {
+            if (tAct) return;
+            const p = BASIC[Math.floor(Math.random() * BASIC.length)];
+            applyDisp(p); col[p.name] = (col[p.name] || 0) + 1;
+            op++; updateStats(); checkAch(p); save(); startT(CD);
+        };
 
-        function applyPhoneDisplay(phone) {
-            const cfg = RARITY[phone.rarity]; el.phoneImage.src = phone.image; el.phoneImage.style.color = cfg.color;
-            el.phoneName.textContent = phone.name; el.phoneName.style.color = cfg.color;
-            el.phoneModel.textContent = `${getRarityLabel(phone.rarity)} • ${phone.year}`; el.phoneModel.style.color = cfg.color;
-            el.phoneDisplay.style.borderColor = cfg.color; el.phoneDisplay.style.boxShadow = cfg.glow;
-            if (phone.rarity === 'forbidden') { el.phoneName.classList.add('rarity-forbidden'); el.phoneModel.classList.add('rarity-forbidden'); }
-            else { el.phoneName.classList.remove('rarity-forbidden'); el.phoneModel.classList.remove('rarity-forbidden'); }
-            el.phoneImage.style.animation = 'none'; void el.phoneImage.offsetWidth; el.phoneImage.style.animation = 'bounceIn 0.5s';
-        }
+        el.rollBasicBtn.addEventListener('click', rollB);
+        el.resetBtn.addEventListener('click', resetG);
+        el.langBtn.addEventListener('click', () => setLang(lang === 'uk' ? 'ru' : 'uk'));
+        document.querySelectorAll('.menu-btn').forEach(b => b.addEventListener('click', () => switchS(b.dataset.screen)));
 
-        function rollBasicPhone() {
-            if (timerActiveBasic) return;
-            const phone = BASIC_PHONES[Math.floor(Math.random() * BASIC_PHONES.length)];
-            applyPhoneDisplay(phone); collection[phone.name] = (collection[phone.name] || 0) + 1;
-            totalOpened++; updateStats(); checkAchievements(phone); save(); startTimer('basic', COOLDOWN_BASIC);
-        }
-
-        function toggleLowSpec() { lowSpecMode = !lowSpecMode; applyLowSpecMode(); save(); }
-
-        el.rollBasicBtn.addEventListener('click', rollBasicPhone);
-        el.resetBtn.addEventListener('click', resetGame);
-        el.lowSpecBtn.addEventListener('click', toggleLowSpec);
-        el.langBtn.addEventListener('click', () => { setLanguage(currentLang === 'uk' ? 'ru' : 'uk'); });
-        document.querySelectorAll('.menu-btn').forEach(btn => { btn.addEventListener('click', () => switchScreen(btn.dataset.screen)); });
-
-        loadLanguage(); renderShop(); renderAchievements(); load(); updateStats();
+        loadLang(); renderShop(); renderAch(); load(); updateStats();
     })();
     </script>
 </body>
