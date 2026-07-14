@@ -19,16 +19,32 @@
             min-height: 100vh; min-height: 100dvh;
             padding: 16px; -webkit-user-select: none; user-select: none;
         }
-        .c { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 24px; width: 100%; max-width: 400px; }
+        .c { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 24px; width: 100%; max-width: 400px; position: relative; }
         h1 { font-size: 22px; font-weight: 700; margin-bottom: 4px; text-align: center; }
         .sub { text-align: center; font-size: 11px; color: var(--text-sec); margin-bottom: 20px; letter-spacing: 1px; }
         .bal { text-align: center; font-size: 24px; font-weight: 700; margin-bottom: 20px; padding: 10px; background: var(--surface-2); border-radius: 6px; }
-        .menu { display: flex; gap: 4px; margin-bottom: 20px; background: var(--surface-2); border-radius: 6px; padding: 4px; }
-        .mb { flex: 1; padding: 10px 4px; border: none; background: transparent; color: var(--text-sec); font-size: 12px; font-weight: 500; border-radius: 4px; cursor: pointer; transition: 0.2s; }
-        .mb.on { background: var(--text); color: var(--bg); font-weight: 600; }
+        /* Кнопка меню */
+        .menu-btn {
+            position: absolute; top: 16px; left: 16px;
+            background: var(--surface-2); border: 1px solid var(--border); color: var(--text);
+            padding: 8px 12px; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer;
+            z-index: 10;
+        }
+        .menu-dropdown {
+            display: none; position: absolute; top: 48px; left: 16px;
+            background: var(--surface-2); border: 1px solid var(--border); border-radius: 6px;
+            padding: 8px 0; min-width: 160px; z-index: 20;
+        }
+        .menu-dropdown button {
+            display: block; width: 100%; background: none; border: none; color: var(--text);
+            padding: 10px 16px; text-align: left; font-size: 14px; cursor: pointer;
+        }
+        .menu-dropdown button:hover { background: var(--border); }
+        .menu-dropdown.show { display: block; }
+
         .sc { display: none; animation: fi 0.2s ease; } .sc.on { display: block; }
         @keyframes fi { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-        .tr { display: flex; gap: 8px; margin-bottom: 16px; }
+        .tr { display: flex; gap: 8px; margin-bottom: 16px; justify-content: flex-end; }
         .bs { flex: 1; padding: 10px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 6px; color: var(--text-sec); font-size: 12px; font-weight: 500; cursor: pointer; text-align: center; }
         .bs:active { background: var(--border); }
         .disp { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 24px 16px; margin-bottom: 16px; text-align: center; }
@@ -64,8 +80,8 @@
         .card.legendary { border-left-color: var(--c-legendary); } .card.platinum { border-left-color: var(--c-platinum); }
         .card.mythic { border-left-color: var(--c-mythic); } .card.forbidden { border-left-color: var(--c-forbidden); animation: g 0.4s infinite; }
         @keyframes g { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-        .cc { position: absolute; top: 6px; right: 6px; font-size: 11px; font-weight: 600; color: var(--text-2); }
-        .cs { font-size: 10px; color: var(--text-sec); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+        .cc { position: absolute; top: 6px; right: 6px; font-size: 11px; font-weight: 600; color: var(--text-2); background: rgba(0,0,0,0.7); padding: 2px 6px; border-radius: 4px; }
+        .cs { font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
         .bs-card { width: 100%; background: var(--surface-2); color: var(--text-sec); border: 1px solid var(--border); padding: 6px; border-radius: 4px; font-size: 11px; font-weight: 500; cursor: pointer; position: relative; }
         .bs-card:active { background: var(--border); }
         .sp { position: absolute; left: 50%; bottom: 100%; transform: translateX(-50%); background: var(--bg); color: var(--text); padding: 2px 6px; border-radius: 4px; font-size: 11px; border: 1px solid var(--border); white-space: nowrap; opacity: 0; animation: sp 1s ease-out; }
@@ -89,15 +105,18 @@
 </head>
 <body>
     <div class="c">
-        <h1>PhoneClicker</h1>
-        <div class="sub">MINIMAL v1.0</div>
-        <div class="bal" id="balanceDisplay">0</div>
-        <div class="menu">
-            <button class="mb on" data-screen="main">Игра</button>
-            <button class="mb" data-screen="inv">Инвентарь</button>
-            <button class="mb" data-screen="shop">Магазин</button>
-            <button class="mb" data-screen="ach">Ачивки</button>
+        <!-- Кнопка меню -->
+        <button class="menu-btn" id="menuBtn">☰ Меню</button>
+        <div class="menu-dropdown" id="menuDropdown">
+            <button data-screen="main">🎮 Игра</button>
+            <button data-screen="inv">📦 Инвентарь</button>
+            <button data-screen="shop">🛒 Магазин</button>
+            <button data-screen="ach">🏆 Ачивки</button>
         </div>
+
+        <h1>PhoneClicker</h1>
+        <div class="sub">MINIMAL v1.2</div>
+        <div class="bal" id="balanceDisplay">0</div>
 
         <div class="sc on" id="screenMain">
             <div class="tr">
@@ -139,10 +158,6 @@
         const t = k => L[lang]?.[k] || k;
         const setLang = l => { lang = l; localStorage.setItem('pc_min_l', l); updateUI(); renderInv(); renderShop(); renderAch(); };
         const updateUI = () => {
-            document.querySelector('[data-screen="main"]').textContent = t('play');
-            document.querySelector('[data-screen="inv"]').textContent = t('inv');
-            document.querySelector('[data-screen="shop"]').textContent = t('shop');
-            document.querySelector('[data-screen="ach"]').textContent = t('ach');
             document.getElementById('resetBtn').textContent = t('reset');
             document.querySelector('.tl').textContent = t('getPhoneLabel');
             document.getElementById('rollBasicBtn').textContent = tAct ? t('waiting') : t('openBtn');
@@ -150,6 +165,14 @@
             const pm = document.getElementById('phoneName').textContent;
             const ml = document.getElementById('phoneModel');
             ml.textContent = pm === '???' ? t('defModel') : (PHONE_MAP[pm] ? `${getRarity(PHONE_MAP[pm].rarity)} • ${PHONE_MAP[pm].year}` : '');
+            // Обновим пункты меню
+            const menuItems = document.querySelectorAll('.menu-dropdown button');
+            if (menuItems.length) {
+                menuItems[0].textContent = `🎮 ${t('play')}`;
+                menuItems[1].textContent = `📦 ${t('inv')}`;
+                menuItems[2].textContent = `🛒 ${t('shop')}`;
+                menuItems[3].textContent = `🏆 ${t('ach')}`;
+            }
         };
         const loadLang = () => { const s = localStorage.getItem('pc_min_l'); if (s === 'uk' || s === 'ru') lang = s; updateUI(); };
         
@@ -195,7 +218,6 @@
         const CHANCES = { rare: 46, epic: 26, legendary: 15, mythic: 7, platinum: 2, forbidden: 4 };
         const COOLDOWN = 20, CASE_PRICE = 100, SAVE_KEY = 'pc_min_s1';
 
-        // Достижения
         const ACHIEVEMENTS = [
             { id: "first_roll", name: {ru:"Первый телефон", uk:"Перший телефон"}, desc: {ru:"Открыть телефон впервые", uk:"Відкрити телефон вперше"}, icon: "📱", check: s => s.totalOpened >= 1 },
             { id: "roll_10",    name: {ru:"Коллекционер", uk:"Колекціонер"}, desc: {ru:"Открыть 10 телефонов", uk:"Відкрити 10 телефонів"}, icon: "📦", check: s => s.totalOpened >= 10 },
@@ -212,18 +234,17 @@
 
         let collection = {}, totalOpened = 0, totalSold = 0, balance = 0, cases = 0, unlockedAch = [];
         let timerRemaining = 0, timerStart = 0, timerActive = false, timerId = null;
-        // Для совместимости с глобальным tAct
         let tAct = false;
 
         const $ = id => document.getElementById(id);
-        // Глобальный el для удобства
         const el = {
             phoneImage: $('phoneImage'), phoneName: $('phoneName'), phoneModel: $('phoneModel'),
             timerBasic: $('timerBasic'), rollBasicBtn: $('rollBasicBtn'),
             totalOpened: $('totalOpened'), uniquePhones: $('uniquePhones'), bestRarity: $('bestRarity'), totalSold: $('totalSold'),
             balanceDisplay: $('balanceDisplay'), inventoryList: $('inventoryList'), achList: $('achList'), shopList: $('shopList'),
             screenMain: $('screenMain'), screenInv: $('screenInv'), screenShop: $('screenShop'), screenAch: $('screenAch'),
-            resetBtn: $('resetBtn'), langBtn: $('langBtn'), phoneDisplay: $('phoneDisplay')
+            resetBtn: $('resetBtn'), langBtn: $('langBtn'), phoneDisplay: $('phoneDisplay'),
+            menuBtn: $('menuBtn'), menuDropdown: $('menuDropdown')
         };
 
         const fmt = s => `${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
@@ -242,14 +263,17 @@
             el.rollBasicBtn.textContent = timerActive ? t('waiting') : t('openBtn');
         };
 
-        const switchScreen = s => {
+        const switchScreen = (s) => {
             document.querySelectorAll('.sc').forEach(e => e.classList.remove('on'));
-            document.querySelectorAll('.mb').forEach(e => e.classList.remove('on'));
             const map = { main: el.screenMain, inv: el.screenInv, shop: el.screenShop, ach: el.screenAch };
-            if (map[s]) { map[s].classList.add('on'); document.querySelector(`[data-screen="${s}"]`).classList.add('on'); }
+            if (map[s]) {
+                map[s].classList.add('on');
+            }
             if (s === 'inv') renderInv();
             if (s === 'shop') renderShop();
             if (s === 'ach') renderAch();
+            // Закрываем меню
+            el.menuDropdown.classList.remove('show');
         };
 
         const applyDisplay = phone => {
@@ -297,12 +321,7 @@
             }
             
             const hasCommon = Object.keys(collection).some(n => collection[n] > 0 && PHONE_MAP[n]?.rarity === 'common');
-            h += `<div class="ih">
-                <button class="sbt ${sort==='default'?'on':''}" data-sort="default">${t('sortDef')}</button>
-                <button class="sbt ${sort==='rarity'?'on':''}" data-sort="rarity">${t('sortRar')}</button>
-                <button class="sbt ${sort==='count'?'on':''}" data-sort="count">${t('sortCnt')}</button>
-                ${hasCommon ? `<button class="sa" id="sellAllBtn">${t('sellAll')}</button>` : ''}
-            </div>`;
+            h += `<div class="ih"><button class="sbt ${sort==='default'?'on':''}" data-sort="default">${t('sortDef')}</button><button class="sbt ${sort==='rarity'?'on':''}" data-sort="rarity">${t('sortRar')}</button><button class="sbt ${sort==='count'?'on':''}" data-sort="count">${t('sortCnt')}</button>${hasCommon?`<button class="sa" id="sellAllBtn">${t('sellAll')}</button>`:''}</div>`;
 
             let keys = Object.keys(collection).filter(n => collection[n] > 0 && PHONE_MAP[n]);
             if (sort === 'rarity') keys.sort((a,b) => RARITY[PHONE_MAP[a].rarity].tier - RARITY[PHONE_MAP[b].rarity].tier);
@@ -313,8 +332,7 @@
                 h += `<div class="grid">`;
                 for (const n of keys) {
                     const count = collection[n], phone = PHONE_MAP[n], r = RARITY[phone.rarity];
-                    const rarityClass = phone.rarity; // напрямую используем ключ редкости
-                    h += `<div class="card ${rarityClass}">
+                    h += `<div class="card ${phone.rarity}">
                         ${count > 1 ? `<span class="cc">x${count}</span>` : ''}
                         <img class="ci2" src="${esc(phone.image)}" alt="">
                         <div class="cn">${esc(n)}</div>
@@ -408,11 +426,24 @@
             startTimer(COOLDOWN);
         };
 
-        // Инициализация обработчиков
+        // Обработчики меню
+        el.menuBtn.addEventListener('click', () => el.menuDropdown.classList.toggle('show'));
+        el.menuDropdown.querySelectorAll('button').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const screen = btn.dataset.screen;
+                if (screen) switchScreen(screen);
+            });
+        });
+        // Закрываем меню при клике вне
+        document.addEventListener('click', (e) => {
+            if (!el.menuBtn.contains(e.target) && !el.menuDropdown.contains(e.target)) {
+                el.menuDropdown.classList.remove('show');
+            }
+        });
+
         el.rollBasicBtn.addEventListener('click', rollBasic);
         el.resetBtn.addEventListener('click', resetGame);
         el.langBtn.addEventListener('click', () => setLang(lang === 'uk' ? 'ru' : 'uk'));
-        document.querySelectorAll('.mb').forEach(b => b.addEventListener('click', () => switchScreen(b.dataset.screen)));
 
         loadLang(); renderShop(); renderAch(); load(); updateStats();
     })();
