@@ -27,20 +27,30 @@
             position: absolute; top: 16px; left: 16px;
             background: var(--surface-2); border: 1px solid var(--border); color: var(--text);
             padding: 8px 12px; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer;
-            z-index: 10; display: none; /* Скрыта на стартовом экране */
+            z-index: 10; display: none;
         }
-        .menu-dropdown {
-            display: none; position: absolute; top: 48px; left: 16px;
-            background: var(--surface-2); border: 1px solid var(--border); border-radius: 6px;
-            padding: 8px 0; min-width: 160px; z-index: 20;
+        /* Оверлей меню */
+        .overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center;
+            z-index: 100;
         }
-        .menu-dropdown button {
-            display: block; width: 100%; background: none; border: none; color: var(--text);
-            padding: 10px 16px; text-align: left; font-size: 14px; cursor: pointer;
+        .overlay.show { display: flex; }
+        .overlay-content {
+            background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+            padding: 24px; width: 90%; max-width: 320px; text-align: center;
         }
-        .menu-dropdown button:hover { background: var(--border); }
-        .menu-dropdown.show { display: block; }
-
+        .overlay-content button {
+            display: block; width: 100%; margin-bottom: 12px; padding: 14px;
+            background: var(--surface-2); border: 1px solid var(--border); color: var(--text);
+            font-size: 16px; border-radius: 6px; cursor: pointer;
+        }
+        .overlay-content button:last-child { margin-bottom: 0; }
+        .overlay-content button:hover { background: var(--border); }
+        .close-btn {
+            background: transparent; color: var(--text-sec); border: none; font-size: 24px;
+            position: absolute; top: 10px; right: 16px; cursor: pointer;
+        }
         .sc { display: none; animation: fi 0.2s ease; } .sc.on { display: block; }
         @keyframes fi { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
         .tr { display: flex; gap: 8px; margin-bottom: 16px; justify-content: flex-end; }
@@ -106,7 +116,13 @@
         .start-logo { font-size: 64px; margin-bottom: 16px; }
         .start-title { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
         .start-version { font-size: 14px; color: var(--text-sec); margin-bottom: 32px; }
-        .start-btn { padding: 14px 40px; border: none; border-radius: 6px; font-size: 16px; font-weight: 600; cursor: pointer; background: var(--text); color: var(--bg); }
+        .start-btn { padding: 14px 40px; border: none; border-radius: 6px; font-size: 16px; font-weight: 600; cursor: pointer; background: var(--text); color: var(--bg); margin-bottom: 12px; width: 200px; }
+        .settings-btn { padding: 10px 30px; border: 1px solid var(--border); border-radius: 6px; background: transparent; color: var(--text-sec); font-size: 14px; cursor: pointer; }
+        .settings-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 200; }
+        .settings-overlay.show { display: flex; }
+        .settings-content { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; width: 90%; max-width: 320px; text-align: center; }
+        .settings-content h2 { margin-bottom: 16px; }
+        .settings-content button { margin: 8px 0; }
     </style>
 </head>
 <body>
@@ -116,23 +132,40 @@
             <div class="start-screen">
                 <div class="start-logo">📱</div>
                 <div class="start-title">PhoneClicker</div>
-                <div class="start-version">MINIMAL v1.3</div>
+                <div class="start-version">MINIMAL v1.4</div>
                 <button class="start-btn" id="playBtn">Играть</button>
+                <button class="settings-btn" id="startSettingsBtn">Настройки</button>
             </div>
         </div>
 
         <!-- Игровые экраны (изначально скрыты) -->
         <div class="sc" id="gameContainer">
             <button class="menu-btn" id="menuBtn">☰ Меню</button>
-            <div class="menu-dropdown" id="menuDropdown">
-                <button data-screen="main">🎮 Игра</button>
-                <button data-screen="inv">📦 Инвентарь</button>
-                <button data-screen="shop">🛒 Магазин</button>
-                <button data-screen="ach">🏆 Ачивки</button>
+
+            <!-- Полноэкранное меню -->
+            <div class="overlay" id="menuOverlay">
+                <div class="overlay-content">
+                    <button class="close-btn" id="closeMenuBtn">&times;</button>
+                    <h2 style="margin-bottom:20px;">Меню</h2>
+                    <button data-screen="main">🎮 Игра</button>
+                    <button data-screen="inv">📦 Инвентарь</button>
+                    <button data-screen="shop">🛒 Магазин</button>
+                    <button data-screen="ach">🏆 Ачивки</button>
+                </div>
+            </div>
+
+            <!-- Настройки внутри игры (вызывается из стартового экрана или из меню) -->
+            <div class="settings-overlay" id="settingsOverlay">
+                <div class="settings-content">
+                    <h2>Настройки</h2>
+                    <button id="langToggleBtn">Язык: RU</button>
+                    <button id="resetProgressBtn">Сбросить прогресс</button>
+                    <button id="closeSettingsBtn">Закрыть</button>
+                </div>
             </div>
 
             <h1>PhoneClicker</h1>
-            <div class="sub">MINIMAL v1.3</div>
+            <div class="sub">MINIMAL v1.4</div>
             <div class="bal" id="balanceDisplay">0</div>
 
             <div class="sc on" id="screenMain">
@@ -180,16 +213,10 @@
             document.querySelector('.tl').textContent = t('getPhoneLabel');
             document.getElementById('rollBasicBtn').textContent = tAct ? t('waiting') : t('openBtn');
             document.getElementById('langBtn').textContent = lang === 'uk' ? 'UA' : 'RU';
+            document.getElementById('langToggleBtn').textContent = `Язык: ${lang === 'uk' ? 'UA' : 'RU'}`;
             const pm = document.getElementById('phoneName').textContent;
             const ml = document.getElementById('phoneModel');
             ml.textContent = pm === '???' ? t('defModel') : (PHONE_MAP[pm] ? `${getRarity(PHONE_MAP[pm].rarity)} • ${PHONE_MAP[pm].year}` : '');
-            const menuItems = document.querySelectorAll('.menu-dropdown button');
-            if (menuItems.length) {
-                menuItems[0].textContent = `🎮 ${t('play')}`;
-                menuItems[1].textContent = `📦 ${t('inv')}`;
-                menuItems[2].textContent = `🛒 ${t('shop')}`;
-                menuItems[3].textContent = `🏆 ${t('ach')}`;
-            }
         };
         const loadLang = () => { const s = localStorage.getItem('pc_min_l'); if (s === 'uk' || s === 'ru') lang = s; updateUI(); };
         
@@ -261,8 +288,10 @@
             balanceDisplay: $('balanceDisplay'), inventoryList: $('inventoryList'), achList: $('achList'), shopList: $('shopList'),
             screenMain: $('screenMain'), screenInv: $('screenInv'), screenShop: $('screenShop'), screenAch: $('screenAch'),
             resetBtn: $('resetBtn'), langBtn: $('langBtn'), phoneDisplay: $('phoneDisplay'),
-            menuBtn: $('menuBtn'), menuDropdown: $('menuDropdown'),
-            startScreen: $('startScreen'), gameContainer: $('gameContainer'), playBtn: $('playBtn')
+            menuBtn: $('menuBtn'), menuOverlay: $('menuOverlay'), closeMenuBtn: $('closeMenuBtn'),
+            startScreen: $('startScreen'), gameContainer: $('gameContainer'), playBtn: $('playBtn'),
+            startSettingsBtn: $('startSettingsBtn'), settingsOverlay: $('settingsOverlay'),
+            langToggleBtn: $('langToggleBtn'), resetProgressBtn: $('resetProgressBtn'), closeSettingsBtn: $('closeSettingsBtn')
         };
 
         const fmt = s => `${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
@@ -290,7 +319,7 @@
             if (s === 'inv') renderInv();
             if (s === 'shop') renderShop();
             if (s === 'ach') renderAch();
-            el.menuDropdown.classList.remove('show');
+            el.menuOverlay.classList.remove('show'); // закрываем меню
         };
 
         const applyDisplay = phone => {
@@ -443,33 +472,42 @@
             startTimer(COOLDOWN);
         };
 
-        // Обработчики меню
-        el.menuBtn.addEventListener('click', () => el.menuDropdown.classList.toggle('show'));
-        el.menuDropdown.querySelectorAll('button').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const screen = btn.dataset.screen;
-                if (screen) switchScreen(screen);
-            });
+        // Меню
+        el.menuBtn.addEventListener('click', () => el.menuOverlay.classList.add('show'));
+        el.closeMenuBtn.addEventListener('click', () => el.menuOverlay.classList.remove('show'));
+        el.menuOverlay.addEventListener('click', (e) => { if (e.target === el.menuOverlay) el.menuOverlay.classList.remove('show'); });
+        document.querySelectorAll('#menuOverlay button[data-screen]').forEach(btn => {
+            btn.addEventListener('click', () => switchScreen(btn.dataset.screen));
         });
-        document.addEventListener('click', (e) => {
-            if (!el.menuBtn.contains(e.target) && !el.menuDropdown.contains(e.target)) {
-                el.menuDropdown.classList.remove('show');
+
+        // Настройки (вызов из стартового экрана)
+        el.startSettingsBtn.addEventListener('click', () => el.settingsOverlay.classList.add('show'));
+        el.closeSettingsBtn.addEventListener('click', () => el.settingsOverlay.classList.remove('show'));
+        el.settingsOverlay.addEventListener('click', (e) => { if (e.target === el.settingsOverlay) el.settingsOverlay.classList.remove('show'); });
+        el.langToggleBtn.addEventListener('click', () => {
+            setLang(lang === 'uk' ? 'ru' : 'uk');
+            el.langToggleBtn.textContent = `Язык: ${lang === 'uk' ? 'UA' : 'RU'}`;
+        });
+        el.resetProgressBtn.addEventListener('click', () => {
+            if (confirm(t('confirmReset'))) {
+                resetGame();
+                el.settingsOverlay.classList.remove('show');
+                // После сброса, возможно, вернуть на стартовый экран? Лучше просто сбросить и остаться в игре, но так как настройки могут быть вызваны из игры, то всё нормально.
             }
+        });
+
+        // Запуск игры
+        el.playBtn.addEventListener('click', () => {
+            el.startScreen.classList.remove('on');
+            el.gameContainer.classList.add('on');
+            el.menuBtn.style.display = 'block';
         });
 
         el.rollBasicBtn.addEventListener('click', rollBasic);
         el.resetBtn.addEventListener('click', resetGame);
         el.langBtn.addEventListener('click', () => setLang(lang === 'uk' ? 'ru' : 'uk'));
 
-        // Запуск игры со стартового экрана
-        el.playBtn.addEventListener('click', () => {
-            el.startScreen.classList.remove('on');
-            el.gameContainer.classList.add('on');
-            el.menuBtn.style.display = 'block'; // показываем кнопку меню
-        });
-
         loadLang(); renderShop(); renderAch(); load(); updateStats();
-        // На старте показываем только заставку
         el.gameContainer.classList.remove('on');
         el.startScreen.classList.add('on');
         el.menuBtn.style.display = 'none';
