@@ -1,268 +1,907 @@
-  <!DOCTYPE html>
-  <html lang="ru">
-  <head>
-  <meta charset="UTF-8">
-  <title>Телефон‑кликер (минималка)</title>
-  <style>
-    :root{
-      --bg:#1e1e2f;
-      --panel:#2a2a40;
-      --text:#e0e0ff;
-      --common:#8bc34a;
-      --uncommon:#4fc3f7;
-      --rare:#9575cd;
-      --epic:#ff9800;
-      --legendary:#ff5252;
-    }
-    *{box-sizing:border-box;margin:0;padding:0}
-    body{
-      font-family:Arial,Helvetica,sans-serif;
-      background:var(--bg);
-      color:var(--text);
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      min-height:100vh;
-      padding:20px
-    }
-    h1{margin-bottom:1rem}
-    #game{
-      background:var(--panel);
-      border-radius:12px;
-      padding:20px;
-      width:100%;max-width:420px
-    }
-    #clickBtn{
-      font-size:1.5rem;
-      padding:12px 24px;
-      cursor:pointer;
-      background:#4caf50;
-      border:none;
-      border-radius:6px;
-      color:#fff;
-      transition:background .2s
-    }
-    #clickBtn:hover{background:#45a049}
-    #clickBtn:active{transform:scale(.97)}
-    #dropZone{
-      margin-top:20px;
-      min-height:120px;
-      text-align:center;
-      font-size:1.2rem;
-      color:#aaa
-    }
-    .card{
-      display:inline-block;
-      margin:8px;
-      width:70px;height:110px;
-      border-radius:8px;
-      overflow:hidden;
-      transition:transform .2s;
-      border:3px solid transparent
-    }
-    .card img{width:100%;height:100%;object-fit:cover}
-    .common   {border-color:var(--common)}
-    .uncommon {border-color:var(--uncommon)}
-    .rare     {border-color:var(--rare)}
-    .epic     {border-color:var(--epic)}
-    .legendary{border-color:var(--legendary)}
-    .stats{display:flex;justify-content:space-between;margin-top:1rem;font-size:.9rem}
-    #inventory{margin-top:1.5rem;display:flex;flex-wrap:wrap;justify-content:center}
-    .achievements{margin-top:1.5rem;max-height:150px;overflow-y:auto}
-    .ach{border-top:1px solid #444;padding:4px 0;font-size:.85rem;color:#bbb}
-    .ach.earned{color:var(--common)}
-    #toast{
-      position:fixed;bottom:20px;right:20px;
-      background:#333;color:#fff;padding:10px 18px;
-      border-radius:6px;opacity:0;transform:translateY(20px);
-      transition:opacity .3s,transform .3s
-    }
-    #toast.show{opacity:1;transform:translateY(0)}
-  </style>
-  </head>
-  <body>
-  <h1>Телефон‑кликер</h1>
-  <div id="game">
-    <button id="clickBtn">📱 Нажать кнопку</button>
-    <div id="dropZone">Здесь появятся карточки</div>
-    <div class="stats">
-      <span>Монеты: <span id="coinCount">0</span></span>
-      <span>Кликов: <span id="clickCount">0</span></span>
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>phone.rng</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0a0a; --surface:#161616; --surface-2:#1c1c1c;
+  --border:#232323; --border-hi:#333;
+  --fg:#f0f0f0; --fg-dim:#888; --fg-muted:#555;
+  --gold:#fbbf24;
+  --common:#9ca3af; --uncommon:#22c55e; --rare:#3b82f6;
+  --epic:#a855f7; --legendary:#f59e0b; --mythic:#ef4444; --secret:#06b6d4;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{background:var(--bg);color:var(--fg);font-family:'Space Grotesk',sans-serif;min-height:100vh;overflow-x:hidden}
+body{background:radial-gradient(ellipse 80% 50% at 50% -10%, rgba(255,255,255,0.04), transparent), var(--bg)}
+.mono{font-family:'JetBrains Mono',monospace}
+.container{max-width:1400px;margin:0 auto;padding:20px;position:relative}
+
+header{display:flex;align-items:center;justify-content:space-between;padding:18px 0;margin-bottom:8px;border-bottom:1px solid var(--border);gap:16px}
+.logo-mark{font-weight:700;font-size:22px;letter-spacing:-0.5px}
+.logo-mark span{color:var(--fg-dim)}
+.logo-dot{width:6px;height:6px;border-radius:50%;background:var(--gold);display:inline-block;margin:0 2px;animation:dotPulse 2s ease infinite;vertical-align:middle;cursor:pointer;}
+@keyframes dotPulse{50%{opacity:0.3}}
+.header-stats{display:flex;gap:16px;align-items:center}
+.h-stat{display:flex;flex-direction:column;align-items:flex-end;gap:2px}
+.h-stat-label{font-size:10px;color:var(--fg-muted);letter-spacing:1px;text-transform:uppercase}
+.h-stat-val{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:16px}
+.h-stat-val.gold{color:var(--gold)}
+.coins-wrap{display:flex;align-items:center;gap:6px}
+
+.header-actions { display: flex; gap: 8px; }
+.menu-btn{
+  background:transparent; color:var(--fg);
+  border:1px solid var(--border-hi);
+  padding:10px 18px; border-radius:8px; cursor:pointer;
+  font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:13px;
+  letter-spacing:1px; transition:all 0.2s; text-transform:uppercase;
+  display:flex; align-items:center; gap:6px;
+}
+.menu-btn:hover{border-color:var(--fg); background:var(--surface)}
+.menu-btn:active { transform: scale(0.96); }
+.icon-btn { padding: 10px 12px; }
+
+.menu-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);z-index:400;opacity:0;pointer-events:none;transition:opacity 0.3s}
+.menu-backdrop.active{opacity:1;pointer-events:auto}
+.menu-drawer{position:fixed;top:0;right:0;height:100vh;width:100%;max-width:520px;background:var(--bg);z-index:500;transform:translateX(100%);transition:transform 0.3s cubic-bezier(0.4,0,0.2,1);overflow-y:auto;padding:24px;border-left:1px solid var(--border)}
+.menu-drawer.active{transform:translateX(0)}
+.menu-drawer::-webkit-scrollbar { width: 6px; }
+.menu-drawer::-webkit-scrollbar-track { background: var(--bg); }
+.menu-drawer::-webkit-scrollbar-thumb { background: var(--border-hi); border-radius: 3px; }
+.menu-drawer::-webkit-scrollbar-thumb:hover { background: var(--fg-muted); }
+
+.menu-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;border-bottom:1px solid var(--border);padding-bottom:16px}
+.menu-title{font-weight:700;font-size:18px;letter-spacing:1px;text-transform:uppercase}
+.menu-close{background:var(--surface);border:1px solid var(--border-hi);color:var(--fg);width:36px;height:36px;border-radius:8px;cursor:pointer;font-size:14px;transition:all 0.2s}
+.menu-close:hover{background:var(--mythic);border-color:var(--mythic);color:#fff}
+
+main{padding:24px 0}
+
+.roll-section{margin-bottom:32px; text-align:center}
+.roll-btn{
+  background:var(--fg);color:var(--bg);border:none;
+  padding:18px 64px;border-radius:8px;
+  font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:16px;letter-spacing:2px;
+  cursor:pointer;transition:transform 0.1s, opacity 0.2s;text-transform:uppercase;
+}
+.roll-btn:hover:not(:disabled){opacity:0.85}
+.roll-btn:active:not(:disabled){transform:scale(0.97)}
+.roll-btn:disabled{opacity:0.3;cursor:not-allowed}
+.roll-btn small{display:block;font-size:10px;font-weight:500;opacity:0.8;margin-top:2px;letter-spacing:0.5px}
+
+.result-section{margin-bottom:32px;min-height:320px}
+.result-empty{display:flex;align-items:center;justify-content:center;height:320px;color:var(--fg-muted);font-size:13px;letter-spacing:1px;border:1px dashed var(--border);border-radius:8px}
+.result-card{display:none;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;position:relative;overflow:hidden}
+.result-card.active{display:grid;grid-template-columns:auto 1fr auto;gap:24px;align-items:center;animation:cardPop 0.4s cubic-bezier(0.2, 0.8, 0.2, 1.2)}
+@keyframes cardPop{0%{transform:scale(0.8);opacity:0}100%{transform:scale(1);opacity:1}}
+.result-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--rarity-c)}
+.result-card.glow::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at left, var(--rarity-c), transparent 70%);opacity:0.08;pointer-events:none}
+
+.result-card.epic-reveal { animation: epicCardPop 1s cubic-bezier(0.2, 0.8, 0.2, 1.2); }
+@keyframes epicCardPop {
+  0% { transform: scale(0.9); opacity: 0; filter: brightness(0); }
+  40% { transform: scale(1.02); opacity: 0.8; filter: brightness(2); }
+  60% { transform: scale(0.99); filter: brightness(1.5); }
+  100% { transform: scale(1); opacity: 1; filter: brightness(1); }
+}
+
+.scan-overlay { display: none; position: absolute; left: 0; right: 0; pointer-events: none; z-index: 0; }
+.result-card.active .scan-overlay, .modal-overlay.active .modal-content .scan-overlay { display: block; }
+.result-card .scan-overlay { top: 50%; transform: translateY(-50%); height: 360px; }
+.modal-content .scan-overlay { top: 32px; height: 340px; }
+.scan-overlay .line-top, .scan-overlay .line-bottom {
+  position: absolute;
+  left: 0; right: 0;
+  height: 2px;
+  background: var(--rarity-c);
+  box-shadow: 0 0 15px var(--rarity-c);
+  opacity: 0.9;
+}
+.scan-overlay .line-top { top: 0; }
+.scan-overlay .line-bottom { bottom: 0; }
+
+.result-phone-wrap{width:220px;height:360px;display:grid;place-items:center;position:relative; z-index: 1;}
+.result-phone-glow{position:absolute;width:280px;height:280px;border-radius:50%;background:var(--rarity-c);filter:blur(70px);opacity:0.4; z-index: -1;}
+.result-card.epic-reveal .result-phone-glow { animation: glowPulse 2s ease-in-out infinite; }
+@keyframes glowPulse { 0%, 100% { opacity: 0.3; transform: scale(1); } 50% { opacity: 0.6; transform: scale(1.1); } }
+.result-phone-wrap img{max-width:100%;max-height:360px;width:auto;height:auto;object-fit:contain;filter:drop-shadow(0 10px 20px rgba(0,0,0,0.6)) drop-shadow(0 0 15px var(--rarity-c));display:block;z-index:1;}
+
+.result-info{flex:1; z-index: 1; position: relative;}
+.result-rarity{font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--rarity-c);margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.result-rarity::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--rarity-c);box-shadow:0 0 8px var(--rarity-c)}
+.result-name{font-size:32px;font-weight:700;letter-spacing:-0.5px;margin-bottom:6px;line-height:1}
+.result-meta{color:var(--fg-dim);font-size:13px;margin-bottom:18px}
+.result-meta span{margin-right:14px}
+.result-specs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.spec-pill{background:var(--surface-2);border:1px solid var(--border);padding:6px 12px;border-radius:6px;font-size:11px}
+.spec-pill b{color:var(--fg-dim);font-weight:500;margin-right:6px}
+.result-actions{display:flex;flex-direction:column;gap:8px;align-items:stretch; min-width:160px;z-index: 1; position: relative;} 
+.action-btn{
+  background:var(--surface-2);border:1px solid var(--border-hi);color:var(--gold);
+  padding:12px 16px;border-radius:6px;cursor:pointer;
+  font-family:'JetBrains Mono',monospace;font-weight:700;font-size:13px;
+  transition:all 0.2s;white-space:nowrap;text-align:center; width:100%;
+}
+.action-btn:hover:not(:disabled){background:var(--gold);color:var(--bg)}
+.action-btn:active:not(:disabled) { transform: scale(0.96); }
+.action-btn:disabled{opacity:0.3;cursor:not-allowed}
+.action-btn.keep{color:var(--fg);border-color:var(--border)}
+.action-btn.keep:hover:not(:disabled){background:var(--fg);color:var(--bg)}
+
+.tabs{display:grid;grid-template-columns: repeat(4, 1fr); gap:4px; border-bottom:1px solid var(--border); margin-bottom:20px; background:var(--surface); padding:4px; border-radius:8px;}
+.tab{background:transparent;border:none;color:var(--fg-dim);padding:10px 4px;cursor:pointer;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:12px;letter-spacing:0.5px;position:relative;transition:all 0.2s;text-transform:uppercase;text-align:center;border-radius:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.tab:hover{color:var(--fg); background:var(--surface-2)}
+.tab.active{color:var(--bg); background:var(--fg)}
+.tab-count{background:var(--surface-2);color:var(--fg-dim);font-size:9px;padding:2px 5px;border-radius:4px;margin-left:4px;font-family:'JetBrains Mono',monospace}
+.tab.active .tab-count{background:var(--bg);color:var(--fg)}
+.tab-content{display:none}
+.tab-content.active{display:block}
+
+.grid-2{display:grid;grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));gap:12px;justify-items:center;}
+.inv-header {display: flex; justify-content: space-between; align-items: center;margin-bottom: 16px; padding: 12px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px;}
+.inv-info { font-size: 13px; color: var(--fg-dim); font-weight: 500; }
+.sell-all-btn {background: transparent; border: 1px solid color-mix(in srgb, var(--mythic) 40%, var(--border-hi));color: var(--mythic); padding: 8px 16px; border-radius: 6px; font-weight: 700; cursor: pointer;transition: 0.2s; text-transform: uppercase; font-size: 11px; font-family: 'JetBrains Mono', monospace;}
+.sell-all-btn:hover:not(:disabled) { background: var(--mythic); color: #fff; }
+.sell-all-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+.item-card{background:var(--surface); border:1px solid var(--border);border-radius:12px; padding:16px 12px;display:flex; flex-direction:column; align-items:center; text-align:center; position:relative; transition:transform 0.2s, box-shadow 0.2s, border-color 0.2s;overflow:hidden;width: 100%; max-width: 220px; min-height: 380px; }
+.item-card:hover {transform:translateY(-4px);box-shadow:0 10px 25px rgba(0,0,0,0.4);border-color:var(--border-hi);}
+.item-card.owned {border-color:color-mix(in srgb, var(--rarity-c) 40%, var(--border));}
+.item-card.owned::before {content:''; position:absolute; top:0; left:0; right:0; height:3px; background:var(--rarity-c); box-shadow:0 0 12px var(--rarity-c);}
+.item-img-box{width:100%; height:240px; display:flex; align-items:center;justify-content:center;margin-bottom:12px; background: transparent; border-radius:8px; border: none;position:relative;overflow:hidden;cursor: pointer;}
+.item-img-box:hover { background: transparent; }
+.item-img-box img{max-width: 100%; max-height: 240px;width: auto;height: auto;object-fit: contain; filter: drop-shadow(0 6px 12px rgba(0,0,0,0.6));pointer-events: none; transition: transform 0.3s;}
+.item-img-box:hover img { transform: scale(1.05); }
+.case-icon{font-size:64px; color:var(--rarity-c); filter:drop-shadow(0 0 12px var(--rarity-c));}
+.item-name{ font-size:14px; font-weight:600; margin-bottom:4px;cursor: pointer;}
+.item-name:hover { text-decoration: underline; }
+.item-sub{ font-size:10px; color:var(--rarity-c); text-transform:uppercase; letter-spacing:1px; margin-bottom:12px; font-weight:600;}
+.item-count{position:absolute; top:10px; right:10px; background:var(--rarity-c); color:#000; font-size:11px; font-weight:700; padding:3px 8px; border-radius:6px; font-family:'JetBrains Mono',monospace;z-index:2;}
+.item-btn{width:100%; background:var(--surface-2); border:1px solid var(--border-hi); color:var(--fg); padding:10px; border-radius:8px; cursor:pointer; font-family:'JetBrains Mono',monospace; font-weight:700; font-size:12px; transition:all 0.2s; text-transform:uppercase; letter-spacing:0.5px;margin-top: auto;}
+.item-btn:hover:not(:disabled){ background:var(--fg); color:var(--bg); border-color:var(--fg); }
+.item-btn:active:not(:disabled) { transform: scale(0.96); }
+.item-btn:disabled{ opacity:0.3; cursor:not-allowed; }
+.item-btn.buy{ color:var(--gold); border-color:color-mix(in srgb, var(--gold) 40%, var(--border-hi)); }
+.item-btn.buy:hover:not(:disabled){ background:var(--gold); color:var(--bg); border-color:var(--gold); }
+.item-btn.sell{ color:var(--mythic); border-color:color-mix(in srgb, var(--mythic) 40%, var(--border-hi)); }
+.item-btn.sell:hover:not(:disabled){ background:var(--mythic); color:#fff; border-color:var(--mythic); }
+
+.index-controls {display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;background: var(--surface); padding: 16px; border-radius: 8px; border: 1px solid var(--border);}
+.search-input {width: 100%; padding: 12px 16px; background: var(--bg); border: 1px solid var(--border-hi);border-radius: 8px; color: var(--fg); font-family: 'Space Grotesk', sans-serif; font-size: 14px;outline: none; transition: border-color 0.2s;}
+.search-input:focus { border-color: var(--gold); }
+.index-filters { display: grid; grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); gap: 8px; }
+.filter-btn {padding: 10px 4px; border-radius: 8px; border: 1px solid var(--border-hi);background: var(--surface-2); color: var(--fg-dim); font-size: 11px; font-weight: 700;cursor: pointer; transition: all 0.2s; text-transform: uppercase; letter-spacing: 0.5px;text-align: center;white-space: nowrap;overflow: hidden;text-overflow: ellipsis;display: flex;align-items: center;justify-content: center;}
+.filter-btn:hover { border-color: var(--fg); color: var(--fg); }
+.filter-btn.active { background: var(--rarity-c, var(--fg)); color: #000; border-color: transparent; font-weight: 800; }
+.filter-btn[data-rarity="all"].active { background: var(--fg); color: var(--bg); }
+.switch-label { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--fg-dim); cursor: pointer; user-select: none; }
+.switch-label input { width: 16px; height: 16px; cursor: pointer; accent-color: var(--gold); }
+.index-results-info { font-size: 12px; color: var(--fg-muted); text-align: right; margin-bottom: 8px; font-family: 'JetBrains Mono', monospace; }
+.index-list{display:flex;flex-direction:column;gap:8px}
+.index-item{display:grid;grid-template-columns: 40px 60px 1fr auto;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--border);border-left:4px solid var(--rarity-c);border-radius:8px;padding:10px 12px;transition:all 0.2s}
+.index-item:hover { background: var(--surface-2); }
+.index-item.locked{opacity:0.5; border-left-color:var(--fg-muted)}
+.index-item.locked:hover{opacity:0.8}
+.index-num{font-family:'JetBrains Mono',monospace;color:var(--fg-muted);font-weight:700;font-size:12px}
+.index-img{width:50px;height:80px;display:flex;align-items:center;justify-content:center;overflow:hidden;margin:0 auto;background:transparent;position:relative;}
+.index-img img{max-width:100%;max-height:80px;object-fit:contain;position:relative;z-index:2;}
+.index-item.locked .index-img img{filter:brightness(0) opacity(0.3)}
+.index-info{display:flex;flex-direction:column;gap:2px;min-width:0}
+.index-name{font-weight:600;font-size:14px}
+.index-item.locked .index-name{color:var(--fg-muted)}
+.index-stats{font-size:10px;color:var(--fg-dim);display:flex;gap:8px;flex-wrap:wrap}
+.index-source{font-size:9px;color:var(--fg-muted);text-transform:uppercase;letter-spacing:1px;margin-top:2px}
+.index-status{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--gold);text-align:right;font-weight:700}
+.index-item.locked .index-status{color:var(--fg-muted)}
+
+.upg-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.upg-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.upg-head{display:flex;justify-content:space-between;align-items:start}
+.upg-name{font-weight:600;font-size:14px}
+.upg-desc{font-size:11px;color:var(--fg-dim);line-height:1.4}
+.upg-level{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--gold);background:rgba(251,191,36,0.1);padding:2px 8px;border-radius:4px}
+.upg-progress{height:4px;background:var(--surface-2);border-radius:2px;overflow:hidden}
+.upg-progress-fill{height:100%;background:var(--gold);transition:width 0.3s}
+
+.modal-overlay {position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px);z-index: 700; display: flex; align-items: center; justify-content: center; padding: 20px;opacity: 0; pointer-events: none; transition: opacity 0.3s;}
+.modal-overlay.active { opacity: 1; pointer-events: auto; }
+.modal-content {background: var(--surface); border: 1px solid var(--border-hi); border-radius: 16px;max-width: 480px; width: 100%; padding: 32px; position: relative; text-align: center;transform: scale(0.9); transition: transform 0.3s;border-top: 4px solid var(--rarity-c, var(--gold));box-shadow: 0 20px 50px rgba(0,0,0,0.5);max-height: 90vh; overflow-y: auto;}
+.modal-overlay.active .modal-content { transform: scale(1); }
+.modal-content {background-image: radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--rarity-c, var(--gold)) 15%, var(--surface)), var(--surface) 70%);}
+.modal-close {position: absolute; top: 16px; right: 16px; background: var(--surface-2);border: 1px solid var(--border-hi); color: var(--fg); width: 32px; height: 32px;border-radius: 8px; cursor: pointer; transition: 0.2s; display:grid; place-items:center; z-index: 2;}
+.modal-close:hover { background: var(--mythic); color: #fff; border-color: var(--mythic); }
+.modal-phone-wrap { width: 220px; height: 340px; margin: 0 auto 24px; position: relative; display: grid; place-items: center; z-index: 1; }
+.modal-phone-glow { position: absolute; width: 240px; height: 240px; border-radius: 50%; background: var(--rarity-c); filter: blur(50px); opacity: 0.5; animation: glowPulse 2s ease-in-out infinite; z-index: -1; }
+.modal-phone-img { max-width: 100%; max-height: 340px; object-fit: contain; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.5)); z-index: 1; }
+.modal-rarity { font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--rarity-c); margin-bottom: 8px; position: relative; z-index: 1; }
+.modal-name { font-size: 26px; font-weight: 700; margin-bottom: 6px; position: relative; z-index: 1; }
+.modal-meta { color: var(--fg-dim); font-size: 13px; margin-bottom: 20px; position: relative; z-index: 1; }
+.modal-owned-badge { display: inline-block; background: var(--surface-2); border: 1px solid var(--rarity-c); color: var(--rarity-c); padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; margin-bottom: 20px; font-family: 'JetBrains Mono', monospace; position: relative; z-index: 1; }
+.modal-desc { font-size: 14px; line-height: 1.5; color: var(--fg); margin-bottom: 24px; background: var(--surface-2); padding: 16px; border-radius: 8px; border: 1px solid var(--border); text-align: left; position: relative; z-index: 1; }
+.modal-stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 24px; position: relative; z-index: 1; }
+.modal-stat-box { background: var(--surface-2); border: 1px solid var(--border); padding: 12px 8px; border-radius: 8px; }
+.modal-stat-label { font-size: 10px; color: var(--fg-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+.modal-stat-val { font-size: 14px; font-weight: 700; font-family: 'JetBrains Mono', monospace; color: var(--fg); word-break: break-all; }
+.modal-actions { display: flex; gap: 10px; position: relative; z-index: 1; }
+.modal-actions button { flex: 1; margin-top: 0; }
+
+.settings-row { display: flex; justify-content: space-between; align-items: center; padding: 16px; background: var(--surface-2); border-radius: 8px; margin-bottom: 12px; border: 1px solid var(--border); }
+.settings-info { text-align: left; }
+.settings-title { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
+.settings-desc { font-size: 11px; color: var(--fg-dim); }
+.switch { position: relative; display: inline-block; width: 50px; height: 28px; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: var(--border-hi); transition: .3s; border-radius: 28px; }
+.slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px; background: var(--fg); transition: .3s; border-radius: 50%; }
+input:checked + .slider { background: var(--uncommon); }
+input:checked + .slider:before { transform: translateX(22px); background: #000; }
+.reset-btn { width: 100%; padding: 12px; border-radius: 8px; margin-top: 16px; background: transparent; border: 1px solid color-mix(in srgb, var(--mythic) 40%, var(--border-hi)); color: var(--mythic); font-weight: 700; cursor: pointer; transition: 0.2s; text-transform: uppercase; font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+.reset-btn:hover { background: var(--mythic); color: #fff; }
+.reset-btn.confirm { background: var(--mythic); color: #fff; animation: pulse 1s infinite; }
+@keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(239,68,68,0.4); } 70% { box-shadow: 0 0 0 10px rgba(239,68,68,0); } 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0); } }
+.settings-about {margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border);text-align: left;}
+.about-title { font-size: 12px; font-weight: 700; color: var(--fg-dim); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
+.about-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; font-size: 13px; border-bottom: 1px solid var(--surface-2);}
+.about-row:last-of-type { border-bottom: none; margin-bottom: 16px; }
+.about-row span:first-child { color: var(--fg-dim); }
+.about-row span:last-child { font-weight: 600; font-family: 'JetBrains Mono', monospace; }
+.about-text { font-size: 11px; line-height: 1.5; color: var(--fg-muted); background: var(--surface-2); padding: 12px; border-radius: 6px; border: 1px solid var(--border);}
+
+.toast-wrap{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;gap:8px;z-index:800;pointer-events:none}
+.toast{background:var(--surface);border:1px solid var(--border-hi);padding:12px 20px;border-radius:8px;font-size:13px;font-weight:500;display:flex;align-items:center;gap:10px;animation:toastIn 0.3s ease, toastOut 0.3s ease 2.5s forwards;backdrop-filter:blur(10px);min-width:200px;max-width:90vw;}
+.toast.gold{border-color:var(--gold);color:var(--gold)}
+.toast.success{border-color:var(--uncommon);color:var(--uncommon)}
+.toast.error{border-color:var(--mythic);color:var(--mythic)}
+@keyframes toastIn{from{opacity:0;transform:translateY(20px)}}
+@keyframes toastOut{to{opacity:0;transform:translateY(20px)}}
+
+#particles{position:fixed;inset:0;pointer-events:none;z-index:100}
+.flash{position:fixed;inset:0;pointer-events:none;z-index:99;opacity:0;background:#fff}
+.flash.active{animation:flashAnim 0.5s ease-out}
+@keyframes flashAnim{0%{opacity:0}20%{opacity:0.4}100%{opacity:0}}
+.shake{animation:shake 0.4s}
+@keyframes shake{0%,100%{transform:translate(0,0)}25%{transform:translate(-4px,2px)}50%{transform:translate(4px,-2px)}75%{transform:translate(-2px,-3px)}}
+
+.r-common{--rarity-c:var(--common)} .r-uncommon{--rarity-c:var(--uncommon)} .r-rare{--rarity-c:var(--rare)} .r-epic{--rarity-c:var(--epic)} .r-legendary{--rarity-c:var(--legendary)} .r-mythic{--rarity-c:var(--mythic)} .r-secret{--rarity-c:var(--secret)}
+
+@media (max-width:700px){
+  .container{padding:14px} .header-stats{gap:12px} .h-stat-val{font-size:14px}
+  .roll-btn{padding:14px 24px;font-size:14px;width:100%}
+  .result-card.active{grid-template-columns:1fr;text-align:center} .result-phone-wrap{margin:0 auto} .result-actions{align-items:center}
+  .upg-grid{grid-template-columns:1fr} .tabs{grid-template-columns: repeat(2, 1fr);} .tab{white-space:nowrap}
+  .menu-drawer{padding:16px}
+  .h-stat-label{font-size:9px} .h-stat-val{font-size:12px}
+  .menu-btn{padding:8px 12px; font-size:11px;}
+  .index-filters { grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); }
+  .inv-header { flex-direction: column; gap: 12px; }
+  .modal-content { padding: 20px; }
+  .modal-stats-grid { grid-template-columns: 1fr; gap: 6px; }
+}
+footer{text-align:center;padding:24px 0;color:var(--fg-muted);font-size:11px;letter-spacing:1px;border-top:1px solid var(--border);margin-top:24px}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <div class="logo">
+      <div class="logo-mark">phone<span class="logo-dot" id="logo-dot"></span>rng</div>
     </div>
-    <div id="inventory"></div>
-    <div class="achievements" id="achList"></div>
+    <div class="header-stats">
+      <div class="h-stat"><div class="h-stat-label">Открытий</div><div class="h-stat-val mono" id="h-rolls">0</div></div>
+      <div class="h-stat"><div class="h-stat-label">Монеты</div><div class="h-stat-val gold mono"><span class="coins-wrap"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/></svg><span id="h-coins">100</span></span></div></div>
+      <div class="header-actions">
+        <button class="menu-btn icon-btn" id="settings-open-btn" title="Настройки">⚙</button>
+        <button class="menu-btn" id="menu-open-btn">МЕНЮ</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="roll-section">
+      <button class="roll-btn" id="roll-btn-free">ОТКРЫТЬ ТЕЛЕФОН<small>Бесплатно · Обычные / Необычные</small></button>
+    </section>
+    <section class="result-section">
+      <div class="result-empty" id="result-empty">Нажми кнопку выше, чтобы найти телефон</div>
+      <div class="result-card" id="result-card"></div>
+    </section>
+  </main>
+  <footer>phone.rng · прогресс сохраняется автоматически</footer>
+</div>
+
+<div class="menu-backdrop" id="menu-backdrop"></div>
+<div class="menu-drawer" id="menu-drawer">
+  <div class="menu-header">
+    <div class="menu-title">Меню</div>
+    <button class="menu-close" id="menu-close-btn">✕</button>
   </div>
-  <div id="toast"></div>
+  <div class="tabs">
+    <button class="tab active" data-tab="inventory">Инвентарь <span class="tab-count" id="tab-inv-count">0</span></button>
+    <button class="tab" data-tab="shop">Магазин</button>
+    <button class="tab" data-tab="index">Индекс <span class="tab-count" id="tab-index-count">0/22</span></button>
+    <button class="tab" data-tab="upgrades">Прокачка</button>
+  </div>
+  <div class="tab-content active" id="tab-inventory">
+    <div class="inv-header">
+      <div class="inv-info">Тут хранятся твои кейсы и дубликаты телефонов</div>
+      <button class="sell-all-btn" id="sell-dup-btn">Продать дубликаты</button>
+    </div>
+    <div class="grid-2" id="inv-grid"></div>
+  </div>
+  <div class="tab-content" id="tab-shop"><div class="grid-2" id="shop-grid"></div></div>
+  <div class="tab-content" id="tab-index">
+    <div class="index-controls">
+      <input type="text" id="index-search" placeholder="Поиск по названию или бренду..." class="search-input">
+      <div class="index-filters" id="index-filters"></div>
+      <label class="switch-label"><input type="checkbox" id="index-owned"> Показать только собранные</label>
+    </div>
+    <div class="index-results-info" id="index-results-info"></div>
+    <div class="index-list" id="index-list"></div>
+  </div>
+  <div class="tab-content" id="tab-upgrades"><div class="upg-grid" id="upg-grid"></div></div>
+</div>
 
-  <script>
-  /* ---------- Данные ---------- */
-  const phones = [
-    {name:"iPhone 4",   rarity:"common",  coins:10, weight:60, color:"#8bc34a"},
-    {name:"iPhone 5S",  rarity:"common",  coins:12, weight:55, color:"#8bc34a"},
-    {name:"Galaxy S3",  rarity:"uncommon",coins:20, weight:20, color:"#4fc3f7"},
-    {name:"Pixel 2",    rarity:"uncommon",coins:22, weight:15, color:"#4fc3f7"},
-    {name:"iPhone X",   rarity:"rare",    coins:40, weight:8,  color:"#9575cd"},
-    {name:"Galaxy Note10",rarity:"rare",coins:45,weight:6, color:"#9575cd"},
-    {name:"iPhone 12 Pro",rarity:"epic", coins:70, weight:3, color:"#ff9800"},
-    {name:"Galaxy S21 Ultra",rarity:"epic",coins:75,weight:2,color:"#ff9800"},
-    {name:"iPhone 14 Pro Max",rarity:"legendary",coins:150,weight:1,color:"#ff5252"},
-    {name:"Galaxy Z Fold 4",rarity:"legendary",coins:160,weight:1,color:"#ff5252"}
-  ];
+<div class="modal-overlay" id="info-modal">
+  <div class="modal-content" id="modal-content"></div>
+</div>
 
-  const achievements = [
-    {id:"firstClick",   desc:"Сделать первый клик",          threshold:1,   type:"clicks"},
-    {id:"click100",     desc:"Сделать 100 кликов",          threshold:100, type:"clicks"},
-    {id:"click1000",    desc:"Сделать 1000 кликов",         threshold:1000,type:"clicks"},
-    {id:"collectCommon",desc:"Собрать 5 обычных телефонов", threshold:5,   type:"common"},
-    {id:"collectRare",  desc:"Получить первый редкий телефон",threshold:1,type:"rare"},
-    {id:"collectLegend",desc:"Получить первый легендарный телефон",threshold:1,type:"legendary"}
-  ];
+<div class="modal-overlay" id="settings-modal">
+  <div class="modal-content" style="max-width: 420px;">
+    <button class="modal-close" id="settings-close-btn">✕</button>
+    <div class="modal-name" style="margin-bottom: 24px;">Настройки</div>
+    <div class="settings-row">
+      <div class="settings-info">
+        <div class="settings-title">Звуковые эффекты</div>
+        <div class="settings-desc">Клики, рулетка и фанфары</div>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="sound-toggle">
+        <span class="slider"></span>
+      </label>
+    </div>
+    <div class="settings-row" style="flex-direction:column; align-items:stretch; gap:0;">
+      <div class="settings-info" style="margin-bottom:12px;">
+        <div class="settings-title">Опасная зона</div>
+        <div class="settings-desc">Удалить весь прогресс и начать заново</div>
+      </div>
+      <button class="reset-btn" id="reset-btn">Сбросить прогресс</button>
+    </div>
+    <div class="settings-about">
+      <div class="about-title">О игре</div>
+      <div class="about-row"><span>Версия игры:</span><span>v1.5.0</span></div>
+      <div class="about-row"><span>Движок:</span><span>WebAudio & Canvas</span></div>
+      <div class="about-row"><span>Автор:</span><span>Твой Никнейм</span></div>
+      <div class="about-text">phone.rng — это минималистичная RNG-игра, где ты собираешь коллекцию телефонов разных лет и редкостей. Прогресс сохраняется локально в твоём браузере. Все совпадения с реальными устройствами случайны.</div>
+    </div>
+  </div>
+</div>
 
-  /* ---------- Состояние ---------- */
-  let state = {
-    coins:0,
-    clicks:0,
-    inventory:{},   // name → count
-    earned:{},      // achievementId → true
-    cooldownSec:3   // пауза между кликами (секунды)
-  };
+<div class="modal-overlay" id="admin-modal">
+  <div class="modal-content" style="max-width: 420px; border-top: 4px solid var(--mythic);">
+    <button class="modal-close" id="admin-close-btn">✕</button>
+    <div class="modal-name" style="margin-bottom: 24px; color: var(--mythic);">Админ Панель</div>
+    <div id="admin-login-area">
+      <input type="password" id="admin-pass-input" placeholder="Введите пароль" class="search-input" style="margin-bottom: 16px; text-align: center;">
+      <button class="item-btn buy" id="admin-login-btn">ВОЙТИ</button>
+    </div>
+    <div id="admin-controls" style="display: none; flex-direction: column; gap: 10px;">
+      <button class="item-btn buy" id="admin-add-coins">+ 10,000 Монет</button>
+      <button class="item-btn buy" id="admin-add-cases">+ 5 Всех Кейсов</button>
+      <button class="item-btn buy" id="admin-unlock-all">Открыть все телефоны</button>
+      <button class="item-btn sell" id="admin-reset-btn" style="margin-top: 10px;">Сбросить прогресс</button>
+    </div>
+  </div>
+</div>
 
-  /* ---------- Хранилище ---------- */
-  function saveState(){ try{localStorage.setItem('phoneClicker_mini',JSON.stringify(state));}catch(e){} }
-  function loadState(){
-    const s = localStorage.getItem('phoneClicker_mini');
-    if(s){ try{ state = JSON.parse(s); }catch(e){} }
-  }
+<canvas id="particles"></canvas>
+<div class="flash" id="flash"></div>
+<div class="toast-wrap" id="toast-wrap"></div>
 
-  /* ---------- Вспомогательные ---------- */
-  function randPhone(){
-    const r = Math.random()*100;
-    let sum=0;
-    for(const p of phones){
-      sum+=p.weight;
-      if(r<sum) return p;
+<script>
+// ===== DATA =====
+const rarities = {
+  common:    {name:'Обычная',    color:'#9ca3af', reward:25},
+  uncommon:  {name:'Необычная',  color:'#22c55e', reward:60},
+  rare:      {name:'Редкая',     color:'#3b82f6', reward:150},
+  epic:      {name:'Эпическая',  color:'#a855f7', reward:400},
+  legendary: {name:'Легендарная',color:'#f59e0b', reward:1000},
+  mythic:    {name:'Мифическая', color:'#ef4444', reward:5000},
+  secret:    {name:'Секретная',  color:'#06b6d4', reward:20000}
+};
+const rarityOrder = ['common','uncommon','rare','epic','legendary','mythic','secret'];
+
+const phones = [
+  {id:1, name:'iPhone 4', year:2010, brand:'Apple', rarity:'common', img:'https://raw.githubusercontent.com/kolisnykgeorgiy2-source/PhoneClicker/main/images/iphone4.png', specs:{cpu:'A4', ram:'512MB', storage:'16GB'}, desc:'Революционный дизайн со стеклом и металлом. Дисплей Retina установил новые стандарты четкости.'},
+  {id:2, name:'iPhone 5', year:2012, brand:'Apple', rarity:'common', img:'https://raw.githubusercontent.com/kolisnykgeorgiy2-source/PhoneClicker/main/images/iphone5.png', specs:{cpu:'A6', ram:'1GB', storage:'32GB'}, desc:'Более крупный экран 4 дюйма и новый разъем Lightning. Тонкий и легкий алюминиевый корпус.'},
+  {id:3, name:'Nokia 3310', year:2000, brand:'Nokia', rarity:'common', img:'https://placehold.co/200x400/1a1a1a/666?text=Nokia+3310', specs:{cpu:'MAD2WD1', ram:'—', storage:'—'}, desc:'Неубиваемая легенда. Батарея держит неделю, а корпус можно использовать как оружие.'},
+  {id:4, name:'Galaxy S3', year:2012, brand:'Samsung', rarity:'common', img:'https://raw.githubusercontent.com/kolisnykgeorgiy2-source/PhoneClicker/main/images/samsunggalaxys3.png', specs:{cpu:'Exynos 4', ram:'1GB', storage:'16GB'}, desc:'Флагман Samsung с голосовым ассистентом S Voice и дизайном "вдохновленным природой".'},
+  {id:5, name:'iPhone 6', year:2014, brand:'Apple', rarity:'common', img:'https://raw.githubusercontent.com/kolisnykgeorgiy2-source/PhoneClicker/main/images/iphone6.png', specs:{cpu:'A8', ram:'1GB', storage:'64GB'}, desc:'Тонкий как карандаш. Большой экран, который пришлось немного гнуть на заводе.'},
+  {id:6, name:'iPhone 7', year:2016, brand:'Apple', rarity:'uncommon', img:'https://placehold.co/200x400/1a1a1a/666?text=iPhone+7', specs:{cpu:'A10', ram:'2GB', storage:'128GB'}, desc:'Впервые без разъема для наушников. Jet Black, в котором собирались все отпечатки пальцев.'},
+  {id:7, name:'Galaxy S8', year:2017, brand:'Samsung', rarity:'uncommon', img:'https://placehold.co/200x400/1a1a1a/666?text=Galaxy+S8', specs:{cpu:'SD835', ram:'4GB', storage:'64GB'}, desc:'Безрамочный красавец с изогнутым экраном Infinity Display и сканером радужки глаза.'},
+  {id:8, name:'iPhone 8', year:2017, brand:'Apple', rarity:'uncommon', img:'https://placehold.co/200x400/1a1a1a/666?text=iPhone+8', specs:{cpu:'A11', ram:'2GB', storage:'256GB'}, desc:'Возвращение стекла для поддержки беспроводной зарядки. Классический дизайн в новой оболочке.'},
+  {id:9, name:'Mi 5', year:2016, brand:'Xiaomi', rarity:'uncommon', img:'https://placehold.co/200x400/1a1a1a/666?text=Xiaomi+Mi+5', specs:{cpu:'SD820', ram:'4GB', storage:'64GB'}, desc:'Смартфон Xiaomi с керамической задней крышкой. Мощный флагман за адекватные деньги.'},
+  {id:10, name:'iPhone X', year:2017, brand:'Apple', rarity:'rare', img:'https://placehold.co/200x400/1a1a1a/666?text=iPhone+X', specs:{cpu:'A11', ram:'3GB', storage:'256GB'}, desc:'Десятилетний юбилейный iPhone. Face ID, челка и прощание с кнопкой Home навсегда.'},
+  {id:11, name:'iPhone 11', year:2019, brand:'Apple', rarity:'rare', img:'https://placehold.co/200x400/1a1a1a/666?text=iPhone+11', specs:{cpu:'A13', ram:'4GB', storage:'128GB'}, desc:'Квадратный блок камер, который все сначала критиковали, а потом копировали. Огромный выбор цветов.'},
+  {id:12, name:'Galaxy S10', year:2019, brand:'Samsung', rarity:'rare', img:'https://placehold.co/200x400/1a1a1a/666?text=Galaxy+S10', specs:{cpu:'SD855', ram:'8GB', storage:'128GB'}, desc:'Динамический AMOLED-экран с отверстием для камеры. Ультразвуковой сканер отпечатков в экране.'},
+  {id:13, name:'Pixel 4', year:2019, brand:'Google', rarity:'rare', img:'https://placehold.co/200x400/1a1a1a/666?text=Pixel+4', specs:{cpu:'SD855', ram:'6GB', storage:'64GB'}, desc:'Чистый Android от Google и жутко крутая камера. И радар, который все забыли.'},
+  {id:14, name:'iPhone 12 Pro', year:2020, brand:'Apple', rarity:'epic', img:'https://placehold.co/200x400/1a1a1a/666?text=iPhone+12+Pro', specs:{cpu:'A14', ram:'6GB', storage:'256GB'}, desc:'Возрождение плоских граней. MagSafe и первый шаг в мир скоростного 5G.'},
+  {id:15, name:'iPhone 13 Pro', year:2021, brand:'Apple', rarity:'epic', img:'https://placehold.co/200x400/1a1a1a/666?text=iPhone+13+Pro', specs:{cpu:'A15', ram:'6GB', storage:'512GB'}, desc:'120 Гц ProMotion наконец-то пришел на iPhone. Челка стала меньше, а камеры больше.'},
+  {id:16, name:'Galaxy S22', year:2022, brand:'Samsung', rarity:'epic', img:'https://placehold.co/200x400/1a1a1a/666?text=Galaxy+S22', specs:{cpu:'SD8G1', ram:'12GB', storage:'256GB'}, desc:'Компактный флагман с отличными камерами и мощным процессором Snapdragon 8 Gen 1.'},
+  {id:17, name:'iPhone 14 Pro', year:2022, brand:'Apple', rarity:'epic', img:'https://placehold.co/200x400/1a1a1a/666?text=iPhone+14+Pro', specs:{cpu:'A16', ram:'6GB', storage:'512GB'}, desc:'Прощай, челка. Да здравствует Dynamic Island, которая развлекает пользователей.'},
+  {id:18, name:'iPhone 15 Pro Max', year:2023, brand:'Apple', rarity:'legendary', img:'https://placehold.co/200x400/1a1a1a/666?text=iPhone+15+Pro', specs:{cpu:'A17 Pro', ram:'8GB', storage:'1TB'}, desc:'Титановый корпус, USB-C (наконец-то!) и перископическая камера с 5-кратным зумом.'},
+  {id:19, name:'Galaxy S24 Ultra', year:2024, brand:'Samsung', rarity:'legendary', img:'https://placehold.co/200x400/1a1a1a/666?text=Galaxy+S24+Ultra', specs:{cpu:'SD8G3', ram:'12GB', storage:'512GB'}, desc:'Титановые рамки, плоский экран и искусственный интеллект Galaxy AI в каждом приложении.'},
+  {id:20, name:'iPhone 16 Pro Max', year:2024, brand:'Apple', rarity:'mythic', img:'https://placehold.co/200x400/1a1a1a/666?text=iPhone+16+Pro', specs:{cpu:'A18 Pro', ram:'8GB', storage:'1TB'}, desc:'Новая кнопка управления камерой и невероятные возможности Apple Intelligence.'},
+  {id:21, name:'Tesla Pi', year:'????', brand:'Tesla', rarity:'mythic', img:'https://placehold.co/200x400/1a1a1a/666?text=Tesla+Pi', specs:{cpu:'Ryzen', ram:'16GB', storage:'2TB'}, desc:'Смартфон Илона Маска. Работает на Марсе, заряжается от звезд и интегрируется с Neuralink.'},
+  {id:22, name:'Nokia Brick Gold', year:'1999', brand:'Nokia', rarity:'secret', img:'https://placehold.co/200x400/1a1a1a/666?text=Gold+Nokia', specs:{cpu:'MAD2WD1', ram:'∞', storage:'∞'}, desc:'Секретный золотой кирпич. Премиум версия легенды. Доступна только избранным.'}
+];
+
+const shopItems = [
+  {id:'case_std', name:'Стандартный кейс', desc:'Шанс: Rare, Epic', price:500, icon:'📦', color:'var(--rare)', type:'case', pool:['rare', 'epic']},
+  {id:'case_prem', name:'Премиум кейс', desc:'Шанс: Epic, Legendary, Mythic', price:2500, icon:'🎁', color:'var(--epic)', type:'case', pool:['epic', 'legendary', 'mythic']},
+  {id:'case_sec', name:'Секретный кейс', desc:'Шанс: Legendary, Mythic, Secret', price:15000, icon:'💎', color:'var(--secret)', type:'case', pool:['legendary', 'mythic', 'secret']}
+];
+
+const upgrades = [
+  {id:'coin', name:'Монетный магнит', desc:'+15% монет за продажу за уровень', baseCost:300, costMul:1.6, maxLevel:10, effect:15}
+];
+
+const defaultState = {
+  rolls: 0, coins: 100, totalCoins: 0,
+  collection: {}, bestRarity: null,
+  upgrades: {coin:0},
+  inventory: {case_std: 0, case_prem: 0, case_sec: 0},
+  settings: { sound: true }
+};
+
+let state = JSON.parse(JSON.stringify(defaultState));
+
+// ===== STATE =====
+function loadState(){
+  try{
+    const saved = localStorage.getItem('phoneRngV20');
+    if(saved){
+      const s = JSON.parse(saved);
+      state = {...state, ...s};
+      if(!s.inventory) state.inventory = {case_std: 0, case_prem: 0, case_sec: 0};
+      if(!s.upgrades) state.upgrades = {coin:0};
+      if(!s.settings) state.settings = {sound: true};
     }
-    return phones[phones.length-1];
+  }catch(e){}
+}
+function saveState(){ try{localStorage.setItem('phoneRngV20', JSON.stringify(state));}catch(e){} }
+
+// ===== AUDIO & EFFECTS =====
+let audioCtx;
+function getAudio(){if(!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)(); return audioCtx;}
+function tone(freq, dur, type='sine', vol=0.1, delay=0){
+  if(!state.settings.sound) return;
+  try{
+    const ctx = getAudio(); 
+    if (ctx.state === 'suspended') ctx.resume();
+    const osc = ctx.createOscillator(); const gain = ctx.createGain();
+    osc.type = type; osc.frequency.value = freq; const start = ctx.currentTime + delay;
+    gain.gain.setValueAtTime(vol, start); gain.gain.exponentialRampToValueAtTime(0.001, start+dur);
+    osc.connect(gain); gain.connect(ctx.destination); osc.start(start); osc.stop(start+dur);
+  }catch(e){}
+}
+function playClick(){tone(900, 0.04, 'square', 0.06)}
+function playTick(){tone(1200, 0.02, 'square', 0.03)}
+function playReveal(rarity){
+  const idx = rarityOrder.indexOf(rarity);
+  tone(523, 0.1, 'sine', 0.08, 0);
+  if(idx>=1) tone(659, 0.1, 'sine', 0.08, 0.06);
+  if(idx>=2){tone(784, 0.15, 'sine', 0.1, 0.12); tone(1047, 0.2, 'triangle', 0.08, 0.2)}
+  if(idx>=3){[523,659,784,1047,1318].forEach((n,i)=>tone(n, 0.2, 'sine', 0.07, 0.1+i*0.07))}
+  if(idx>=4){[1047,1318,1568,2093,2637].forEach((n,i)=>tone(n, 0.3, 'sine', 0.07, 0.4+i*0.1))}
+  if(idx>=5){[2093,2637,3136,4186].forEach((n,i)=>tone(n, 0.4, 'sine', 0.06, 0.8+i*0.12))}
+  if(idx>=6){[3136,4186,5274].forEach((n,i)=>tone(n, 0.6, 'sine', 0.05, 1.2+i*0.15))}
+}
+
+const canvas = document.getElementById('particles');
+const pctx = canvas.getContext('2d');
+function resizeCanvas(){canvas.width=window.innerWidth; canvas.height=window.innerHeight}
+resizeCanvas(); window.addEventListener('resize', resizeCanvas);
+let particles = [];
+class Particle{
+  constructor(x,y,color,opts={}){
+    this.x=x; this.y=y; this.color=color;
+    const angle = opts.angle ?? Math.random()*Math.PI*2;
+    const speed = opts.speed ?? (Math.random()*8+3);
+    this.vx = Math.cos(angle)*speed; this.vy = Math.sin(angle)*speed - (opts.upBoost||2);
+    this.life = 1; this.size = (Math.random()*3+2)*(opts.sizeMul||1);
+    this.gravity = opts.gravity ?? 0.2; this.decay = opts.decay || 0.014;
   }
-  function addCoin(n){ state.coins+=n; document.getElementById('coinCount').textContent=state.coins; saveState(); }
-  function addClick(){
-    state.clicks = state.clicks+1;
-    document.getElementById('clickCount').textContent=state.clicks;
-    checkAchievements('clicks',state.clicks);
+  update(){this.x += this.vx; this.y += this.vy; this.vy += this.gravity; this.vx *= 0.98; this.life -= this.decay; this.size *= 0.985;}
+  draw(){pctx.save();pctx.globalAlpha = Math.max(0, this.life);pctx.fillStyle = this.color;pctx.shadowColor = this.color;pctx.shadowBlur = 15;pctx.beginPath();pctx.arc(this.x, this.y, Math.max(0.1, this.size), 0, Math.PI*2);pctx.fill();pctx.restore();}
+}
+function spawnParticles(x,y,color,count,opts={}){for(let i=0;i<count;i++) particles.push(new Particle(x,y,color,opts));}
+function animateParticles(){pctx.clearRect(0,0,canvas.width,canvas.height);particles = particles.filter(p=>p.life>0 && p.size>0.2);particles.forEach(p=>{p.update(); p.draw()});requestAnimationFrame(animateParticles);}
+animateParticles();
+function flash(color='rgba(255,255,255,0.4)'){const el = document.getElementById('flash');el.style.background = color;el.classList.remove('active');void el.offsetWidth;el.classList.add('active');}
+function shakeScreen(){const c = document.querySelector('.container');c.classList.add('shake');setTimeout(()=>c.classList.remove('shake'), 400);}
+
+// ===== MENU LOGIC =====
+function openMenu() { document.getElementById('menu-drawer').classList.add('active'); document.getElementById('menu-backdrop').classList.add('active'); }
+function closeMenu() { document.getElementById('menu-drawer').classList.remove('active'); document.getElementById('menu-backdrop').classList.remove('active'); }
+document.getElementById('menu-open-btn').addEventListener('click', openMenu);
+document.getElementById('menu-close-btn').addEventListener('click', closeMenu);
+document.getElementById('menu-backdrop').addEventListener('click', closeMenu);
+
+// ===== SETTINGS LOGIC =====
+function openSettings() { document.getElementById('settings-modal').classList.add('active'); document.getElementById('sound-toggle').checked = state.settings.sound; }
+function closeSettings() { document.getElementById('settings-modal').classList.remove('active'); const resetBtn = document.getElementById('reset-btn'); resetBtn.classList.remove('confirm'); resetBtn.textContent = 'Сбросить прогресс'; }
+document.getElementById('settings-open-btn').addEventListener('click', openSettings);
+document.getElementById('settings-close-btn').addEventListener('click', closeSettings);
+document.getElementById('settings-modal').addEventListener('click', (e) => { if(e.target.id === 'settings-modal') closeSettings(); });
+document.getElementById('sound-toggle').addEventListener('change', (e) => { state.settings.sound = e.target.checked; saveState(); if(state.settings.sound) playClick(); });
+
+let resetTimer = null;
+document.getElementById('reset-btn').addEventListener('click', () => {
+  const btn = document.getElementById('reset-btn');
+  if(btn.classList.contains('confirm')) {
+    state = JSON.parse(JSON.stringify(defaultState));
     saveState();
+    clearResult(); // ИСПРАВЛЕНИЕ: Сброс карточки результата для предотвращения бага с зависанием
+    indexState = { search: '', rarity: 'all', onlyOwned: false };
+    document.getElementById('index-search').value = '';
+    document.getElementById('index-owned').checked = false;
+    renderHeader(); renderInventory(); renderShop(); renderIndexFilters(); renderIndex(); renderUpgrades();
+    closeSettings(); showToast('Прогресс сброшен', 'error'); clearTimeout(resetTimer);
+  } else {
+    btn.classList.add('confirm'); btn.textContent = 'ТОЧНО? НАЖМИ ЕЩЕ РАЗ';
+    resetTimer = setTimeout(() => { btn.classList.remove('confirm'); btn.textContent = 'Сбросить прогресс'; }, 3000);
   }
-  function addToInventory(name){
-    state.inventory[name] = (state.inventory[name]||0)+1;
-    renderInventory();
-    checkAchievements(getRarity(name), state.inventory[name]);
-    saveState();
-  }
-  function getRarity(name){ return phones.find(p=>p.name===name).rarity; }
-  function showToast(msg,type='info'){
-    const t=document.getElementById('toast');
-    t.textContent=msg;
-    t.className='';
-    t.classList.add(type,'show');
-    setTimeout(()=>t.classList.remove('show'),2000);
-  }
-  function renderInventory(){
-    const cont=document.getElementById('inventory');
-    cont.innerHTML='';
-    for(const [name,cnt] of Object.entries(state.inventory)){
-      const p=phones.find(ph=>ph.name===name);
-      const div=document.createElement('div');
-      div.className=`card ${p.rarity}`;
-      div.dataset.name=name;
-      // простой цветной квадрат вместо картинки
-      div.style.background = p.color;
-      div.title = name;
-      cont.appendChild(div);
-    }
-  }
-  function renderAchievements(){
-    const list=document.getElementById('achList');
-    list.innerHTML='';
-    achievements.forEach(ach=>{
-      const div=document.createElement('div');
-      div.className=`ach ${state.earned[ach.id]?'earned':''}`;
-      div.textContent=`${ach.desc} ${state.earned[ach.id]?'✔️':'❌'}`;
-      list.appendChild(div);
-    });
-  }
-  function checkAchievements(type,value){
-    achievements.forEach(ach=>{
-      if(state.earned[ach.id]) return;
-      if(ach.type===type && value>=ach.threshold){
-        state.earned[ach.id]=true;
-        showToast(`Достижение получено: ${ach.desc}`,'success');
-      }
-    });
-    renderAchievements();
-  }
+});
 
-  /* ---------- Кулдаун ---------- */
-  let cdTimer = null;
-  function startCooldown(){
-    const btn=document.getElementById('clickBtn');
-    btn.disabled=true;
-    let remaining=state.cooldownSec;
-    btn.textContent=`Нажмите через ${remaining}с`;
-    cdTimer=setInterval(()=>{
-      remaining--;
-      if(remaining>0){
-        btn.textContent=`Нажмите через ${remaining}с`;
-      }else{
-        clearInterval(cdTimer);
-        cdTimer=null;
-        btn.disabled=false;
-        btn.textContent='📱 Нажать кнопку';
-      }
-    },1000);
+// ===== ADMIN LOGIC =====
+let logoClicks = 0; let logoClickTimer = null;
+document.getElementById('logo-dot').addEventListener('click', () => {
+  logoClicks++; clearTimeout(logoClickTimer);
+  logoClickTimer = setTimeout(() => { logoClicks = 0; }, 2000);
+  if(logoClicks >= 5) { logoClicks = 0; openAdmin(); }
+});
+function openAdmin() { document.getElementById('admin-modal').classList.add('active'); document.getElementById('admin-login-area').style.display = 'block'; document.getElementById('admin-controls').style.display = 'none'; document.getElementById('admin-pass-input').value = ''; }
+function closeAdmin() { document.getElementById('admin-modal').classList.remove('active'); }
+document.getElementById('admin-close-btn').addEventListener('click', closeAdmin);
+document.getElementById('admin-modal').addEventListener('click', (e) => { if(e.target.id === 'admin-modal') closeAdmin(); });
+document.getElementById('admin-login-btn').addEventListener('click', () => {
+  const pass = document.getElementById('admin-pass-input').value;
+  if(pass === 'FDSOA2014') { document.getElementById('admin-login-area').style.display = 'none'; document.getElementById('admin-controls').style.display = 'flex'; showToast('Доступ разрешен', 'success'); playClick(); }
+  else { showToast('Неверный пароль', 'error'); closeAdmin(); }
+});
+document.getElementById('admin-add-coins').addEventListener('click', () => { state.coins += 10000; state.totalCoins += 10000; saveState(); renderHeader(); showToast('Добавлено 10,000 монет', 'gold'); playClick(); });
+document.getElementById('admin-add-cases').addEventListener('click', () => { state.inventory.case_std = (state.inventory.case_std || 0) + 5; state.inventory.case_prem = (state.inventory.case_prem || 0) + 5; state.inventory.case_sec = (state.inventory.case_sec || 0) + 5; saveState(); renderHeader(); renderInventory(); showToast('Добавлены кейсы', 'gold'); playClick(); });
+document.getElementById('admin-unlock-all').addEventListener('click', () => { phones.forEach(p => { if(!state.collection[p.id]) state.collection[p.id] = 1; }); saveState(); renderHeader(); renderIndex(); renderInventory(); showToast('Все телефоны открыты', 'success'); playClick(); });
+document.getElementById('admin-reset-btn').addEventListener('click', () => { 
+  state = JSON.parse(JSON.stringify(defaultState)); 
+  saveState(); 
+  clearResult(); // ИСПРАВЛЕНИЕ: Сброс карточки результата
+  indexState = { search: '', rarity: 'all', onlyOwned: false }; 
+  document.getElementById('index-search').value = ''; 
+  document.getElementById('index-owned').checked = false; 
+  renderHeader(); renderInventory(); renderShop(); renderIndexFilters(); renderIndex(); renderUpgrades(); 
+  showToast('Прогресс сброшен', 'error'); 
+  closeAdmin(); 
+});
+
+// ===== MODAL LOGIC (ОПИСАНИЕ ТЕЛЕФОНА) =====
+function showPhoneInfo(phoneId) {
+  const phone = phones.find(p => p.id == phoneId);
+  if(!phone) return;
+  const r = rarities[phone.rarity];
+  const ownedCount = state.collection[phone.id] || 0;
+  const sellPrice = Math.floor(r.reward * 0.5 * (1 + state.upgrades.coin * upgrades[0].effect / 100));
+  const modal = document.getElementById('info-modal');
+  const content = document.getElementById('modal-content');
+  content.style.setProperty('--rarity-c', r.color);
+  
+  content.innerHTML = `
+    <button class="modal-close" id="modal-close-btn">✕</button>
+    <div class="scan-overlay">
+      <div class="line-top"></div>
+      <div class="line-bottom"></div>
+    </div>
+    <div class="modal-phone-wrap">
+      <div class="modal-phone-glow"></div>
+      <img class="modal-phone-img" src="${phone.img}" alt="${phone.name}">
+    </div>
+    <div class="modal-rarity">${r.name}</div>
+    <div class="modal-name">${phone.name}</div>
+    <div class="modal-meta"><span>${phone.year}</span> · <span>${phone.brand}</span></div>
+    <div class="modal-owned-badge">В коллекции: ${ownedCount} шт.</div>
+    <div class="modal-desc">${phone.desc}</div>
+    <div class="modal-stats-grid">
+      <div class="modal-stat-box"><div class="modal-stat-label">CPU</div><div class="modal-stat-val">${phone.specs.cpu}</div></div>
+      <div class="modal-stat-box"><div class="modal-stat-label">RAM</div><div class="modal-stat-val">${phone.specs.ram}</div></div>
+      <div class="modal-stat-box"><div class="modal-stat-label">Storage</div><div class="modal-stat-val">${phone.specs.storage}</div></div>
+    </div>
+    <div class="modal-actions">
+      ${ownedCount > 0 ? `<button class="action-btn sell" id="modal-sell-btn">Продать (+${sellPrice})</button>` : ''}
+      <button class="action-btn keep" id="modal-close-btn-2">Закрыть</button>
+    </div>
+  `;
+  modal.classList.add('active'); playClick();
+  document.getElementById('modal-close-btn').addEventListener('click', closeInfoModal);
+  document.getElementById('modal-close-btn-2').addEventListener('click', closeInfoModal);
+  if(document.getElementById('modal-sell-btn')) { document.getElementById('modal-sell-btn').addEventListener('click', () => { sellPhone(phone.id); closeInfoModal(); }); }
+}
+function closeInfoModal() { document.getElementById('info-modal').classList.remove('active'); }
+document.getElementById('info-modal').addEventListener('click', (e) => { if(e.target.id === 'info-modal') closeInfoModal(); });
+
+// ===== ROLLING LOGIC =====
+function getRarityChances(source, pool){
+  let chances = {};
+  if(source === 'free') { chances = { common: 70, uncommon: 30 }; } 
+  else if(source === 'case') {
+    if(pool.includes('secret')) chances = {legendary: 98.5, mythic: 1, secret: 0.5};
+    else if(pool.includes('mythic')) chances = {epic: 97, legendary: 2, mythic: 1};
+    else chances = {rare: 95, epic: 5};
   }
+  let total = Object.values(chances).reduce((a,b)=>a+b,0);
+  for(let r in chances) chances[r] = chances[r]/total*100;
+  return chances;
+}
+function rollPhone(source, pool){
+  const chances = getRarityChances(source, pool);
+  const roll = Math.random()*100; let cumul = 0; let selected = Object.keys(chances)[0];
+  for(const r in chances){ cumul += chances[r]; if(roll <= cumul){selected = r; break;} }
+  const pPool = phones.filter(p=>p.rarity===selected);
+  return pPool[Math.floor(Math.random()*pPool.length)];
+}
 
-  /* ---------- Обработчик клика ---------- */
-  document.getElementById('clickBtn').addEventListener('click',()=>{
-    // 1️⃣блокируем и запускаем таймер
-    startCooldown();
-
-    // 2️⃣считаем клик и начисляем монеты
-    addClick();
-    const phone = randPhone();
-    addCoin(phone.coins);
-    addToInventory(phone.name);
-
-    // 3️⃣визуальный вывод «карточки»
-    const zone=document.getElementById('dropZone');
-    zone.textContent='';
-    const card=document.createElement('div');
-    card.className=`card ${phone.rarity}`;
-    card.dataset.name=phone.name;
-    card.style.background = phone.color; // цвет вместо картинки
-    zone.appendChild(card);
-    // анимация появления
-    requestAnimationFrame(()=>{
-      card.style.opacity='0';
-      card.style.transform='scale(.8)';
-      setTimeout(()=>{
-        card.style.transition='opacity .3s, transform .3s';
-        card.style.opacity='1';
-        card.style.transform='scale(1)';
-      },10);
-    });
-    // кратко покажем название
-    setTimeout(()=>{zone.textContent=`Выпал: ${phone.name}`;},500);
+// ===== RESULT & ANIMATION =====
+let rolling = false;
+function renderResult(phone, isNew, source){
+  const card = document.getElementById('result-card');
+  const r = rarities[phone.rarity];
+  const count = state.collection[phone.id] || 0;
+  const idx = rarityOrder.indexOf(phone.rarity);
+  card.className = `result-card active r-${phone.rarity} glow`;
+  if(idx >= 4) card.classList.add('epic-reveal');
+  card.style.setProperty('--rarity-c', r.color);
+  const sellPrice = Math.floor(r.reward * 0.5 * (1 + state.upgrades.coin * upgrades[0].effect / 100));
+  card.innerHTML = `
+    <div class="scan-overlay">
+      <div class="line-top"></div>
+      <div class="line-bottom"></div>
+    </div>
+    <div class="result-phone-wrap">
+      <div class="result-phone-glow"></div>
+      <img src="${phone.img}" alt="${phone.name}">
+    </div>
+    <div class="result-info">
+      <div class="result-rarity">${r.name}</div>
+      <div class="result-name">${phone.name}</div>
+      <div class="result-meta">
+        <span>${phone.year}</span><span>${phone.brand}</span>
+        ${isNew?'<span style="color:var(--gold);font-weight:700;">NEW</span>':''}
+      </div>
+      <div class="result-specs">
+        <div class="spec-pill"><b>CPU</b>${phone.specs.cpu}</div>
+        <div class="spec-pill"><b>RAM</b>${phone.specs.ram}</div>
+        <div class="spec-pill"><b>STORAGE</b>${phone.specs.storage}</div>
+      </div>
+    </div>
+    <div class="result-actions">
+      <button class="action-btn sell" id="sell-btn">ПРОДАТЬ +${sellPrice}</button>
+      <button class="action-btn keep" id="keep-btn">ОСТАВИТЬ</button>
+    </div>
+  `;
+  document.getElementById('result-empty').style.display = 'none';
+  document.getElementById('sell-btn').addEventListener('click', ()=>{
+    state.collection[phone.id]--;
+    if(state.collection[phone.id] <= 0) delete state.collection[phone.id];
+    state.coins += sellPrice; state.totalCoins += sellPrice;
+    saveState(); renderHeader(); renderInventory(); renderIndex();
+    showToast(`Продано за ${sellPrice} монет`, 'gold'); clearResult();
   });
-
-  /* ---------- Инициализация ---------- */
-  loadState();
-  renderInventory();
-  renderAchievements();
-  document.getElementById('coinCount').textContent=state.coins;
-  document.getElementById('clickCount').textContent=state.clicks;
-  if(state.clicks===0){
-    showToast('Добро пожаловать! Нажмите кнопку – после каждого выпадения будет небольшая пауза.','info');
+  document.getElementById('keep-btn').addEventListener('click', ()=>{ showToast(`${phone.name} оставлен в инвентаре`, 'success'); clearResult(); });
+}
+function clearResult() { 
+  document.getElementById('result-card').className = 'result-card'; 
+  document.getElementById('result-card').innerHTML = ''; 
+  document.getElementById('result-empty').style.display = 'flex'; 
+  rolling = false; 
+  document.getElementById('roll-btn-free').disabled = false; 
+}
+async function animateShuffle(source, pool){
+  const card = document.getElementById('result-card'); const empty = document.getElementById('result-empty');
+  empty.style.display = 'none'; card.className = 'result-card active'; card.style.setProperty('--rarity-c', '#333');
+  const shufflePool = source === 'free' ? phones.filter(p => p.rarity === 'common' || p.rarity === 'uncommon') : phones.filter(p => pool.includes(p.rarity));
+  const startTime = Date.now(); const duration = 1200; let lastTick = 0;
+  return new Promise(resolve => {
+    function loop(){
+      const elapsed = Date.now() - startTime; const progress = elapsed / duration; const tickRate = 50 + (progress * progress * 200);
+      if(elapsed - lastTick > tickRate){
+        lastTick = elapsed; playTick();
+        const randomPhone = shufflePool[Math.floor(Math.random()*shufflePool.length)];
+        card.innerHTML = `<div class="result-phone-wrap" style="opacity:0.7"><img src="${randomPhone.img}" style="filter:blur(2px) brightness(0.6)"></div><div class="result-info"></div>`;
+      }
+      if(progress < 1){ requestAnimationFrame(loop); } else { resolve(); }
+    }
+    loop();
+  });
+}
+function triggerEffects(phone){
+  const idx = rarityOrder.indexOf(phone.rarity); const r = rarities[phone.rarity];
+  const rect = document.getElementById('result-card').getBoundingClientRect();
+  const cx = rect.left + rect.width/2; const cy = rect.top + rect.height/2;
+  const count = 12 + idx * 10;
+  if(idx >= 4) {
+    flash(r.color); shakeScreen();
+    setTimeout(() => { spawnParticles(cx, cy, r.color, 60, {speed:15, sizeMul:1.6}); spawnParticles(cx, cy, '#ffffff', 20, {speed:10}); playReveal(phone.rarity); }, 400);
+  } else {
+    spawnParticles(cx, cy, r.color, count, {sizeMul: 1 + idx*0.15}); playReveal(phone.rarity);
+    if(idx >= 2){ flash(r.color + '60'); shakeScreen(); }
+    if(idx >= 3){ setTimeout(()=>spawnParticles(cx, cy, r.color, 30, {speed:12, sizeMul:1.5}), 150); }
   }
-  console.log('🎮 Игра инициализирована. Откройте консоль (F12) для отладки.');
-  </script>
-  </body>
+}
+function showToast(text, type=''){ const wrap = document.getElementById('toast-wrap'); const t = document.createElement('div'); t.className = `toast ${type}`; t.innerHTML = text; wrap.appendChild(t); setTimeout(()=>t.remove(), 2900); }
+
+// ===== STATE UPDATE =====
+function addPhoneToCollection(phone){
+  state.rolls++; const isNew = !state.collection[phone.id];
+  state.collection[phone.id] = (state.collection[phone.id] || 0) + 1;
+  const idx = rarityOrder.indexOf(phone.rarity); const bestIdx = state.bestRarity ? rarityOrder.indexOf(state.bestRarity) : -1;
+  if(idx > bestIdx) state.bestRarity = phone.rarity;
+  saveState(); renderHeader(); renderIndex(); renderInventory(); return isNew;
+}
+
+// ===== RENDER =====
+function renderHeader(){
+  document.getElementById('h-rolls').textContent = state.rolls;
+  document.getElementById('h-coins').textContent = state.coins.toLocaleString('ru');
+  const unique = Object.keys(state.collection).length;
+  document.getElementById('tab-index-count').textContent = `${unique}/${phones.length}`;
+  const invCount = Object.values(state.inventory).reduce((a,b)=>a+b,0) + Object.values(state.collection).reduce((a,b)=>a+b,0);
+  document.getElementById('tab-inv-count').textContent = invCount;
+}
+function getSourceText(rarity) {
+  if (rarity === 'common' || rarity === 'uncommon') return 'Бесплатный поиск';
+  if (rarity === 'rare') return 'Стандартный кейс';
+  if (rarity === 'epic') return 'Стандартный / Премиум кейс';
+  if (rarity === 'legendary' || rarity === 'mythic') return 'Премиум / Секретный кейс';
+  if (rarity === 'secret') return 'Секретный кейс';
+  return '???';
+}
+
+let indexState = { search: '', rarity: 'all', onlyOwned: false };
+function renderIndexFilters() {
+  const wrap = document.getElementById('index-filters');
+  let html = `<button class="filter-btn ${indexState.rarity==='all'?'active':''}" data-rarity="all">Все</button>`;
+  rarityOrder.forEach(r => { const rInfo = rarities[r]; html += `<button class="filter-btn r-${r} ${indexState.rarity===r?'active':''}" data-rarity="${r}">${rInfo.name}</button>`; });
+  wrap.innerHTML = html;
+  wrap.querySelectorAll('.filter-btn').forEach(btn => { btn.addEventListener('click', () => { indexState.rarity = btn.dataset.rarity; renderIndexFilters(); renderIndex(); }); });
+}
+function renderIndex(){
+  const list = document.getElementById('index-list'); list.innerHTML = '';
+  let filteredPhones = phones.filter(phone => {
+    const owned = state.collection[phone.id] || 0;
+    if(indexState.onlyOwned && owned === 0) return false;
+    if(indexState.rarity !== 'all' && phone.rarity !== indexState.rarity) return false;
+    if(indexState.search) { const q = indexState.search.toLowerCase(); if(!phone.name.toLowerCase().includes(q) && !phone.brand.toLowerCase().includes(q)) return false; }
+    return true;
+  });
+  document.getElementById('index-results-info').textContent = `Найдено: ${filteredPhones.length} из ${phones.length}`;
+  if(filteredPhones.length === 0) { list.innerHTML = '<div style="text-align:center;padding:40px;color:var(--fg-muted);">Ничего не найдено</div>'; return; }
+  filteredPhones.forEach(phone => {
+    const owned = state.collection[phone.id] || 0; const r = rarities[phone.rarity]; const isLocked = owned === 0;
+    const item = document.createElement('div');
+    item.className = `index-item r-${phone.rarity} ${isLocked ? 'locked' : ''}`;
+    item.style.setProperty('--rarity-c', r.color);
+    const numStr = String(phone.id).padStart(3, '0');
+    // ИСПРАВЛЕНИЕ: Скрытие источника для неоткрытых телефонов
+    item.innerHTML = `<div class="index-num">#${numStr}</div><div class="index-img"><img src="${phone.img}" alt="${isLocked ? '???' : phone.name}"></div><div class="index-info"><div class="index-name">${isLocked ? '???' : phone.name}</div><div class="index-stats">${isLocked ? '<span>CPU: ???</span><span>RAM: ???</span><span>Storage: ???</span>' : `<span>${phone.specs.cpu}</span><span>${phone.specs.ram}</span><span>${phone.specs.storage}</span>`}</div><div class="index-source">${isLocked ? '???' : getSourceText(phone.rarity)}</div></div><div class="index-status">${isLocked ? 'Не найден' : `x${owned}`}</div>`;
+    list.appendChild(item);
+  });
+}
+let searchDebounce = null;
+document.getElementById('index-search').addEventListener('input', (e) => { clearTimeout(searchDebounce); searchDebounce = setTimeout(() => { indexState.search = e.target.value; renderIndex(); }, 200); });
+document.getElementById('index-owned').addEventListener('change', (e) => { indexState.onlyOwned = e.target.checked; renderIndex(); });
+
+function renderInventory(){
+  const grid = document.getElementById('inv-grid'); grid.innerHTML = '';
+  let hasItems = false; let dupCount = 0;
+  shopItems.forEach(item => {
+    const count = state.inventory[item.id] || 0;
+    if(count > 0){
+      hasItems = true; const el = document.createElement('div');
+      el.className = `item-card owned`; el.style.setProperty('--rarity-c', item.color);
+      el.innerHTML = `<div class="item-count">x${count}</div><div class="item-img-box"><div class="case-icon">${item.icon}</div></div><div class="item-name">${item.name}</div><div class="item-sub">${item.desc}</div><button class="item-btn" data-action="open" data-id="${item.id}">ОТКРЫТЬ</button>`;
+      grid.appendChild(el);
+    }
+  });
+  phones.forEach(phone => {
+    const count = state.collection[phone.id] || 0;
+    if(count > 0){
+      hasItems = true; if(count > 1) dupCount += (count - 1);
+      const r = rarities[phone.rarity]; const sellPrice = Math.floor(r.reward * 0.5 * (1 + state.upgrades.coin * upgrades[0].effect / 100));
+      const el = document.createElement('div');
+      el.className = `item-card owned r-${phone.rarity}`; el.style.setProperty('--rarity-c', r.color);
+      el.innerHTML = `<div class="item-count">x${count}</div><div class="item-img-box" data-action="info" data-id="${phone.id}"><img src="${phone.img}" alt="${phone.name}"></div><div class="item-name" data-action="info" data-id="${phone.id}">${phone.name}</div><div class="item-sub">${r.name}</div><button class="item-btn sell" data-action="sell-phone" data-id="${phone.id}">ПРОДАТЬ +${sellPrice}</button>`;
+      grid.appendChild(el);
+    }
+  });
+  const sellDupBtn = document.getElementById('sell-dup-btn');
+  if(dupCount > 0) { sellDupBtn.disabled = false; sellDupBtn.textContent = `Продать дубликаты (${dupCount})`; } 
+  else { sellDupBtn.disabled = true; sellDupBtn.textContent = `Нет дубликатов`; }
+  if(!hasItems){ grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--fg-muted);font-size:13px;">Инвентарь пуст. Открывай телефоны или покупай кейсы в магазине.</div>'; }
+  grid.querySelectorAll('[data-action]').forEach(btn => { btn.addEventListener('click', (e) => { const action = e.currentTarget.dataset.action; const id = e.currentTarget.dataset.id; if(action === 'open') openCase(id); if(action === 'sell-phone') sellPhone(id); if(action === 'info') showPhoneInfo(id); }); });
+}
+document.getElementById('sell-dup-btn').addEventListener('click', () => {
+  let totalEarned = 0; let soldCount = 0;
+  for(const id in state.collection) {
+    if(state.collection[id] > 1) {
+      const phone = phones.find(p => p.id == id); const r = rarities[phone.rarity];
+      const duplicates = state.collection[id] - 1;
+      const sellPrice = Math.floor(r.reward * 0.5 * (1 + state.upgrades.coin * upgrades[0].effect / 100));
+      totalEarned += sellPrice * duplicates; soldCount += duplicates; state.collection[id] = 1;
+    }
+  }
+  if(soldCount > 0) { state.coins += totalEarned; state.totalCoins += totalEarned; saveState(); renderHeader(); renderInventory(); renderIndex(); showToast(`Продано дубликатов: ${soldCount} (+${totalEarned} монет)`, 'gold'); playClick(); }
+});
+
+function renderShop(){
+  const grid = document.getElementById('shop-grid'); grid.innerHTML = '';
+  shopItems.forEach(item => {
+    const canBuy = state.coins >= item.price; const el = document.createElement('div');
+    el.className = `item-card r-${item.id.includes('std')?'rare':item.id.includes('prem')?'epic':'secret'}`;
+    el.style.setProperty('--rarity-c', item.color);
+    el.innerHTML = `<div class="item-img-box"><div class="case-icon">${item.icon}</div></div><div class="item-name">${item.name}</div><div class="item-sub">${item.desc}</div><button class="item-btn buy" data-id="${item.id}" ${!canBuy?'disabled':''}>КУПИТЬ · ${item.price} монет</button>`;
+    grid.appendChild(el);
+  });
+  grid.querySelectorAll('.item-btn').forEach(btn => { btn.addEventListener('click', () => buyCase(btn.dataset.id)); });
+}
+function renderUpgrades(){
+  const grid = document.getElementById('upg-grid'); grid.innerHTML = '';
+  upgrades.forEach(u=>{
+    const lvl = state.upgrades[u.id] || 0; const cost = Math.floor(u.baseCost * Math.pow(u.costMul, lvl));
+    const maxed = lvl >= u.maxLevel; const canBuy = !maxed && state.coins >= cost;
+    const card = document.createElement('div'); card.className = 'upg-card';
+    card.innerHTML = `<div class="upg-head"><div><div class="upg-name">${u.name}</div><div class="upg-desc">${u.desc}</div></div><div class="upg-level">${lvl}/${u.maxLevel}</div></div><div class="upg-progress"><div class="upg-progress-fill" style="width:${lvl/u.maxLevel*100}%"></div></div><button class="item-btn buy" data-id="${u.id}" ${!canBuy?'disabled':''}>${maxed ? 'МАКС' : `${cost} монет`}</button>`;
+    grid.appendChild(card);
+  });
+  grid.querySelectorAll('.item-btn').forEach(btn=>{ btn.addEventListener('click', ()=>{ const id = btn.dataset.id; const u = upgrades.find(x=>x.id===id); const lvl = state.upgrades[id] || 0; const cost = Math.floor(u.baseCost * Math.pow(u.costMul, lvl)); if(state.coins >= cost && lvl < u.maxLevel){ state.coins -= cost; state.upgrades[id]++; saveState(); renderHeader(); renderUpgrades(); playClick(); showToast(`Улучшено: ${u.name}`, 'success'); } }); });
+}
+
+// ===== ACTIONS =====
+async function executeRoll(source, caseData){
+  if(rolling) return; rolling = true; document.getElementById('roll-btn-free').disabled = true;
+  playClick();
+  const phone = source === 'free' ? rollPhone('free') : rollPhone('case', caseData.pool);
+  await animateShuffle(source, caseData ? caseData.pool : null);
+  const isNew = addPhoneToCollection(phone);
+  renderResult(phone, isNew, source); triggerEffects(phone);
+}
+function buyCase(id){
+  const item = shopItems.find(x => x.id === id);
+  if(state.coins >= item.price){ state.coins -= item.price; state.inventory[id] = (state.inventory[id] || 0) + 1; saveState(); renderHeader(); renderShop(); renderInventory(); playClick(); showToast(`Куплен: ${item.name}`, 'gold'); }
+  else { showToast('Не хватает монет!', 'error'); }
+}
+function openCase(id) {
+  if(rolling) return; const item = shopItems.find(x => x.id === id);
+  if(state.inventory[id] > 0){ state.inventory[id]--; saveState(); renderInventory(); closeMenu(); executeRoll('case', item); }
+}
+function sellPhone(id){
+  if(state.collection[id] > 0){
+    const phone = phones.find(p => p.id == id); const r = rarities[phone.rarity];
+    const sellPrice = Math.floor(r.reward * 0.5 * (1 + state.upgrades.coin * upgrades[0].effect / 100));
+    state.collection[id]--; if(state.collection[id] <= 0) delete state.collection[id];
+    state.coins += sellPrice; state.totalCoins += sellPrice;
+    saveState(); renderHeader(); renderInventory(); renderIndex(); showToast(`Продано за ${sellPrice} монет`, 'gold');
+  }
+}
+
+document.getElementById('roll-btn-free').addEventListener('click', ()=>{ getAudio(); executeRoll('free'); });
+document.querySelectorAll('.tab').forEach(tab=>{ tab.addEventListener('click', ()=>{ document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active')); document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active')); tab.classList.add('active'); document.getElementById('tab-'+tab.dataset.tab).classList.add('active'); }); });
+
+loadState(); renderHeader(); renderInventory(); renderShop(); renderIndexFilters(); renderIndex(); renderUpgrades();
+</script>
+</body>
   </html>
